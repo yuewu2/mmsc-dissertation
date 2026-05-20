@@ -1,0 +1,52 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xparse}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\titleformat{\section}{\large\bfseries}{}{0pt}{}
+\titleformat{\subsection}{\normalsize\bfseries}{}{0pt}{}
+
+
+\NewDocumentCommand{\meet}{m o m o}{%
+\subsection*{#1}
+% \textbf{Progress:} #2
+\IfNoValueF{#2}{\textbf{Progress:} #2}
+
+\textbf{Next Steps:} #3
+
+\IfNoValueF{#4}{\textbf{Notes:} #4}
+}
+
+
+\begin{document}
+
+\textbf{Project:} Automated Parallel Goal-Based Adaptivity\\
+\textbf{Student:} Yue Wu\\
+\textbf{Supervisor:} Prof. Patrick Farrell\\
+
+
+
+\section*{Meeting Log}
+
+\meet
+{Meeting on 2026-05-14}
+{Working on the 2D heat equation example.
+}
+[DG0 in time.]
+% [
+% \begin{itemize}
+%     \item DG0 in time.
+% \end{itemize}
+% ]
+
+
+
+\end{document}
