@@ -22,6 +22,14 @@
 \newcommand{\Vhe}{V_h^{(2)}}
 \newcommand{\inner}[2]{\langle #1, #2 \rangle}
 
+\definecolor{seabornblue}{rgb}{0.2980392156862745, 0.4470588235294118, 0.6901960784313725}
+\definecolor{seaborngreen}{rgb}{0.3333333333333333, 0.6588235294117647, 0.40784313725490196}
+\definecolor{seabornred}{rgb}{0.7686274509803922, 0.3058823529411765, 0.3215686274509804}
+\definecolor{seabornpurple}{rgb}{0.5058823529411764, 0.4470588235294118, 0.6980392156862745}
+\definecolor{seabornsand}{rgb}{0.8, 0.7254901960784313, 0.4549019607843137}
+\definecolor{seaborncyan}{rgb}{0.39215686274509803, 0.7098039215686275, 0.803921568627451}
+\definecolor{seabornorange}{rgb}{0.958, 0.476, 0.206}
+
 % block styles
 \setbeamertemplate{blocks}[rounded][shadow=false]
 
@@ -386,6 +394,13 @@ A DWR-driven adaptive workflow is:
 
 \node[box] (solve) {\textbf{1. SOLVE}\\ primal and adjoint problems};
 \node[box, right=1.35cm of solve] (estimate) {\textbf{2. ESTIMATE}\\ local error indicators $\eta_{K,n}$};
+\only<1>{
+\node[draw=white, very thick, rounded corners=4pt, fit=(estimate), inner sep=5pt] {};
+}
+\only<2>{
+\node[draw=seabornred, very thick, rounded corners=4pt, fit=(estimate), inner sep=5pt] {};
+}
+\node[below=3mm of estimate, xshift=-0mm] {\textcolor<1>{white}{\textcolor<2>{seabornred}{challenge}}};
 \node[box, right=1.35cm of estimate] (mark) {\textbf{3. MARK}\\ elements $K$ and time intervals $I_n$};
 
 \node[box, below=1.8cm of mark] (refine) {\textbf{4. REFINE}\\ mesh / time step};
@@ -400,11 +415,6 @@ A DWR-driven adaptive workflow is:
 {if $|\eta| = |\sum_K \sum_n \eta_{K,n}| > \mathrm{TOL}$, continue iterating};
 
 
-% challenge!!
-\only<2->{
-    \node[draw=red, very thick, rounded corners=4pt, fit=(mark), inner sep=5pt] {};
-    \node[red, below=3mm of mark, xshift=-9mm] {challenge};
-}
 
 \end{tikzpicture}
 \end{center}
