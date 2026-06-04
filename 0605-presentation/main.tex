@@ -84,6 +84,7 @@
 \begin{frame}{Motivation}
 
 In many PDE problems, we do not need the full solution everywhere in space and time.
+\vspace{0.3em}
 
 \pause
 \bigskip
@@ -96,6 +97,7 @@ We care about a specific \textbf{quantity of interest}:
 \bigskip
 
 The quantity of interest \textbf{encodes why we do the simulation}.
+
 \end{frame}
 
 
@@ -105,7 +107,7 @@ The quantity of interest \textbf{encodes why we do the simulation}.
 \begin{overlayarea}{\textwidth}{10cm}
 
 \only<1>{
-\begin{exampleblock}{Example: fusion reactor}
+\begin{exampleblock}{Example: fission reactor}
     \small
     Find $\phi \in V$ and $k_{\mathrm{eff}} \in \mathbb{R}$ such that
     \[
@@ -116,9 +118,9 @@ The quantity of interest \textbf{encodes why we do the simulation}.
         J(\phi) = (k_{\mathrm{eff}}-1)^2.
     \]
 \end{exampleblock}
-\vspace{0.5em}
+\vspace{0.1em}
 \centering
-\includegraphics[height=3cm]{fusion-reactor.png}
+\includegraphics[height=3.5cm]{fission-reactor.png}
 }
 
 \only<2>{
@@ -126,11 +128,12 @@ The quantity of interest \textbf{encodes why we do the simulation}.
     \small
     Let $(u,p)$ solve the incompressible Navier--Stokes equations in $\Omega$:
     \[
-        -\nu \Delta u + (u\cdot\nabla)u + \nabla p = f,
+        -\nabla\cdot(\nu D(u)) + (u\cdot\nabla)u + \nabla p = f,
         \qquad
-        \nabla\cdot u = 0.
+        \nabla\cdot u = 0,
     \]
-    \vspace{-0.5em}
+    where $D(u) = \tfrac{1}{2}(\nabla u + \nabla u^\top)$.
+    \vspace{-0.3em}
     A natural goal functional is the drag force:
     \[
         J(u,p)
@@ -140,7 +143,7 @@ The quantity of interest \textbf{encodes why we do the simulation}.
     \]
 \end{exampleblock}
 
-\vspace{0.4em}
+\vspace{0.2em}
 \centering
 \includegraphics[height=2.5cm]{flow-past-wing.jpg}
 }
@@ -153,6 +156,7 @@ The quantity of interest \textbf{encodes why we do the simulation}.
 % --- Problem Formulation ---
 \section{Problem Formulation}
 \begin{frame}{Problem Formulation}
+% \small
 \textbf{Primal problem.} Find the exact solution $u \in V$ such that 
 % \vspace{-0.5em}
 $$\mathcal{A}(u)(v) = 0 \quad \forall v \in V.$$
@@ -229,17 +233,8 @@ and drive adaptivity so that it stays below a prescribed tolerance $\eta < $ TOL
     \end{column}
 
     \begin{column}{0.20\textwidth}
+    \vspace{3.3em}
         \centering
-
-        \only<2->{
-        \includegraphics[width=\linewidth]{Roland-Becker.png}
-
-        \vspace{0.2em}
-        {\scriptsize Roland Becker}
-        }
-
-        \vspace{1.0em}
-
         \only<2->{
         \includegraphics[width=\linewidth]{Rolf-Rannacher.jpeg}
 
@@ -420,11 +415,48 @@ A DWR-driven adaptive workflow is:
 {if $|\eta| = |\sum_K \sum_n \eta_{K,n}| > \mathrm{TOL}$, continue iterating};
 
 
-
 \end{tikzpicture}
 \end{center}
 
 \end{frame}
+
+
+
+% --- Localisation ---
+\begin{frame}[t]{Localisation of Error Indicators}
+
+% \small
+\textbf{Global estimator.}
+\[
+\eta \approx \rho(u_h)\bigl(z_h^{(2)}-z_h\bigr).
+\]
+
+This estimates the \emph{total} goal error, but does not indicate
+where refinement is needed.
+
+\vspace{0.8em}
+\pause
+
+\textbf{Stationary implementation.}
+\[
+\eta \approx \sum_{K\in\mathcal T_h}\eta_K .
+\]
+
+Local indicators $\eta_K$ are obtained from residual contributions on
+cells and facets, and are used to mark cells for refinement.
+
+\vspace{0.8em}
+\pause
+
+\textbf{Time-dependent problems.}
+\[
+\eta \approx \sum_n \sum_{K\in\mathcal T_h}\eta_{K,n}.
+\]
+
+
+\end{frame}
+
+
 
 
 
