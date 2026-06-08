@@ -28,13 +28,49 @@
 
 \begin{document}
 
+\section*{Meeting Log}
+
+
 \textbf{Project:} Automated Parallel Goal-Based Adaptivity\\
 \textbf{Student:} Yue Wu\\
 \textbf{Supervisor:} Prof. Patrick Farrell\\
 
 
 
-\section*{Meeting Log}
+\meet
+{Meeting on 2026-06-03}
+[Preparation for the presentation.]
+{Presentation and slide design strategies:
+\begin{itemize}
+    \item Use motivating examples whenever possible.
+    \item Use pauses and overlays to improve the flow of the presentation.
+    \item For theory-heavy slides, consider allocating a small column (e.g. 20\%) for photographs of key researchers.
+    \item Use colour coding to distinguish positive and negative results.
+\end{itemize}
+}
+[\begin{itemize}
+    \item Clarified the central role of the dual problem and localisation of the error representation.
+    \item The enrichment strategy should use $p$-enrichment for space.
+    \item Discussed theoretical concepts such as the saturation assumption and enrichment indices, which are not entirely satisfactory from a theoretical perspective. DWR methods often perform significantly better in practice than their current theoretical guarantees suggest, similar to GMRES and Newton's method.
+\end{itemize}]
+\vspace{1.5em}
+
+
+
+\meet
+{Meeting on 2026-05-28}
+[Code implementation for global error estimation.]
+{Preparation for the dissertation presentation.}
+[\begin{itemize}
+    \item Challenges in the stationary case: derivation of the adjoint problem, and obtaining the strong form through localization.
+    \item Main project focus: localisation of the error representation, and adaptive balancing of spatial and temporal errors.
+    \item Time discretization in the code: DG(0) versus backward Euler.
+    \item Verification of the adjoint implementation using https://www.dolfin-adjoint.org/en/latest/. (Correctness can be assessed through derivative convergence tests, which should exhibit better than first-order convergence.)
+    \item Investigated whether temporal enrichment may also be required when using enriched spatial spaces.
+\end{itemize}
+]
+\vspace{1.5em}
+
 
 
 \meet
@@ -44,6 +80,7 @@ weak formulation $\rightarrow$ space-time finite elements $\rightarrow$ goal fun
 {Code implementation: 2D heat equation example.
 Compare the error in $J$ with the known exact solution.}
 [choice of goal functional (time regularity)]
+\vspace{1.5em}
 
 
 
