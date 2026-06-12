@@ -38,6 +38,20 @@
 
 
 \meet
+{Meeting on 2026-06-11}
+[Reviewing the literature and comparing different strategies.]
+{Implement the complete workflow using the heat equation.}
+[\begin{itemize}
+    \item For now, do not consider iteration error (keep everything simple at the manual derivation stage).
+    \item Interpolation-based local higher-order approximations was previously constructed due to computational performance constraints. Now enrichment can be used directly at relatively low cost.
+    \item Operations such as integration by parts, which require symbolic manipulation, should be avoided in the automated workflow.
+    \item[*] In the previous stationary case, the geometry error issue was resolved by formulating the problem at the PDE level as a mixed formulation, including the mapping of the domain. (Similar to the eigenvalue problem, the key is to start from a good variational formulation.)
+\end{itemize}]
+\vspace{1.5em}
+
+
+
+\meet
 {Meeting on 2026-06-03}
 [Preparation for the presentation.]
 {Presentation and slide design strategies:
