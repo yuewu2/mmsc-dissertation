@@ -1,0 +1,426 @@
+\chapter{Mathematical and Computational Background}
+\label{chap:background}
+
+
+\section{Adaptive Finite Element Methods}
+\label{sec:background-afem}
+
+Let \(U\) and \(V\) be suitable trial and test spaces, and let \(\mathcal{A}:U\rightarrow V^\ast\) denote the weak residual operator associated with the problem. The continuous problem is written as
+\begin{equation}
+  \mathcal{A}(u)(v)=0
+  \qquad\text{for all }v\in V.
+  \label{eq:abstract-primal}
+\end{equation}
+For finite-dimensional spaces \(U_h\subset U\) and \(V_h\subset V\), a Galerkin approximation \(u_h\in U_h\) satisfies
+\begin{equation}
+  \mathcal{A}(u_h)(v_h)=0
+  \qquad\text{for all }v_h\in V_h.
+  \label{eq:abstract-discrete-primal}
+\end{equation}
+
+% An a posteriori error estimator is evaluated from the computed approximation and the problem data to estimate an otherwise unknown measure of discretisation error. Norm-oriented adaptive finite element methods typically seek to reduce a prescribed norm of the state error \(u-u_h\), often using residual estimators, including equilibrated-flux variants, recovery estimators, or hierarchical estimators \cite{Ainsworth_Oden_1997,Eriksson_Estep_Hansbo_Johnson_1995}. Their local contributions provide the information required to update the discretisation. 
+Adaptive computations are commonly organised in a \textsc{Solve--Estimate--Mark--Refine} loop \cite{ENDTMAYER202419}:
+\begin{enumerate}
+  \item \textsc{Solve}: compute the discrete state on the current space--time discretisation.
+  \item \textsc{Estimate}: evaluate a global error estimator and local error information.
+  \item \textsc{Mark}: select spatial cells, time intervals, or both for refinement.
+  \item \textsc{Refine}: update the discretisation and repeat until the prescribed error tolerance is met.
+\end{enumerate}
+The dual-weighted residual (DWR) method, developed in the remainder of this chapter, supplies a goal-oriented realisation of the \textsc{Estimate} step. How the resulting global number is broken down into per-cell and per-time-step contributions is discussed in Section~\ref{sec:background-localisation}.
+
+
+\section{Quantities of Interest and Goal Errors}
+\label{sec:background-qoi}
+
+% check chapter 1
+A quantity of interest is a functional \(J:U\rightarrow\mathbb{R}\), and the corresponding goal error is
+\begin{equation}
+  e_J=J(u)-J(u_h).
+  \label{eq:background-goal-error}
+\end{equation}
+The functional may be linear or nonlinear and may depend on the solution in the domain, on its boundary, or at selected times. For example, for a fission-reactor eigenvalue problem, let the state be \(u=(\phi,k_{\mathrm{eff}})\), where \(\phi\) is the neutron flux and \(k_{\mathrm{eff}}\) is the effective multiplication factor. A goal functional measuring the deviation from criticality is
+\begin{equation}
+  J_{\mathrm{reactor}}(u)
+  =
+  \bigl(k_{\mathrm{eff}}-1\bigr)^2.
+  \label{eq:background-reactor-functional}
+\end{equation}
+For flow past a wing, let \(u=(\boldsymbol{u},p)\) denote the velocity and pressure, respectively. The drag in the streamwise direction \(\boldsymbol{e}_x\) is the boundary functional
+\begin{equation}
+  J_{\mathrm{drag}}(u)
+  =
+  \int_{\Gamma_{\mathrm{wing}}}
+  \boldsymbol{\sigma}(\boldsymbol{u},p)\boldsymbol{n}
+  \cdot\boldsymbol{e}_x\,\mathrm{d}s,
+  \label{eq:background-drag-functional}
+\end{equation}
+where \(\boldsymbol{\sigma}\) is the Cauchy stress tensor and \(\boldsymbol{n}\) is the outward unit normal.
+
+The adjoint problem is determined by the chosen functional \(J\). Consequently, even for a fixed primal PDE, different quantities of interest generally yield different dual weights and may therefore lead to different local refinement indicators and discretisations.
+
+
+\section{The Dual-Weighted Residual Method}
+\label{sec:background-dwr}
+
+\subsection{The Exact Identity for a Linear Problem}
+\label{subsec:linear-dwr}
+
+Consider a bilinear form \(a:U\times V\rightarrow\mathbb{R}\) and a linear functional \(\ell\in V^\ast\). The primal problem is
+\begin{equation}
+  a(u,v)=\ell(v)
+  \qquad\text{for all }v\in V,
+  \label{eq:linear-primal}
+\end{equation}
+with conforming Galerkin approximation \(u_h\in U_h\),
+\begin{equation}
+  a(u_h,v_h)=\ell(v_h)
+  \qquad\text{for all }v_h\in V_h.
+  \label{eq:linear-discrete-primal}
+\end{equation}
+For a linear functional \(J:U\rightarrow\mathbb{R}\), let \(z\in V\) solve
+\begin{equation}
+  a(w,z)=J(w)
+  \qquad\text{for all }w\in U,
+  \label{eq:linear-adjoint}
+\end{equation}
+and define the primal residual \(\rho(u_h)\in V^\ast\) by
+\begin{equation}
+  \rho(u_h)(v)=\ell(v)-a(u_h,v).
+  \label{eq:linear-residual}
+\end{equation}
+
+Writing \(e=u-u_h\) and using \eqref{eq:linear-primal} and \eqref{eq:linear-adjoint} gives
+\begin{equation}
+  J(u)-J(u_h)
+  =
+  J(e)
+  =
+  a(e,z)
+  =
+  \rho(u_h)(z).
+  \label{eq:linear-dwr-first}
+\end{equation}
+Galerkin orthogonality, \(\rho(u_h)(v_h)=0\) for every \(v_h\in V_h\), then gives the following exact representation \cite{ENDTMAYER202419}.
+
+\begin{proposition}[Exact goal-error identity]
+\label{prop:linear-dwr}
+Let \(u\in U\) solve \eqref{eq:linear-primal} and \(u_h\in U_h\) solve \eqref{eq:linear-discrete-primal}, with dual solution \(z\) defined by \eqref{eq:linear-adjoint}. Then for every \(\varphi_h\in V_h\),
+\begin{equation}
+  J(u)-J(u_h)
+  =
+  \rho(u_h)(z-\varphi_h).
+  \label{eq:linear-dwr-exact}
+\end{equation}
+\end{proposition}
+
+The residual \(\rho(u_h)\) measures the defect of the discrete primal solution in the continuous variational problem. The factor \(z-\varphi_h\) is a dual weight which represents the QoI sensitivity not captured by the chosen discrete function \(\varphi_h\). Galerkin orthogonality removes every component of the dual solution lying in \(V_h\); hence only this weighted residual contributes to the goal error.
+
+
+\subsection{A General Error Representation}
+\label{subsec:nonlinear-dwr}
+
+For the problem~\eqref{eq:abstract-primal}, define the Lagrangian
+\begin{equation}
+  \mathcal{L}(u,z)
+  =
+  J(u)-\mathcal{A}(u)(z).
+  \label{eq:dwr-lagrangian}
+\end{equation}
+The associated dual solution \(z\in V\) satisfies
+\begin{equation}
+  \mathcal{A}'_u(u)(w,z)=J'(u)(w)
+  \qquad\text{for all }w\in U.
+  \label{eq:nonlinear-adjoint}
+\end{equation}
+Consequently, the exact primal--dual pair \(x=(u,z)\) is a stationary point of \(\mathcal{L}\). For an approximation \(\widetilde{x}=(\widetilde{u},\widetilde{z})\), define
+\begin{align}
+  \rho(\widetilde{u})(\cdot)
+  &:=
+  -\mathcal{A}(\widetilde{u})(\cdot),
+  \label{eq:nonlinear-primal-residual}\\
+  \rho^\ast(\widetilde{u},\widetilde{z})(\cdot)
+  &:=
+  J'(\widetilde{u})(\cdot)
+  -
+  \mathcal{A}'_u(\widetilde{u})
+  (\cdot,\widetilde{z}).
+  \label{eq:nonlinear-adjoint-residual}
+\end{align}
+
+\begin{theorem}[Becker--Rannacher \cite{Becker_Rannacher_2001}]
+\label{thm:becker-rannacher}
+Assume that \(\mathcal{A}\in C^3(U,V^\ast)\) and
+\(J\in C^3(U,\mathbb{R})\). For any approximation
+\(\widetilde{x}=(\widetilde{u},\widetilde{z})\in U\times V\),
+\begin{align}
+  J(u)-J(\widetilde{u})
+  =
+  \frac{1}{2}\rho(\widetilde{u})(z-\widetilde{z})
+  +
+  \frac{1}{2}
+  \rho^\ast(\widetilde{u},\widetilde{z})
+  (u-\widetilde{u})
+  +
+  \rho(\widetilde{u})(\widetilde{z})
+  +
+  \mathcal{R}^{(3)}.
+  \label{eq:nonlinear-dwr-identity}
+\end{align}
+\end{theorem}
+
+Here, \(\mathcal{R}^{(3)}\) is a remainder that is cubic in the primal and dual errors and involves third derivatives of the Lagrangian along the segment joining \(\widetilde{x}\) and \(x\).
+
+The correction term \(\rho(\widetilde{u})(\widetilde{z})\) vanishes when \(\widetilde{u}=u_h\) is the Galerkin solution and \(\widetilde{z}\in V_h\). If \(\mathcal{A}\) is affine and \(J\) is linear, then \(\mathcal{R}^{(3)}=0\). Taking \(\widetilde{u}=u_h\) and \(\widetilde{z}=\varphi_h\in V_h\), the two half-residual terms coincide, and the general identity recovers Proposition~\ref{prop:linear-dwr}.
+
+
+\section{Computable Estimators and Effectivity}
+\label{sec:background-effectivity}
+
+Both identities above are exact but not directly computable because the exact dual solution \(z\) is unknown. In practice, the dual problem is solved in an enriched space \(V_h^+\), producing an approximation \(z_h^+\) that is expected to be more accurate than an approximation in \(V_h\). Such enrichment may be obtained by increasing the polynomial degree, refining the mesh, or reconstructing a higher-order solution in time \cite{Becker_Rannacher_2001}. A systematic treatment of this assumption, together with the reliability theory it supports, is given in \cite{ENDTMAYER202419}.
+
+Let \(z_h\in V_h\) denote the numerical solution of the discrete dual problem on the current discretisation, and let \(z_h^+\in V_h^+\) be the corresponding dual solution computed in an enriched space \(V_h^+\supset V_h\). For a linear problem, a computable DWR estimator is
+\begin{equation}
+  \eta
+  =
+  \rho(u_h)(z_h^+-z_h).
+  \label{eq:computable-dwr-two-solves}
+\end{equation}
+
+When a sufficiently accurate reference value for \(J(u)\) is available, the effectivity index is defined by
+\begin{equation}
+  I_{\mathrm{eff}}
+  =
+  \frac{\eta}{J(u)-J(u_h)}.
+  \label{eq:signed-effectivity}
+\end{equation}
+An asymptotically accurate estimator has
+\(I_{\mathrm{eff}}\to 1\) under refinement.
+
+
+\section{Localisation Strategies}
+\label{sec:background-localisation}
+
+Effectivity assesses the accuracy of the estimator at the global level. Localisation decomposes \(\eta\) into contributions associated with spatial cells, temporal intervals, or their interfaces. Two widely used representations of DWR localisation are strong-residual localisation and variational partition-of-unity (PU) localisation.
+
+Strong-residual localisation is the classical route for converting a DWR residual representation into local refinement information. The weak residual is integrated by parts elementwise, producing volume residuals together with facet and boundary contributions. For time-dependent problems, the resulting representation additionally contains terms associated with the temporal discretisation, including interface jumps for discontinuous Galerkin methods in time \cite{Becker_Rannacher_2001,Bangerth_Rannacher_2003,Schmich_Vexler_2008}. 
+% need to update reference here!!
+
+Automatic construction of strong-residual representations has been demonstrated for stationary variational problems by \cite{Rognes_Logg_2013}. Their approach derives cell and facet residuals from the variational formulation through auxiliary local problems. For time-dependent problems, the corresponding construction must additionally account for the temporal terms induced by the chosen fully discrete formulation.
+
+As for PU localisation, it decomposes the DWR residual directly in its weak form by means of locally supported partition-of-unity functions. It therefore avoids the explicit construction of strong residuals, facet flux jumps, and elementwise integrations by parts \cite{Richter_Wick_2015}. The PU approach has been extended to space--time DWR estimators for parabolic problems and provided a basis for single- and multi-goal error control \cite{ENDTMAYER202419}. 
+
+These two approaches localise the same global DWR estimator but retain different representations of the residual. This dissertation pursues the strong-residual route and investigates its automated derivation for the time-dependent discretisations.
+
+
+\section{A Goal-Oriented Adaptive Workflow for the Heat Equation}
+\label{sec:background-heat-workflow}
+
+The preceding sections describe the ingredients of goal-oriented adaptation in abstract form. This section combines them in a manufactured 2D heat-equation example.
+
+
+\subsection{Model Problem and Quantity of Interest}
+\label{subsec:heat-model-qoi}
+
+Let \(\Omega=(0,1)^2\), \(T=0.5\), and \(\kappa=1\). We consider
+\begin{equation}
+  \partial_t u-\kappa\Delta u=f
+  \quad\text{in }\Omega\times(0,T],
+  \qquad
+  u=0\quad\text{on }\partial\Omega\times(0,T],
+  \label{eq:heat-workflow-primal}
+\end{equation}
+with initial condition \(u(\cdot,0)=\sin(\pi x)\sin(\pi y)\).  The right-hand side is chosen so that
+\begin{equation}
+  u(x,y,t)=\mathrm{e}^{-t}\sin(\pi x)\sin(\pi y),
+  \qquad
+  f(x,y,t)=(2\kappa\pi^2-1)\mathrm{e}^{-t}
+  \sin(\pi x)\sin(\pi y).
+  \label{eq:heat-workflow-exact-solution}
+\end{equation}
+The quantity of interest is the terminal average, without normalisation, over the observation box \(\omega=(1/4,3/4)^2\):
+\begin{equation}
+  J(u)=\int_{\omega}u(x,T)\,\mathrm{d}x.
+  \label{eq:heat-workflow-qoi}
+\end{equation}
+% For the manufactured solution,
+% \begin{equation}
+%   J(u)=\frac{2\mathrm{e}^{-T}}{\pi^2}.
+%   \label{eq:heat-workflow-exact-goal}
+% \end{equation}
+
+The initial mesh is fitted to the boundary of
+\(\omega\), so that the geometry of the observation region does not introduce an additional quadrature or cut-cell error.
+
+The continuous adjoint associated with \eqref{eq:heat-workflow-qoi} has the formal form
+\begin{equation}
+  -\partial_t z-\kappa\Delta z=0,
+  \qquad
+  z=0\quad\text{on }\partial\Omega\times(0,T],
+  \qquad
+  z(\cdot,T)=\chi_{\omega}.
+  \label{eq:heat-workflow-adjoint}
+\end{equation}
+Thus, the terminal observation region determines the terminal adjoint data and the adjoint transports its sensitivity backwards in time.
+
+
+\subsection{Discrete DWR Workflow}
+\label{subsec:heat-discrete-workflow}
+
+The accompanying implementation uses continuous piecewise linear finite elements in space and a discontinuous Galerkin method of degree zero in time for the primal solve, denoted by \(U_{kh}\in\mathrm{CG}(1)\otimes\mathrm{dG}(0)\). The fully discrete primal and adjoint equations are assembled with \texttt{Firedrake} and \texttt{Irksome}. The numerical dual \(Z_{kh}\) is computed on the same \(\mathrm{CG}(1)\otimes\mathrm{dG}(0)\) discretisation, whereas the enriched dual \(Z_{kh}^{+}\) is computed in \(\mathrm{CG}(2)\otimes\mathrm{dG}(1)\). The computable dual weight is therefore
+\begin{equation}
+  Z^{\star}=Z_{kh}^{+}-Z_{kh}.
+  \label{eq:heat-workflow-dual-weight}
+\end{equation}
+
+For this linear problem, the signed estimator is obtained by evaluating the fully discrete primal residual at \(Z^{\star}\). With \(I_n=(t_{n-1},t_n]\), it is
+\begin{align}
+  \eta
+  ={}&
+  \sum_{n=1}^{N}\int_{I_n}
+  \Bigl[
+    (f,Z^{\star})
+    -(\partial_t U_{kh},Z^{\star})
+    -\bigl(\kappa\nabla U_{kh},\nabla Z^{\star}\bigr)
+  \Bigr]\,\mathrm{d}t
+  \notag\\
+  &-
+  \sum_{n=1}^{N}
+  \bigl([U_{kh}]_{n-1},Z^{\star}(t_{n-1}^{+})\bigr).
+  \label{eq:heat-workflow-dwr-estimator}
+\end{align}
+Here \([U_{kh}]_0=U_{kh}(0^+)-u_0\). The scalar \(\eta\) assesses the terminal goal error but does not itself specify where to adapt. To localise this expression, let \(\mathcal{E}_h^{\mathrm{int}}\) and \(\mathcal{E}_h^{\partial}\) denote the sets of interior and boundary facets, respectively.  Elementwise integration by parts of the diffusion term gives the cell residual
+\begin{equation}
+  R_{K,n}=f-\partial_t U_{kh}+\nabla\!\cdot(\kappa\nabla U_{kh})
+  \quad\text{on }K\times I_n,
+  \label{eq:heat-workflow-cell-residual}
+\end{equation}
+and the facet residual
+\begin{equation}
+  R_{E,n}=
+  \begin{cases}
+    -[\![\kappa\nabla U_{kh}\cdot n_E]\!]_E,
+      & E\in\mathcal{E}_h^{\mathrm{int}},\\[2pt]
+    -\kappa\nabla U_{kh}\cdot n,
+      & E\in\mathcal{E}_h^{\partial}.
+  \end{cases}
+  \label{eq:heat-workflow-facet-residual}
+\end{equation}
+For an interior facet shared by \(K^+\) and \(K^-\), the jump is the sum of the outward normal fluxes,
+\begin{equation}
+  [\![\kappa\nabla U_{kh}\cdot n_E]\!]_E
+  =\kappa\nabla U_{kh}^{+}\cdot n_E
+  +\kappa\nabla U_{kh}^{-}\cdot(-n_E).
+  \label{eq:heat-workflow-flux-jump}
+\end{equation}
+Consequently, the weak expression \eqref{eq:heat-workflow-dwr-estimator} has the strong-residual form
+\begin{align}
+  \eta
+  ={}&
+  \sum_{n=1}^{N}
+  \biggl[
+    \sum_{K\in\mathcal{T}_h}
+    (R_{K,n},Z^{\star})_{K\times I_n}
+    +\sum_{E\in\mathcal{E}_h^{\mathrm{int}}}
+    (R_{E,n},Z^{\star})_{E\times I_n}
+    \notag\\
+  &\hspace{28mm}
+    +\sum_{E\in\mathcal{E}_h^{\partial}}
+    (R_{E,n},Z^{\star})_{E\times I_n}
+    -\sum_{K\in\mathcal{T}_h}
+    \bigl([U_{kh}]_{n-1},Z^{\star}(t_{n-1}^{+})\bigr)_K
+  \biggr].
+  \label{eq:heat-workflow-strong-localisation}
+\end{align}
+In the present homogeneous Dirichlet problem, \(Z^{\star}=0\) on \(\partial\Omega\), so the boundary-facet contribution in \eqref{eq:heat-workflow-strong-localisation} vanishes. It is retained in the representation because it is required for other boundary conditions. This cell--facet--time-interface decomposition is the standard strong-residual localisation of the parabolic DWR identity \cite{Becker_Rannacher_2001}.
+
+The individual terms in \eqref{eq:heat-workflow-strong-localisation} are signed and may cancel.  For marking, the implementation instead uses non-negative cell--slab scores. Distributing each interior-facet contribution equally between its adjacent cells, let \(r_{K,n}\) denote the resulting local facet residual.  A residual factor and a dual-weight factor are defined by
+% need to update some notations!!!!!!!!!!!
+\begin{align}
+  \rho_{K,n}^{\mathrm{st}}
+  &:=
+  \lVert R_{K,n}\rVert_{K\times I_n}
+  +h_K^{-1/2}\lVert r_{K,n}\rVert_{\partial K\times I_n},
+  &
+  \omega_{K,n}^{\mathrm{st}}
+  &:=
+  \lVert Z^{\star}\rVert_{K\times I_n}
+  +h_K^{1/2}\lVert Z^{\star}\rVert_{\partial K\times I_n},
+  \label{eq:heat-workflow-spatial-factors}\\
+  \rho_{K,n}^{\mathrm{j}}
+  &:=
+  k_n^{-1/2}\lVert[U_{kh}]_{n-1}\rVert_K,
+  &
+  \omega_{K,n}^{\mathrm{j}}
+  &:=
+  k_n^{1/2}\lVert Z^{\star}(t_{n-1}^{+})\rVert_K,
+  \label{eq:heat-workflow-temporal-factors}
+\end{align}
+where \(h_K\) is the cell diameter and \(k_n=|I_n|\). The marking score is
+\begin{equation}
+  m_{K,n}
+  =
+  \rho_{K,n}^{\mathrm{st}}\omega_{K,n}^{\mathrm{st}}
+  +\rho_{K,n}^{\mathrm{j}}\omega_{K,n}^{\mathrm{j}},
+  \qquad
+  \eta_K=\sum_{n=1}^{N}m_{K,n},
+  \qquad
+  \eta_n=\sum_{K\in\mathcal{T}_h}m_{K,n}.
+  \label{eq:heat-workflow-marking-scores}
+\end{equation}
+
+At each adaptive iteration, minimal D\"orfler sets \(\mathcal{M}_h\) and \(\mathcal{M}_k\) are selected such that
+\begin{equation}
+  \sum_{K\in\mathcal{M}_h}\eta_K
+  \geq \theta_h\sum_{K}\eta_K,
+  \qquad
+  \sum_{n\in\mathcal{M}_k}\eta_n
+  \geq \theta_k\sum_{n=1}^{N}\eta_n,
+  \label{eq:heat-workflow-dorfler}
+\end{equation}
+with \(\theta_h=0.2\) and \(\theta_k=0.6\). Marked temporal slabs are bisected and marked spatial cells are refined. Both sets are computed from the same iterate before either discretisation is changed. The resulting workflow is:
+\begin{enumerate}
+  \item solve the primal problem on the current mesh and time partition;
+  \item solve the numerical and enriched terminal adjoints;
+  \item evaluate the signed DWR estimator and the positive spatial and temporal scores;
+  \item mark slabs and cells by \eqref{eq:heat-workflow-dorfler}; and
+  \item bisect the marked slabs, refine the marked cells, and repeat.
+\end{enumerate}
+This is a concrete instance of the \textsc{Solve--Estimate--Mark--Refine} loop introduced in Section~\ref{sec:background-afem}.
+
+
+\subsection{Effectivity Test}
+\label{subsec:heat-effectivity-test}
+
+The exact goal value \eqref{eq:heat-workflow-dwr-estimator} permits the effectivity index
+\begin{equation}
+  I_{\mathrm{eff}}
+  =\frac{\eta}{J(u)-J(U_{kh})}
+  \label{eq:heat-workflow-effectivity}
+\end{equation}
+to be evaluated. Table~\ref{tab:heat-h-only-effectivity} reports the results by simultaneous adaptation of spatial and time discretization by the
+DWR method.
+
+\begin{center}
+  \small
+  \refstepcounter{table}\label{tab:heat-h-only-effectivity}
+  % use caption!!!!!!
+  \textbf{Table~\thetable.}\quad Effectivity indices under adaptation.\par\medskip
+  \begin{tabular}{ccccc}
+    \toprule
+    Iteration & Spatial DOFs & \(N_t\) & \(I_{\mathrm{eff}}\) \\
+    \midrule
+    0 &   83 &  8 & 1.3130 \\
+    1 &  102 & 10 & 1.0864 \\
+    2 &  146 & 14 & 1.1231 \\
+    3 &  216 & 20 & 1.0671 \\
+    4 &  338 & 29 & 1.0606 \\
+    5 &  519 & 43 & 1.0375 \\
+    6 &  754 & 65 & 1.0335 \\
+    7 & 1145 & 99 & 1.0296 \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
+For this manufactured problem, the estimator is close in magnitude to the goal error on the later discretisations. The heat equation supplies an explicit strong-residual decomposition and an analytically known reference value. In a general time-dependent variational problem neither is available in this form. The task is therefore to generate, from the stated variational formulation and its fully discrete time scheme, the corresponding volume, facet, boundary, and temporal-interface information needed by the same goal-oriented adaptive loop.
+
+

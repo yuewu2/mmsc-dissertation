@@ -1,0 +1,174 @@
+@article{Becker_Rannacher_2001, 
+title={An optimal control approach to a posteriori error estimation in finite element methods}, 
+volume={10}, 
+DOI={10.1017/S0962492901000010}, 
+journal={Acta Numerica}, 
+author={Becker, Roland and Rannacher, Rolf}, 
+year={2001}, 
+pages={1–102}} 
+
+
+@article{Ainsworth_Oden_1997,
+title = {A posteriori error estimation in finite element analysis},
+journal = {Computer Methods in Applied Mechanics and Engineering},
+volume = {142},
+number = {1},
+pages = {1-88},
+year = {1997},
+issn = {0045-7825},
+doi = {https://doi.org/10.1016/S0045-7825(96)01107-3},
+url = {https://www.sciencedirect.com/science/article/pii/S0045782596011073},
+author = {Mark Ainsworth and J.Tinsley Oden},
+abstract = {This monograph presents a summary account of the subject of a posteriori error estimation for finite element approximations of problems in mechanics. The study primarily focuses on methods for linear elliptic boundary value problems. However, error estimation for unsymmetrical systems, nonlinear problems, including the Navier-Stokes equations, and indefinite problems, such as represented by the Stokes problem are included. The main thrust is to obtain error estimators for the error measured in the energy norm, but techniques for other norms are also discussed.}
+}
+
+
+@article{Eriksson_Estep_Hansbo_Johnson_1995, 
+title={Introduction to Adaptive Methods for Differential Equations}, 
+volume={4}, 
+DOI={10.1017/S0962492900002531}, 
+journal={Acta Numerica}, 
+author={Eriksson, Kenneth and Estep, Don and Hansbo, Peter and Johnson, Claes}, 
+year={1995}, 
+pages={105–158}}
+
+
+% check this one
+@misc{Bangerth_Rannacher_2003,
+      title={Adaptive finite element methods for partial differential equations}, 
+      author={Rolf Rannacher},
+      year={2003},
+      eprint={math/0305006},
+      archivePrefix={arXiv},
+      primaryClass={math.NA},
+      url={https://arxiv.org/abs/math/0305006}, 
+}
+
+
+@incollection{ENDTMAYER202419,
+title = {Chapter Two - A posteriori single- and multi-goal error control and adaptivity for partial differential equations},
+editor = {Franz Chouly and Stéphane P.A. Bordas and Roland Becker and Pascal Omnes},
+series = {Advances in Applied Mechanics},
+publisher = {Elsevier},
+volume = {59},
+pages = {19-108},
+year = {2024},
+booktitle = {Error Control, Adaptive Discretizations, and Applications, Part 2},
+issn = {0065-2156},
+doi = {https://doi.org/10.1016/bs.aams.2024.08.003},
+url = {https://www.sciencedirect.com/science/article/pii/S0065215624000279},
+author = {Bernhard Endtmayer and Ulrich Langer and Thomas Richter and Andreas Schafelner and Thomas Wick},
+keywords = {Goal-oriented error control, Multi-goal error control, Adjoint problems, Dual-weighted residual method, Partial differential equations, Adaptive finite element methods},
+abstract = {This chapter reviews goal-oriented a posteriori error control, adaptivity and solver control for finite element approximations to boundary and initial-boundary value problems for stationary and non-stationary partial differential equations, respectively. In particular, coupled field problems with different physics may require simultaneously the accurate evaluation of several quantities of interest, which is achieved with multi-goal oriented error control. Sensitivity measures are obtained by solving an adjoint problem. Error localization is achieved with the help of a partition-of-unity. We also review and extend theoretical results for efficiency and reliability by employing a saturation assumption. The resulting adaptive algorithms allow to balance discretization and non-linear iteration errors, and are demonstrated for four applications: Poisson’s problem, non-linear elliptic boundary value problems, stationary incompressible Navier-Stokes equations, and regularized parabolic p-Laplace initial-boundary value problems. Therein, different finite element discretizations in two different software libraries are utilized, which are partially accompanied with open-source implementations on GitHub.}
+}
+
+
+@article{Becker_Rannacher_1996,
+author = {Becker, Roland and Rannacher, R.},
+year = {1996},
+month = {01},
+pages = {},
+title = {A feed-back approach to error control in finite element methods: Basic analysis and examples},
+volume = {4},
+journal = {East-West Journal of Numerical Mathematics}
+}
+
+
+
+
+
+
+
+
+@article{Schmich_Vexler_2008,
+author = {Schmich, Michael and Vexler, Boris},
+title = {Adaptivity with Dynamic Meshes for Space-Time Finite Element Discretizations of Parabolic Equations},
+journal = {SIAM Journal on Scientific Computing},
+volume = {30},
+number = {1},
+pages = {369-393},
+year = {2008},
+doi = {10.1137/060670468},
+URL = {https://doi.org/10.1137/060670468},
+eprint = {https://doi.org/10.1137/060670468},
+abstract = { In this paper, we develop an error estimator and an adaptive algorithm for efficient solution of parabolic partial differential equations. The error estimator assesses the discretization error with respect to a given quantity of physical interest and separates the influence of the time and space discretizations. This allows us to set up an efficient adaptive strategy producing economical (locally) refined meshes for each time step and an adapted time discretization. The space and time discretization errors are equilibrated, leading to an efficient method. }
+}
+
+
+@article{Richter_Wick_2015,
+title = {Variational localizations of the dual weighted residual estimator},
+journal = {Journal of Computational and Applied Mathematics},
+volume = {279},
+pages = {192-208},
+year = {2015},
+issn = {0377-0427},
+doi = {https://doi.org/10.1016/j.cam.2014.11.008},
+url = {https://www.sciencedirect.com/science/article/pii/S0377042714004798},
+author = {Thomas Richter and Thomas Wick},
+keywords = {Finite elements, Error estimation, Adjoint, Dual weighted residuals, Adaptivity},
+abstract = {The dual weighted residual method (DWR) and its localization for mesh adaptivity applied to elliptic partial differential equations are investigated. The contribution of this paper is twofold: first, we introduce a novel localization technique based on the introduction of a partition of unity. This new technique is very easy to apply, as neither strong residuals nor jumps over element edges are required. Second, we compare and analyze (theoretically and numerically) different localization techniques used for mesh adaptivity with respect to their effectivity. Here, we focus on localizations in variational formulations that do not require the evaluation of the corresponding differential operator in the classical strong formulation. In our mathematical analysis, we show for different localization techniques (established methods and our new approach) that the local error indicators used for mesh adaptivity converge with proper order in the error functional. Several numerical tests substantiate our theoretical investigations.}
+}
+
+
+@article{Farrell_Kirby_Marchena_2021,
+author = {Farrell, Patrick E. and Kirby, Robert C. and Marchena-Men\'{e}ndez, Jorge},
+title = {Irksome: Automating Runge–Kutta Time-stepping for Finite Element Methods},
+year = {2021},
+issue_date = {December 2021},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {47},
+number = {4},
+issn = {0098-3500},
+url = {https://doi.org/10.1145/3466168},
+doi = {10.1145/3466168},
+abstract = {While implicit Runge–Kutta (RK) methods possess high order accuracy and important stability properties, implementation difficulties and the high expense of solving the coupled algebraic system at each time step are frequently cited as impediments. We present Irksome, a high-level library for manipulating UFL (Unified Form Language) expressions of semidiscrete variational forms to obtain UFL expressions for the coupled Runge–Kutta stage equations at each time step. Irksome works with the Firedrake package to enable the efficient solution of the resulting coupled algebraic systems. Numerical examples confirm the efficacy of the software and our solver techniques for various problems.},
+journal = {ACM Trans. Math. Softw.},
+month = sep,
+articleno = {30},
+numpages = {26},
+keywords = {Finite element methods, Runge-Kutta methods, automation}
+}
+
+
+
+
+
+
+
+
+@article{Farrell_Ham_Funke_Rognes_2013,
+author = {Farrell, P. E. and Ham, D. A. and Funke, S. W. and Rognes, M. E.},
+title = {Automated Derivation of the Adjoint of High-Level Transient Finite Element Programs},
+journal = {SIAM Journal on Scientific Computing},
+volume = {35},
+number = {4},
+pages = {C369-C393},
+year = {2013},
+doi = {10.1137/120873558},
+URL = {https://doi.org/10.1137/120873558},
+eprint = {https://doi.org/10.1137/120873558},
+abstract = { In this paper we demonstrate a new technique for deriving discrete adjoint and tangent linear models of a finite element model. The technique is significantly more efficient and automatic than standard algorithmic differentiation techniques. The approach relies on a high-level symbolic representation of the forward problem. In contrast to developing a model directly in Fortran or C++, high-level systems allow the developer to express the variational problems to be solved in near-mathematical notation. As such, these systems have a key advantage: since the mathematical structure of the problem is preserved, they are more amenable to automated analysis and manipulation. The framework introduced here is implemented in a freely available software package named dolfin-adjoint, based on the FEniCS Project. Our approach to automated adjoint derivation relies on run-time annotation of the temporal structure of the model and employs the FEniCS finite element form compiler to automatically generate the low-level code for the derived models. This approach requires only trivial changes to a large class of forward models, including complicated time-dependent nonlinear models. The adjoint model automatically employs optimal checkpointing schemes to mitigate storage requirements for nonlinear models, without any user management or intervention. Furthermore, both the tangent linear and adjoint models naturally work in parallel, without any need to differentiate through calls to MPI or to parse OpenMP directives. The generality, applicability, and efficiency of the approach are demonstrated with examples from a wide range of scientific applications. }
+}
+
+
+@misc{andrews2026automatedgalerkintimestepping,
+      title={Automated Galerkin time stepping in Irksome}, 
+      author={Boris D. Andrews and Pablo Brubeck and Patrick E. Farrell and Robert C. Kirby and Scott P. MacLachlan},
+      year={2026},
+      eprint={2606.27300},
+      archivePrefix={arXiv},
+      primaryClass={math.NA},
+      url={https://arxiv.org/abs/2606.27300}, 
+}
+
+
+@misc{Rognes_Logg_2013,
+      title={Automated goal-oriented error control I: stationary variational problems}, 
+      author={Marie E. Rognes and Anders Logg},
+      year={2012},
+      eprint={1204.6643},
+      archivePrefix={arXiv},
+      primaryClass={math.NA},
+      url={https://arxiv.org/abs/1204.6643}, 
+}

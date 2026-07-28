@@ -1,0 +1,50 @@
+\chapter{Introduction}
+\label{chap:introduction}
+
+\section{Background}
+\label{sec:introduction-background}
+
+In many partial differential equation (PDE) problems, the numerical solution is not required with uniform accuracy over the whole computational domain. What matters instead is an accurate value of a specific \emph{quantity of interest} (QoI), a functional
+\begin{equation*}
+  J : V \longrightarrow \mathbb{R}
+  \label{eq:intro-qoi-map}
+\end{equation*}
+that encodes why the simulation is being run in the first place. Examples include the average temperature in a prescribed observation region, the effective multiplication factor of a fission reactor, and the drag on an airfoil. The relevant discretisation error is consequently
+\begin{equation}
+  e_J = J(u)-J(u_h),
+  \label{eq:intro-goal-error}
+\end{equation}
+where \(u_h\) is the finite element approximation.  Quantifying \(e_J\) is therefore necessary when the output, rather than the full state, informs the scientific or engineering conclusion.
+
+% Classical adaptive finite element methods estimate the discretisation error in some global norm and refine wherever that error is not yet resolved. This is a reasonable strategy when the full solution is the object of interest, but if only a single scalar output is required, it can waste substantial computational effort correcting errors that barely affect that output.
+
+Conventional adaptive finite element methods (AFEM) aim to control a prescribed norm of the state error,
+\[
+e_u:=u-u_h,
+\]
+by means of local a posteriori error indicators within a \textsc{Solve--Estimate--Mark--Refine} loop \cite{ENDTMAYER202419}. Common indicator constructions include residual estimators, including equilibrated-flux variants, recovery estimators, and hierarchical estimators \cite{Ainsworth_Oden_1997,Eriksson_Estep_Hansbo_Johnson_1995}. Their purpose is to estimate and reduce a global norm of \(e_u\). Goal-oriented error estimation instead targets \(e_J\) itself and localises it to obtain refinement indicators for the chosen output \cite{Becker_Rannacher_2001,Bangerth_Rannacher_2003}.
+
+% actually specific case
+The dual weighted residual (DWR) method provides a systematic framework for this purpose \cite{Becker_Rannacher_1996,Becker_Rannacher_2001}. Its estimator combines the residual of the discrete primal solution with a weight derived from the dual problem. The residual quantifies the defect of the discrete solution in the continuous variational problem, whereas the dual weight represents the sensitivity of the QoI to that defect. Using an enriched approximation of the dual solution yields a computable estimate of the global QoI error. 
+
+For time-dependent problems, the global QoI-error estimate must be localised over spatial elements and time intervals to furnish indicators for mesh and time-step adaptation \cite{Becker_Rannacher_2001,Schmich_Vexler_2008}. Existing DWR localisations commonly follow one of two representations. Strong-residual localisation applies elementwise integration by parts and produces cell residuals, facet and boundary terms, and, for discontinuous temporal discretisations, temporal jump terms. Variational partition-of-unity localisation instead decomposes the weak residual directly and avoids the explicit construction of strong residuals \cite{Richter_Wick_2015}.
+
+% stationary already exist
+This dissertation considers strong-residual localisation. Its terms arise through elementwise manipulation of the variational form: the weak residual is transformed into contributions associated with cells, facets, boundaries, and temporal interfaces. The aim is to automate this transformation in \texttt{Firedrake}, for a specified class of linear time-dependent problems, from their symbolic Unified Form Language (UFL) representation rather than through problem-specific derivations.
+
+\texttt{Firedrake} expresses variational problems in the UFL [citation here]. Starting from a semidiscrete UFL form, \texttt{Irksome} constructs the coupled stage equations for a chosen Runge--Kutta or discontinuous Galerkin scheme \cite{Farrell_Kirby_Marchena_2021,andrews2026automatedgalerkintimestepping}, while \texttt{firedrake.adjoint} provides the corresponding discrete adjoint models through \texttt{pyadjoint} \cite{Farrell_Ham_Funke_Rognes_2013}. These symbolic primal and dual descriptions provide the basis for automatically constructing local strong-residual indicators. 
+
+
+
+\section{Main Contributions}
+
+
+
+\section{Code}
+The development repository can be found at...
+
+
+
+\section{Structure of the Dissertation}
+
+

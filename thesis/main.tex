@@ -1,0 +1,47 @@
+\documentclass[12pt]{ociamthesis}
+
+\usepackage{amssymb,amsmath,epsfig}
+% \usepackage{amssymb,amsmath,epsfig,html}
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\usepackage{hyperref}
+
+\title{Automated Goal-Based Adaptivity for Time-Dependent PDEs}
+\author{Yue Wu}
+\college{Pembroke College}
+%\renewcommand{\submittedtext}{Dissertation submitted in partial fulfilment of the requirements for the degree of}
+\degree{M.Sc.\ in Mathematical Modelling and Scientific Computing}
+\degreedate{Trinity Term 2026}
+
+\renewcommand{\baselinestretch}{1.25}
+\begin{document}
+\include{macpap2}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+
+\maketitle
+\include{ackno}
+\include{abst}
+
+\begin{romanpages}
+\tableofcontents
+\listoffigures
+\listoftables
+\end{romanpages}
+
+\include{intro}
+\include{body}
+\include{concl}
+
+\appendix
+\include{appendix1}
+
+\addcontentsline{toc}{chapter}{References}
+\renewcommand{\bibname}{References}
+\bibliography{refs}
+\bibliographystyle{plain}
+
+\end{document}
