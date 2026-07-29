@@ -6,7 +6,7 @@
 
 In many partial differential equation (PDE) problems, the numerical solution is not required with uniform accuracy over the whole computational domain. What matters instead is an accurate value of a specific \emph{quantity of interest} (QoI), a functional
 \begin{equation*}
-  J : V \longrightarrow \mathbb{R}
+  J : U \longrightarrow \mathbb{R}
   \label{eq:intro-qoi-map}
 \end{equation*}
 that encodes why the simulation is being run in the first place. Examples include the average temperature in a prescribed observation region, the effective multiplication factor of a fission reactor, and the drag on an airfoil. The relevant discretisation error is consequently
@@ -32,7 +32,7 @@ For time-dependent problems, the global QoI-error estimate must be localised ove
 % stationary already exist
 This dissertation considers strong-residual localisation. Its terms arise through elementwise manipulation of the variational form: the weak residual is transformed into contributions associated with cells, facets, boundaries, and temporal interfaces. The aim is to automate this transformation in \texttt{Firedrake}, for a specified class of linear time-dependent problems, from their symbolic Unified Form Language (UFL) representation rather than through problem-specific derivations.
 
-\texttt{Firedrake} expresses variational problems in the UFL [citation here]. Starting from a semidiscrete UFL form, \texttt{Irksome} constructs the coupled stage equations for a chosen Runge--Kutta or discontinuous Galerkin scheme \cite{Farrell_Kirby_Marchena_2021,andrews2026automatedgalerkintimestepping}, while \texttt{firedrake.adjoint} provides the corresponding discrete adjoint models through \texttt{pyadjoint} \cite{Farrell_Ham_Funke_Rognes_2013}. These symbolic primal and dual descriptions provide the basis for automatically constructing local strong-residual indicators. 
+\texttt{Firedrake} expresses variational problems in the UFL \cite{Firedrake}. Starting from a semidiscrete UFL form, \texttt{Irksome} constructs the coupled stage equations for a chosen Runge--Kutta or discontinuous Galerkin scheme \cite{Farrell_Kirby_Marchena_2021,andrews2026automatedgalerkintimestepping}, while \texttt{firedrake.adjoint} provides the corresponding discrete adjoint models through \texttt{pyadjoint} \cite{Farrell_Ham_Funke_Rognes_2013}. These symbolic primal and dual descriptions provide the basis for automatically constructing local strong-residual indicators. 
 
 
 
