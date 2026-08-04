@@ -1,0 +1,526 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,mathtools,amsthm,bm}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,allcolors=blue!55!black]{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\Y}{\mathcal{Y}}
+\newcommand{\T}{\mathcal{T}}
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\J}{\mathcal{J}}
+\newcommand{\jump}[1]{\left[\!\left[#1\right]\!\right]}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\abs}[1]{\left|#1\right|}
+
+\title{Dual-Weighted-Residual Adaptive Loop\\
+for Linear Time-Dependent PDEs}
+\date{\today}
+
+
+\begin{document}
+\maketitle
+
+
+% \section{Scope and Notation}
+
+% The framework covers well-posed linear 1st-order-in-time equations that can be written in a Hilbert space as
+% \begin{equation}
+%   M\partial_t u+\mathcal{L}(t)u=f,\qquad t\in(0,T],
+%   \label{eq:abstract-pde}
+% \end{equation}
+% with an initial condition and suitable boundary conditions.
+
+% % Let
+% % \[
+% %   V\hookrightarrow H\simeq H^*\hookrightarrow V^*
+% % \]
+% % be a Gelfand triple. 
+% Let \(m:H\times H\to\R\) be a continuous symmetric positive-definite mass form and let \(a(t;\cdot,\cdot):V\times V\to\R\) be a measurable continuous bilinear form satisfying the assumptions required for well-posedness. Define
+% \begin{align*}
+%   \X&:=\{v\in L^2(0,T;V):\partial_t v\in L^2(0,T;V^*)\},\\
+%   \Y&:=\X.
+% \end{align*}
+% % The choice \(\Y=\X\) is slightly stronger than the minimal test space but keeps the trace \(v(0)\) used below well-defined. Elements of \(\X\) have continuous \(H\)-valued representatives and hence meaningful traces at \(t=0,T\) \citep{LionsMagenes1972}.
+
+
+
+% \section{Continuous Primal and Adjoint Problems}
+
+% For \(v\in\Y\), set
+% \begin{align}
+%   \A(u)(v)
+%   &:={\int_0^T}\bigl[m(\partial_tu,v)+a(t;u,v)\bigr]\dd t
+%        +m(u(0),v(0)),                                      \label{eq:A-cont}\\
+%   \F(v)
+%   &:={\int_0^T}\ell(t;v)\dd t+m(u_0,v(0)).                 \label{eq:F-cont}
+% \end{align}
+% The continuous primal problem is
+% \begin{equation}
+%   \boxed{\text{Find }u\in\X\text{ such that }\A(u)(v)=\F(v)
+%   \quad\forall v\in\Y.}
+%   \label{eq:continuous-primal}
+% \end{equation}
+% The initial condition is encoded weakly by the last terms in
+% \cref{eq:A-cont,eq:F-cont}.
+
+% Let the quantity of interest be $\J(u)$.
+% % the continuous linear functional
+% % \begin{equation}
+% %   \J(u)=\int_0^T j(t;u(t))\dd t+j_T(u(T)).
+% %   \label{eq:goal}
+% % \end{equation}
+% The continuous adjoint is
+% \begin{equation}
+%   \boxed{\text{Find }z\text{ such that }\A(w)(z)=\J(w)
+%   \quad\forall w\in\X.}
+%   \label{eq:continuous-adjoint}
+% \end{equation}
+% It is a terminal-value problem and is solved backward in time. This primal--adjoint construction and its goal-oriented identity are the foundation of the DWR method \citep{BeckerRannacher1996,BeckerRannacher2001,BangerthRannacher2003}.
+
+
+
+% \section{Time and Space Discretisation}
+
+% \subsection{Temporal Mesh and Jumps}
+
+% Let
+% \[
+%   0=t_0<t_1<\cdots<t_N=T,\qquad I_n=(t_{n-1},t_n],
+%   \qquad k_n=t_n-t_{n-1}.
+% \]
+% For a function that may be discontinuous at \(t_n\), write
+% \[
+%   v_n^-:=\lim_{t\uparrow t_n}v(t),\qquad
+%   v_n^+:=\lim_{t\downarrow t_n}v(t),\qquad
+%   [v]_n:=v_n^+-v_n^-.
+% \]
+% The discontinuous Galerkin time space of degree \(r\) is
+% \begin{equation}
+%   \X_k^r(V):=\{v:v|_{I_n}\in\mathbb{P}_r(I_n;V),\ 1\le n\le N\}.
+%   \label{eq:time-space}
+% \end{equation}
+% This jump convention and the dG time formulation below follow the classical analysis of dG time stepping for parabolic equations \citep{ErikssonJohnsonThomee1985}.
+% % check if this is ref [19] in 2021-..
+
+
+% \subsection{Spatial Meshes}
+
+% Let \(\T_h^n\) be a conforming spatial mesh on \(I_n\), and let \(V_h^n\subset V\) be its finite element space of degree \(p\). Define
+% \begin{equation}
+%   \X_{kh}^{r,p}:=
+%   \{v:v|_{I_n}\in\mathbb{P}_r(I_n;V_h^n),\ 1\le n\le N\}.
+%   \label{eq:full-space}
+% \end{equation}
+% The broken dG bilinear form is
+% \begin{align}
+%   \A_{kh}(U)(v)
+%   :={}&\sum_{n=1}^N\int_{I_n}
+%        \bigl[m(\partial_tU,v)+a(t;U,v)\bigr]\dd t \notag\\
+%       &+\sum_{n=2}^N m([U]_{n-1},v_{n-1}^+)
+%        +m(U_0^+,v_0^+),                                    \label{eq:Akh}\\
+%   \F_{kh}(v)
+%   :={}&\sum_{n=1}^N\int_{I_n}\ell(t;v)\dd t
+%        +m(u_0,v_0^+).                                      \label{eq:Fkh}
+% \end{align}
+% The fully discrete primal solution is
+% \begin{equation}
+%   \boxed{\A_{kh}(U_{kh})(v_{kh})=\F_{kh}(v_{kh})
+%   \quad\forall v_{kh}\in\X_{kh}^{r,p}.}
+%   \label{eq:discrete-primal}
+% \end{equation}
+
+
+
+% \section{DWR Identity and Computable Enriched Weights}
+
+% Extend \(\A_{kh}\) consistently to exact and enriched functions and define
+% \begin{equation}
+%   \rho_{kh}(U)(v):=\F_{kh}(v)-\A_{kh}(U)(v).
+%   \label{eq:residual}
+% \end{equation}
+% The discrete adjoint is the backward-in-time problem
+% \begin{equation}
+%   \A_{kh}(w_{kh})(Z_{kh})=\J(w_{kh})
+%   \quad\forall w_{kh}\in\X_{kh}^{r,p}.
+%   \label{eq:discrete-adjoint}
+% \end{equation}
+
+% \begin{proposition}[Linear DWR identity]
+% Assume that the primal problem, goal and discretisation are linear and consistent, and that quadrature and algebraic solves are exact. For every \(\varphi_{kh}\in\X_{kh}^{r,p}\),
+% \begin{equation}
+%   \boxed{\J(u)-\J(U_{kh})
+%   =\rho_{kh}(U_{kh})(z)
+%   =\rho_{kh}(U_{kh})(z-\varphi_{kh}).}
+%   \label{eq:dwr-exact}
+% \end{equation}
+% \end{proposition}
+% The first equality follows by testing the adjoint with \(u-U_{kh}\); the second uses Galerkin orthogonality \(\rho_{kh}(U_{kh})(\varphi_{kh})=0\). This is the linear DWR representation \citep{BeckerRannacher1996,BeckerRannacher2001}. For nonlinear operators or goals, the symmetric Lagrangian identity contains a dual residual, a factor \(1/2\), and a higher-order remainder \citep{BeckerRannacher2001}; those terms are absent from this linear specification.
+% % 可以写进sec 2 in thesis
+
+% Let \(Z^+\) be a numerical adjoint in a strictly enriched space \(\X_{kh}^+\supsetneq\X_{kh}^{r,p}\). The direct enriched-weight estimator is
+% \begin{equation}
+%   \eta_{\mathrm{joint}}
+%   :=\rho_{kh}(U_{kh})(Z^+-Z_{kh}).
+%   \label{eq:joint-estimator}
+% \end{equation}
+% This replaces the exact defect \(z-\varphi_{kh}\) by the numerical defect \(Z^+-Z_{kh}\). An enriched solve is more expensive but avoids relying solely on postprocessed interpolation. Reliability of enriched-space estimators is normally tied to a saturation assumption; interpolation recoveries need further recovery assumptions \citep{EndtmayerLangerWick2021}.
+% % check
+
+
+
+% \section{Separating Temporal and Spatial Goal Error}
+% \label{sec:split}
+
+% % \subsection{Split is prior to localisation}
+
+% Let \(U_k\in\X_k^r(V)\) be the time-semidiscrete solution: time is discretised but space is still \(V\). Algebra gives
+% \begin{equation}
+%   \boxed{\J(u)-\J(U_{kh})
+%   =\underbrace{\J(u)-\J(U_k)}_{e_k\ \text{(temporal)}}
+%   +\underbrace{\J(U_k)-\J(U_{kh})}_{e_h\ \text{(spatial)}}.}
+%   \label{eq:exact-split}
+% \end{equation}
+% % This splits the goal error between approximation levels; it does not split the operator into \(M\partial_t\) and \(\mathcal{L}\). 
+% Separated temporal/spatial DWR representations based on this hierarchy were developed for parabolic problems and dynamic meshes by \citet{SchmichVexler2008}, and related formulations are used for nonstationary flow and modern space--time DWR methods \citep{BesierRannacher2012,ThieleWick2024,RothEtAl2024}.
+
+
+
+% \newpage
+\section{Automated Localisation by Bubble Recovery on Space--Time Cells}
+\label{sec:localisation}
+
+The bubble and cone functions are used to convert the weak residual into computable polynomial representations of its volume, spatial-facet, and temporal-interface parts. The DWR weight is the same enriched numerical dual defect:
+\begin{equation}
+ w:=Z^{+}-Z_{kh}.
+ \label{eq:single-dual-weight}
+\end{equation}
+Here \(Z^{+}\) is one adjoint solution in a suitably enriched space and
+\(Z_{kh}\) is the adjoint in the original discrete space. 
+
+The localisation pipeline is therefore
+\begin{equation}
+ \boxed{
+ \rho_{kh}(U_{kh})(\,\cdot\,)
+ \xrightarrow{\text{bubble/cone projection}}
+ \bigl(R^{\mathrm{vol}},R^{\mathrm{sf}},R^{\mathrm{tf}}\bigr)
+ \xrightarrow{\text{single weight }w}
+ \eta_{K,n}.}
+ \label{eq:single-weight-bubble-pipeline}
+\end{equation}
+The indices \(\mathrm{sf}\) and \(\mathrm{tf}\) denote spatial-facet and temporal-facet residuals. Bubble recovery follows the stationary residual-representation construction of \citet{RognesLogg2013}.
+
+For a general linear time-dependent problem, define
+\begin{equation}
+ \rho_{kh}(U_{kh})(V)
+ :=
+ \mathcal F_{kh}(V)-\mathcal A_{kh}(U_{kh},V).
+ \label{eq:weak-residual-recovery}
+\end{equation}
+The global computable DWR estimator is
+\begin{equation}
+ \eta_{\mathrm{DWR}}^{\mathrm{glob}}
+ :=
+ \rho_{kh}(U_{kh})(w)
+ =
+ \rho_{kh}(U_{kh})(Z^{+}-Z_{kh}).
+ \label{eq:single-weight-global-dwr}
+\end{equation}
+The purpose of the following construction is to express \cref{eq:single-weight-global-dwr} approximately as a signed sum over space--time cells \(Q_{K,n}=K\times I_n\).
+
+
+\subsection{Stationary Bubble and Cone Projection}
+\label{sec:stationary-residual-recovery}
+
+Suppose that the local weak residual on a spatial cell \(K\) has a cell-and-facet representation
+\begin{equation}
+ \rho_K(v)
+ =
+ (R_K,v)_K
+ +
+ \sum_{F\subset\partial K}(R_{K,F},v)_F .
+ \label{eq:stationary-residual-representation}
+\end{equation}
+The point of the method is to compute polynomial approximations to \(R_K\) and \(R_{K,F}\) from the weak residual without deriving their strong formulas by hand.
+
+Let \(K\) be a \(d\)-simplex with barycentric coordinates \(\lambda_1^K,\ldots,\lambda_{d+1}^K\), and define the cell bubble
+\begin{equation}
+ b_K:=\prod_{i=1}^{d+1}\lambda_i^K,
+ \qquad b_K|_{\partial K}=0.
+ \label{eq:recovery-cell-bubble}
+\end{equation}
+For a polynomial recovery space \(Q_K^p\), find \(R_K^B\in Q_K^p\) such that
+\begin{equation}
+ \boxed{
+ (R_K^B,b_K\phi)_K
+ =
+ \rho_K(b_K\phi)
+ \qquad\forall\phi\in Q_K^p.}
+ \label{eq:stationary-cell-projection}
+\end{equation}
+Because \(b_K\phi\) is zero on every facet, substitution of \cref{eq:stationary-residual-representation} gives
+\[
+ \rho_K(b_K\phi)=(R_K,b_K\phi)_K.
+\]
+
+To recover a facet residual, let \(F\subset\partial K\) and introduce a cone
+\begin{equation}
+ \beta_{K,F}:=\prod_{i\in\mathcal I_F}\lambda_i^K,
+ \label{eq:recovery-facet-cone}
+\end{equation}
+where \(\mathcal I_F\) contains the vertices belonging to \(F\). The cone is nonzero on \(F\) but vanishes on every other facet. Therefore
+\begin{equation}
+ \rho_K(\beta_{K,F}\psi)
+ =
+ (R_K,\beta_{K,F}\psi)_K
+ +
+ (R_{K,F},\beta_{K,F}\psi)_F.
+ \label{eq:facet-probe-expanded}
+\end{equation}
+Hence find
+\(R_{K,F}^B\in Q_F^q\) from
+\begin{equation}
+ \boxed{
+ (R_{K,F}^B,\beta_{K,F}\psi)_F
+ =
+ \rho_K(\beta_{K,F}\psi)
+ -
+ (R_K^B,\beta_{K,F}\psi)_K
+ \qquad\forall\psi\in Q_F^q.}
+ \label{eq:stationary-facet-projection}
+\end{equation}
+
+
+\subsection{Extension: Treating Time as An Additional Mesh Dimension}
+\label{sec:space-time-residual-recovery}
+
+Let
+\[
+ I_n=(t_{n-1},t_n],
+ \qquad
+ k_n=t_n-t_{n-1},
+ \qquad
+ Q_{K,n}:=K\times I_n,
+ \qquad
+ \tau:=\frac{t-t_{n-1}}{k_n}.
+\]
+The space--time cell \(Q_{K,n}\) has three kinds of residual entities:
+\begin{equation}
+ \rho_{K,n}(V)
+ =
+ (R_{K,n}^{\mathrm{vol}},V)_{Q_{K,n}}
+ +
+ \sum_{F\subset\partial K}
+ (R_{K,F,n}^{\mathrm{sf}},V)_{F\times I_n}
+ +
+ (R_{K,n-1}^{\mathrm{tf}},V(t_{n-1}^{+}))_K .
+ \label{eq:space-time-residual-representation}
+\end{equation}
+For a dG-in-time method, the temporal-facet term contains the state jump at \(t_{n-1}\); for \(n=1\), it contains the initial-condition mismatch. On changing spatial meshes it must also contain the transfer defect \cite{ErikssonJohnsonThomee1985,SchmichVexler2008}.
+
+\paragraph{Space--time volume projection.}
+Consider the temporal interior bubble function
+\begin{equation}
+ b_n^t(\tau):=4\tau(1-\tau).
+ \label{eq:temporal-interior-bubble}
+\end{equation}
+
+Define the space--time interior bubble
+\[
+ B_{K,n}(x,t):=b_K(x)b_n^t(t).
+\]
+It vanishes on every spatial and temporal face of \(Q_{K,n}\). The recovered volume density \(R_{K,n}^{B,\mathrm{vol}}\) is defined by
+\begin{equation}
+ \boxed{
+ (R_{K,n}^{B,\mathrm{vol}},B_{K,n}\Phi)_{Q_{K,n}}
+ =
+ \rho_{K,n}(B_{K,n}\Phi)
+ \qquad
+ \forall\Phi\in Q_{K,n}^{p_x,p_t}.}
+ \label{eq:space-time-volume-projection}
+\end{equation}
+
+
+\paragraph{Spatial-facet projection.}
+For \(F\subset\partial K\), use
+\begin{equation}
+ C_{K,F,n}^{\mathrm{sf}}(x,t)
+ :=
+ \beta_{K,F}(x)b_n^t(t).
+ \label{eq:space-time-spatial-cone}
+\end{equation}
+This function is nonzero only on the selected spatial face \(F\times I_n\) and vanishes at both time endpoints. After the volume solve, recover \(R_{K,F,n}^{B,\mathrm{sf}}\) from
+\begin{align}
+ &(R_{K,F,n}^{B,\mathrm{sf}},
+       C_{K,F,n}^{\mathrm{sf}}\Psi)_{F\times I_n}
+ \notag\\
+ &\qquad =
+ \rho_{K,n}(C_{K,F,n}^{\mathrm{sf}}\Psi)
+ -
+ (R_{K,n}^{B,\mathrm{vol}},
+       C_{K,F,n}^{\mathrm{sf}}\Psi)_{Q_{K,n}}
+ \quad\forall\Psi\in Q_{F,n}^{q_x,q_t}.
+ \label{eq:space-time-spatial-facet-projection}
+\end{align}
+
+\paragraph{Temporal-facet projection.}
+% The interior bubble \(b_n^t\) cannot see a temporal jump because it is zero at \(t_{n-1}\) and \(t_n\).  To probe the lower temporal face, 
+We use the temporal cone
+\begin{equation}
+ C_{K,n}^{\mathrm{tf},-}(x,t)
+ :=
+ b_K(x)(1-\tau).
+ \label{eq:temporal-trace-cone}
+\end{equation}
+It is nonzero at \(t_{n-1}^{+}\), zero at \(t_n^{-}\), and zero on every spatial facet. Consequently,
+\begin{align}
+ &(R_{K,n-1}^{B,\mathrm{tf}},b_K\chi)_K
+ \notag\\
+ &\qquad =
+ \rho_{K,n}(C_{K,n}^{\mathrm{tf},-}\chi)
+ -
+ (R_{K,n}^{B,\mathrm{vol}},
+       C_{K,n}^{\mathrm{tf},-}\chi)_{Q_{K,n}}
+ \qquad\forall\chi\in Q_K^{q_t}.
+ \label{eq:temporal-facet-projection}
+\end{align}
+
+
+\subsection{Signed Indicator for Every Space--Time Cell}
+\label{sec:space-time-cell-indicators}
+
+The original numerical dual defect \(w=Z^+-Z_{kh}\) weights every recovered residual entity:
+\begin{align}
+ \eta_{K,n}^{\mathrm{vol}}
+ &:=
+ (R_{K,n}^{B,\mathrm{vol}},w)_{Q_{K,n}},
+ \label{eq:single-volume-contribution}\\
+ \eta_{F,n}^{\mathrm{sf}}
+ &:=
+ (R_{F,n}^{B,\mathrm{sf}},w)_{F\times I_n},
+ \label{eq:single-spatial-facet-contribution}\\
+ \eta_{K,n-1}^{\mathrm{tf}}
+ &:=
+ (R_{K,n-1}^{B,\mathrm{tf}},w(t_{n-1}^{+}))_K .
+ \label{eq:single-temporal-facet-contribution}
+\end{align}
+
+% An interior spatial facet is one residual entity shared by two neighbouring space--time cells. Meanwhile, time is used as an additional coordinate for constructing and marking space--time cells. The jump at \(t_{n-1}\) is tested with the right trace \(w(t_{n-1}^{+})\) and its entire signed contribution is assigned to the following cell slab \(Q_{K,n}=K\times I_n\).
+
+Let \(\mathcal E_{K,n}^{\mathrm{sf,int}}\) denote the interior spatial
+facets of \(Q_{K,n}\). The signed local indicator is
+\begin{equation}
+ \boxed{
+ \eta_{K,n}
+ :=
+ \eta_{K,n}^{\mathrm{vol}}
+ +
+ \frac12\sum_{F\in\mathcal E_{K,n}^{\mathrm{sf,int}}}
+       \eta_{F,n}^{\mathrm{sf}}
+ +
+ \sum_{F\subset\partial K\cap\partial\Omega}
+       \eta_{F,n}^{\mathrm{bdry}}
+ +
+ \eta_{K,n-1}^{\mathrm{tf}}.}
+ \label{eq:single-space-time-cell-indicator}
+\end{equation}
+Every unique spatial interior facet is counted once through its two half-contributions, and every temporal interface is counted once through its full contribution to the following slab.
+
+\begin{align}
+ \eta_n^{\mathrm{slab}}
+ &:=
+ \sum_{K\in\mathcal T_h^n}\eta_{K,n},
+ \label{eq:signed-slab-indicator}\\
+ s_n^{\mathrm{slab}}
+ &:=
+ \sum_{K\in\mathcal T_h^n}|\eta_{K,n}|.
+ \label{eq:absolute-slab-score}
+\end{align}
+The signed quantity \(\eta_n^{\mathrm{slab}}\) is useful for checking how each slab contributes to the global goal estimate. The nonnegative quantity \(s_n^{\mathrm{slab}}\) measures the total marking activity in \(I_n\) without cancellation.
+
+The recovered signed global estimator is
+\begin{equation}
+ \widehat\eta_B
+ :=
+ \sum_{n=1}^N\sum_{K\in\mathcal T_h^n}\eta_{K,n}
+ =
+ \sum_{n=1}^N\eta_n^{\mathrm{slab}}.
+ \label{eq:single-recovered-global-estimator}
+\end{equation}
+It should be compared against the directly assembled value \(\eta_{\mathrm{DWR}}^{\mathrm{glob}}\) in \cref{eq:single-weight-global-dwr}. Their discrepancy measures the localisation error introduced by the finite-degree residual projections.
+
+
+\subsection{Marking and Refinement}
+\label{sec:joint-space-time-marking}
+
+Use
+\begin{equation}
+ s_{K,n}:=|\eta_{K,n}|
+ \label{eq:single-cell-marking-score}
+\end{equation}
+as the nonnegative marking score. Select an approximately minimal set
+\(\mathcal M_{hk}\) satisfying
+\begin{equation}
+ \sum_{(K,n)\in\mathcal M_{hk}}s_{K,n}
+ \ge
+ \theta\sum_{n=1}^N\sum_{K\in\mathcal T_h^n}s_{K,n},
+ \qquad 0<\theta\le1.
+ \label{eq:space-time-dorfler}
+\end{equation}
+This is D\"orfler bulk marking applied directly to space--time cell contributions \cite{Doerfler1996}.
+
+Each marked pair \((K,n)\in\mathcal M_{hk}\) triggers both actions:
+\begin{enumerate}[leftmargin=*]
+ \item mark \(K\) for spatial refinement on the mesh associated with \(I_n\);
+ \item mark \(I_n\) for temporal bisection.
+\end{enumerate}
+Equivalently, construct
+\begin{align}
+ \mathcal M_h^n
+ &:=
+ \{K\in\mathcal T_h^n:(K,n)\in\mathcal M_{hk}\},
+ \label{eq:spatial-mark-projection}\\
+ \mathcal M_t
+ &:=
+ \{n:\mathcal M_h^n\neq\varnothing\}.
+ \label{eq:temporal-mark-projection}
+\end{align}
+Every \(I_n\) appearing in \(\mathcal M_t\) is bisected exactly once. The spatial marked set is the union of all marked \(K\)'s in that slab. After the bisection, the selected spatial refinement is inherited by both child intervals.
+
+
+\subsection{Automated Adaptive Loop}
+\label{sec:single-indicator-loop}
+
+The resulting solve--estimate--mark--refine cycle is:
+\begin{enumerate}[leftmargin=*]
+ \item Solve the primal problem forward for \(U_{kh}\).
+ \item Solve the original discrete adjoint for \(Z_{kh}\) and one enriched adjoint for \(Z^+\); form \(w=Z^+-Z_{kh}\).
+ \item Pass the weak residual \(\rho_{kh}(U_{kh})(\,\cdot\,)\) to the recovery module.
+ \item Recover the volume residual, then the spatial-facet residuals, and the temporal-interface residuals.
+ \item Weight every recovered entity by \(w\), assemble the signed \(\eta_{K,n}\), and check \cref{eq:single-recovered-global-estimator} against \cref{eq:single-weight-global-dwr}.
+ \item Stop if \(|\eta_{\mathrm{DWR}}^{\mathrm{glob}}|\le\mathrm{TOL}_J\).
+ \item Otherwise mark space--time cells by \cref{eq:space-time-dorfler}; bisect every selected time interval once and refine the selected spatial cells on both resulting child slabs.
+ \item Rebuild meshes, transfer operators and repeat.
+\end{enumerate}
+
+
+
+\newpage
+\bibliographystyle{unsrtnat}
+\bibliography{automated_dwr_time_adaptivity}
+
+\end{document}
