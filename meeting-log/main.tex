@@ -1,0 +1,178 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xparse}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+\titleformat{\section}{\large\bfseries}{}{0pt}{}
+\titleformat{\subsection}{\normalsize\bfseries}{}{0pt}{}
+
+
+\NewDocumentCommand{\meet}{m o m o}{%
+\subsection*{#1}
+% \textbf{Progress:} #2
+\IfNoValueF{#2}{\textbf{Progress:} #2}
+
+\textbf{Next Steps:} #3
+
+\IfNoValueF{#4}{\textbf{Notes:} #4}
+}
+
+
+\begin{document}
+
+\section*{Meeting Log}
+
+
+\textbf{Project:} Automated Parallel Goal-Based Adaptivity\\
+\textbf{Student:} Yue Wu\\
+\textbf{Supervisor:} Prof. Patrick Farrell\\
+
+
+
+\meet
+{Meeting on 2026-07-24 and 2026-08-03}
+[Finished the draft of the first two chapters for MSc thesis. Written down the proposal for automated solver.]
+{Implement the bubble recovery localisation, and compare it with the previous heat equation results.
+\begin{itemize}
+\item Do the refinement (to different basis mesh) and see if they re broadly similar.
+\item Observe how much extra localisation efficiency index is needed.
+\item Observe how much DoFs are ended up with to achieve the same goal.
+\item To make it concrete, we can prove how much the estimator would change.
+\end{itemize}}
+\vspace{1.5em}
+
+
+
+\meet
+{Meeting on 2026-07-17}
+[Explored two different goal functionals and completed the implementation of four temporal enrichment strategies.]
+{\begin{itemize}
+\item Commit the latest code to Git.
+\item Begin investigating the core mathematics of the general framework.
+\item Code: examine the order of temporal and spatial refinement within each adaptive iteration.
+\item Start drafting the background chapter of the thesis.
+\end{itemize}}
+[Use $p$-enrichment in the error estimator and $h$-refinement in the adaptive procedure. Once the adaptive process has been automated, consider testing the DWR method on an ODE and a one-dimensional wave problem. This would allow the temporal and spatial refinement patterns to be visualised together in a two-dimensional plot.]
+\vspace{1.5em}
+
+
+
+\meet
+{Meeting on 2026-07-06}
+[Completed two experiments to compare manual derivation results and Irksome results. However, for DG1, the convergence rate did not exhibit a well-behaved pattern as the mesh was refined or the time step was reduced.]
+{\begin{itemize}
+    \item Compare the results with the bisect approach using ParaView:
+    \begin{itemize}
+        \item Check whether the numerical solutions differ visually.
+        \item Investigate whether the space-time partitioning needs to be adjusted.
+    \end{itemize}
+    \item Consider how to implement localised adaptive refinement.
+\end{itemize}}
+[Keep the user interface in mind during development. And codex (CLI) is helpful.]
+\vspace{1.5em}
+
+
+\meet
+{Meeting on 2026-06-25}
+[Complete a preliminary adaptive workflow and assess the error estimation strategy for the heat equation.]
+{\begin{itemize}
+    \item Use Irksome to compute the adjoint automatically.
+    \item Check whether the global error estimate coincides.
+    \item Keep the refinement pattern unchanged for the comparison.
+\end{itemize}
+}
+[Error estimate from DG1.]
+\vspace{1.5em}
+
+
+\meet
+{Meeting on 2026-06-18}
+[Extending the bubble projection idea from the stationary case to the space-time setting. Yet the effective indices do not approach 1; instead, they keep increasing, which suggests a problem in the enrichment treatment.]
+{Debug the space-time implementation by starting with a 1D space-time boundary value problem.}
+\vspace{1.5em}
+
+
+
+\meet
+{Meeting on 2026-06-11}
+[Reviewing the literature and comparing different strategies.]
+{Implement the complete workflow using the heat equation.}
+[\begin{itemize}
+    \item For now, do not consider iteration error (keep everything simple at the manual derivation stage).
+    \item Interpolation-based local higher-order approximations was previously constructed due to computational performance constraints. Now enrichment can be used directly at relatively low cost.
+    \item Operations such as integration by parts, which require symbolic manipulation, should be avoided in the automated workflow.
+    \item[*] In the previous stationary case, the geometry error issue was resolved by formulating the problem at the PDE level as a mixed formulation, including the mapping of the domain. (Similar to the eigenvalue problem, the key is to start from a good variational formulation.)
+\end{itemize}]
+\vspace{1.5em}
+
+
+
+\meet
+{Meeting on 2026-06-03}
+[Preparation for the presentation.]
+{Presentation and slide design strategies:
+\begin{itemize}
+    \item Use motivating examples whenever possible.
+    \item Use pauses and overlays to improve the flow of the presentation.
+    \item For theory-heavy slides, consider allocating a small column (e.g. 20\%) for photographs of key researchers.
+    \item Use colour coding to distinguish positive and negative results.
+\end{itemize}
+}
+[\begin{itemize}
+    \item Clarified the central role of the dual problem and localisation of the error representation.
+    \item The enrichment strategy should use $p$-enrichment for space.
+    \item Discussed theoretical concepts such as the saturation assumption and enrichment indices, which are not entirely satisfactory from a theoretical perspective. DWR methods often perform significantly better in practice than their current theoretical guarantees suggest, similar to GMRES and Newton's method.
+\end{itemize}]
+\vspace{1.5em}
+
+
+
+\meet
+{Meeting on 2026-05-28}
+[Code implementation for global error estimation.]
+{Preparation for the dissertation presentation.}
+[\begin{itemize}
+    \item Challenges in the stationary case: derivation of the adjoint problem, and obtaining the strong form through localization.
+    \item Main project focus: localisation of the error representation, and adaptive balancing of spatial and temporal errors.
+    \item Time discretization in the code: DG(0) versus backward Euler.
+    \item Verification of the adjoint implementation using https://www.dolfin-adjoint.org/en/latest/. (Correctness can be assessed through derivative convergence tests, which should exhibit better than first-order convergence.)
+    \item Investigated whether temporal enrichment may also be required when using enriched spatial spaces.
+\end{itemize}
+]
+\vspace{1.5em}
+
+
+
+\meet
+{Meeting on 2026-05-20}
+[Basic understanding of the framework: 
+weak formulation $\rightarrow$ space-time finite elements $\rightarrow$ goal functionals $\rightarrow$ DWR $\rightarrow$ error identity $\rightarrow$ error estimation in enriched spaces]
+{Code implementation: 2D heat equation example.
+Compare the error in $J$ with the known exact solution.}
+[choice of goal functional (time regularity)]
+\vspace{1.5em}
+
+
+
+\meet
+{Meeting on 2026-05-14}
+{Working on the 2D heat equation example.
+}
+[DG0 in time: backward Euler]
+% [
+% \begin{itemize}
+%     \item DG0 in time.
+% \end{itemize}
+% ]
+
+
+
+\end{document}
