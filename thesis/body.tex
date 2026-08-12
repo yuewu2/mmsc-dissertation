@@ -18,7 +18,6 @@ For finite-dimensional spaces \(U_h\subset U\) and \(V_h\subset V\), a Galerkin 
   \label{eq:abstract-discrete-primal}
 \end{equation}
 
-% An a posteriori error estimator is evaluated from the computed approximation and the problem data to estimate an otherwise unknown measure of discretisation error. Norm-oriented adaptive finite element methods typically seek to reduce a prescribed norm of the state error \(u-u_h\), often using residual estimators, including equilibrated-flux variants, recovery estimators, or hierarchical estimators \cite{Ainsworth_Oden_1997,Eriksson_Estep_Hansbo_Johnson_1995}. Their local contributions provide the information required to update the discretisation. 
 Adaptive computations are commonly organised in a \textsc{Solve--Estimate--Mark--Refine} loop \cite{ENDTMAYER202419}:
 \begin{enumerate}
   \item \textsc{Solve}: compute the discrete state on the current space--time discretisation.
@@ -26,19 +25,19 @@ Adaptive computations are commonly organised in a \textsc{Solve--Estimate--Mark-
   \item \textsc{Mark}: select spatial cells, time intervals, or both for refinement.
   \item \textsc{Refine}: update the discretisation and repeat until the prescribed error tolerance is met.
 \end{enumerate}
-The dual-weighted residual (DWR) method, developed in the remainder of this chapter, supplies a goal-oriented realisation of the \textsc{Estimate} step. How the resulting global number is broken down into per-cell and per-time-step contributions is discussed in Section~\ref{sec:background-localisation}.
+The DWR method, detailed in the remainder of this chapter, supplies a goal-oriented realisation of the \textsc{Estimate} step. How the resulting global estimator is broken down into per-cell and per-time-step contributions is discussed in Section~\ref{sec:background-localisation}.
+% and section 3.n
 
 
 \section{Quantities of Interest and Goal Errors}
 \label{sec:background-qoi}
 
-% check chapter 1
-A quantity of interest is a functional \(J:U\rightarrow\mathbb{R}\), and the corresponding goal error is
+As mentioned in Section~\ref{sec:introduction-background}, a quantity of interest is a functional \(J:U\rightarrow\mathbb{R}\), and the corresponding goal error is
 \begin{equation}
   e_J=J(u)-J(u_h).
   \label{eq:background-goal-error}
 \end{equation}
-The functional may be linear or nonlinear and may depend on the solution in the domain, on its boundary, or at selected times. For example, for a fission-reactor eigenvalue problem, let the state be \(u=(\phi,k_{\mathrm{eff}})\), where \(\phi\) is the neutron flux and \(k_{\mathrm{eff}}\) is the effective multiplication factor. A goal functional measuring the deviation from criticality is
+The functional may be linear or nonlinear and may depend on the solution in the domain, on its boundary, or at selected times. For example, for a fission-reactor eigenvalue problem, let the state be \(u=(\phi,k_{\mathrm{eff}})\), where \(\phi\) is the neutron flux and \(k_{\mathrm{eff}}\) is the effective multiplication factor. A goal functional measuring the deviation from criticality can be
 \begin{equation}
   J_{\mathrm{reactor}}(u)
   =
@@ -56,6 +55,7 @@ For flow past a wing, let \(u=(\boldsymbol{u},p)\) denote the velocity and press
 \end{equation}
 where \(\boldsymbol{\sigma}\) is the Cauchy stress tensor and \(\boldsymbol{n}\) is the outward unit normal.
 
+% i dont think its smooth..
 The adjoint problem is determined by the chosen functional \(J\). Consequently, even for a fixed primal PDE, different quantities of interest generally yield different dual weights and may therefore lead to different local refinement indicators and discretisations.
 
 
@@ -113,39 +113,21 @@ Let \(u\in U\) solve \eqref{eq:linear-primal} and \(u_h\in U_h\) solve \eqref{eq
 \end{equation}
 \end{proposition}
 The residual \(\rho(u_h)\) measures the defect of the discrete primal solution in the continuous variational problem. The factor \(z-\varphi_h\) is a dual weight which represents the QoI sensitivity not captured by the chosen discrete function \(\varphi_h\). Galerkin orthogonality removes every component of the dual solution lying in \(V_h\); hence only this weighted residual contributes to the goal error.
+% feel like 可有可无
 
 
 \subsection{A General Error Representation}
 \label{subsec:nonlinear-dwr}
+% i need to include more details.. maybe..
 
-For the problem~\eqref{eq:abstract-primal}, define the Lagrangian
+For the problem~\eqref{eq:abstract-primal}, the associated dual solution \(z\in V\) satisfies
 \begin{equation}
-  \mathcal{L}(u,z)
-  =
-  J(u)-\mathcal{A}(u)(z).
-  \label{eq:dwr-lagrangian}
-\end{equation}
-The associated dual solution \(z\in V\) satisfies
-\begin{equation}
-  \mathcal{A}'_u(u)(w,z)=J'(u)(w)
+  \mathcal{A}'(u)(w,z)=J'(u)(w)
   \qquad\text{for all }w\in U.
   \label{eq:nonlinear-adjoint}
 \end{equation}
-Consequently, the exact primal--dual pair \(x=(u,z)\) is a stationary point of \(\mathcal{L}\). For an approximation \(\widetilde{x}=(\widetilde{u},\widetilde{z})\), define
-\begin{align}
-  \rho(\widetilde{u})(\cdot)
-  &:=
-  -\mathcal{A}(\widetilde{u})(\cdot),
-  \label{eq:nonlinear-primal-residual}\\
-  \rho^\ast(\widetilde{u},\widetilde{z})(\cdot)
-  &:=
-  J'(\widetilde{u})(\cdot)
-  -
-  \mathcal{A}'_u(\widetilde{u})
-  (\cdot,\widetilde{z}).
-  \label{eq:nonlinear-adjoint-residual}
-\end{align}
 
+% ref +: [10]theorem 1 (see [181, 93]). 
 \begin{theorem}[Becker--Rannacher \cite{Becker_Rannacher_2001}]
 \label{thm:becker-rannacher}
 Assume that \(\mathcal{A}\in C^3(U,V^\ast)\) and
@@ -162,11 +144,25 @@ Assume that \(\mathcal{A}\in C^3(U,V^\ast)\) and
   +
   \rho(\widetilde{u})(\widetilde{z})
   +
-  \mathcal{R}^{(3)}.
+  \mathcal{R}^{(3)},
   \label{eq:nonlinear-dwr-identity}
 \end{align}
+where 
+\begin{align}
+  \rho(\widetilde{u})(\cdot)
+  &:=
+  -\mathcal{A}(\widetilde{u})(\cdot),
+  \label{eq:nonlinear-primal-residual}\\
+  \rho^\ast(\widetilde{u},\widetilde{z})(\cdot)
+  &:=
+  J'(\widetilde{u})(\cdot)
+  -
+  \mathcal{A}'(\widetilde{u})
+  (\cdot,\widetilde{z}).
+  \label{eq:nonlinear-adjoint-residual}
+\end{align}
 \end{theorem}
-
+% include the remainder term in thm instead of writing the following sentence
 Here, \(\mathcal{R}^{(3)}\) is a remainder that is cubic in the primal and dual errors and involves third derivatives of the Lagrangian along the segment joining \(\widetilde{x}\) and \(x\).
 
 The correction term \(\rho(\widetilde{u})(\widetilde{z})\) vanishes when \(\widetilde{u}=u_h\) is the Galerkin solution and \(\widetilde{z}\in V_h\). If \(\mathcal{A}\) is affine and \(J\) is linear, then \(\mathcal{R}^{(3)}=0\). Taking \(\widetilde{u}=u_h\) and \(\widetilde{z}=\varphi_h\in V_h\), the two half-residual terms coincide, and the general identity recovers Proposition~\ref{prop:linear-dwr}.
@@ -174,8 +170,10 @@ The correction term \(\rho(\widetilde{u})(\widetilde{z})\) vanishes when \(\wide
 
 \section{Computable Estimators and Effectivity}
 \label{sec:background-effectivity}
+% or enrichment and effectivity
 
 Both identities above are exact but not directly computable because the exact dual solution \(z\) is unknown. In practice, the dual problem is solved in an enriched space \(V_h^+\), producing an approximation \(z_h^+\) that is expected to be more accurate than an approximation in \(V_h\). Such enrichment may be obtained by increasing the polynomial degree, refining the mesh, or reconstructing a higher-order solution in time \cite{Becker_Rannacher_2001}. A systematic treatment of this assumption, together with the reliability theory it supports, is given in \cite{ENDTMAYER202419}.
+% reliable and efficient.. saturation..
 
 Let \(z_h\in V_h\) denote the numerical solution of the discrete dual problem on the current discretisation, and let \(z_h^+\in V_h^+\) be the corresponding dual solution computed in an enriched space \(V_h^+\supset V_h\). For a linear problem, a computable DWR estimator is
 \begin{equation}
@@ -199,21 +197,27 @@ An asymptotically accurate estimator has
 \section{Localisation Strategies}
 \label{sec:background-localisation}
 
-Effectivity assesses the accuracy of the estimator at the global level. Localisation decomposes \(\eta\) into contributions associated with spatial cells, temporal intervals, or their interfaces. Two widely used representations of DWR localisation are strong-residual localisation and variational partition-of-unity (PU) localisation.
+Effectivity assesses the accuracy of the estimator at the global level. Localisation decomposes \(\eta\) into contributions associated with spatial cells, temporal intervals, or their interfaces. Three widely used representations of DWR localisation are integration by parts, a variational filtering operator over patches of elements, and variational partition-of-unity (PU) localisation.
+% +ref: Three known approaches are the classical integration by parts [5, 9], a variational filtering operator over patches of elements [11] and a variational partition-of-unity localization [53]. 
 
-Strong-residual localisation is the classical route for converting a DWR residual representation into local refinement information. The weak residual is integrated by parts elementwise, producing volume residuals together with facet and boundary contributions. For time-dependent problems, the resulting representation additionally contains terms associated with the temporal discretisation, including interface jumps for discontinuous Galerkin methods in time \cite{Becker_Rannacher_2001,Bangerth_Rannacher_2003,Schmich_Vexler_2008}. 
-% need to update reference here!!
+\textit{the following 4 paragraphs need to be revised, and the automotaed localisation would be included in the next chapter}
 
-Automatic construction of strong-residual representations has been demonstrated for stationary variational problems by \cite{Rognes_Logg_2013}. Their approach derives cell and facet residuals from the variational formulation through auxiliary local problems. For time-dependent problems, the corresponding construction must additionally account for the temporal terms induced by the chosen fully discrete formulation.
+% Strong-residual localisation is the classical route for converting a DWR residual representation into local refinement information. The weak residual is integrated by parts elementwise, producing volume residuals together with facet and boundary contributions. For time-dependent problems, the resulting representation additionally contains terms associated with the temporal discretisation, including interface jumps for discontinuous Galerkin methods in time \cite{Becker_Rannacher_2001,Bangerth_Rannacher_2003,Schmich_Vexler_2008}. 
+% % need to update reference here!!
 
-As for PU localisation, it decomposes the DWR residual directly in its weak form by means of locally supported partition-of-unity functions. It therefore avoids the explicit construction of strong residuals, facet flux jumps, and elementwise integrations by parts \cite{Richter_Wick_2015}. The PU approach has been extended to space--time DWR estimators for parabolic problems and provided a basis for single- and multi-goal error control \cite{ENDTMAYER202419}. 
+% Automatic construction of strong-residual representations has been demonstrated for stationary variational problems by \cite{Rognes_Logg_2013}. Their approach derives cell and facet residuals from the variational formulation through auxiliary local problems. For time-dependent problems, the corresponding construction must additionally account for the temporal terms induced by the chosen fully discrete formulation.
 
-These two approaches localise the same global DWR estimator but retain different representations of the residual. This dissertation pursues the strong-residual route and investigates its automated derivation for the time-dependent discretisations.
+% As for PU localisation, it decomposes the DWR residual directly in its weak form by means of locally supported partition-of-unity functions. It therefore avoids the explicit construction of strong residuals, facet flux jumps, and elementwise integrations by parts \cite{Richter_Wick_2015}. The PU approach has been extended to space--time DWR estimators for parabolic problems and provided a basis for single- and multi-goal error control \cite{ENDTMAYER202419}. 
+
+% These two approaches localise the same global DWR estimator but retain different representations of the residual. This dissertation pursues the strong-residual route and investigates its automated derivation for the time-dependent discretisations.
 
 
 
+% ここから、ここから  add more details about the upper-bound marking 
 \section{A Goal-Oriented Adaptive Workflow for the Heat Equation}
 \label{sec:background-heat-workflow}
+
+\textit{more details would be included}
 
 The preceding sections describe the ingredients of goal-oriented adaptation in abstract form. This section combines them in a manufactured 2D heat-equation example.
 
@@ -397,6 +401,8 @@ where \(h_K\) is the cell diameter and \(k_n=|I_n|\). The marking score is
   M_n=\sum_{K\in\mathcal{T}_h}m_{K,n}.
   \label{eq:heat-workflow-marking-scores}
 \end{equation}
+
+\textit{marking strategy changed! so as the table below. since we want to compare this manually derived approach vs automated approach in the next chapter}
 
 At each adaptive iteration, minimal D\"orfler sets \(\mathcal{M}_h\) and \(\mathcal{M}_k\) are selected such that
 \begin{equation}
