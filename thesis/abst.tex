@@ -1,8 +1,8 @@
 \begin{abstract}
 
-Your dissertation must contain an abstract, although it doesn't need to be very long. A paragraph or two is typical. However, if your abstract is long (i.e. it goes over one page) you might consider using the abstractlong environment instead, which has narrower margins.
+Goal-oriented adaptive finite element methods refine a discretisation to reduce the error in a prescribed quantity of interest. For time-dependent partial differential equations, their automation requires a global dual-weighted residual (DWR) estimator to be localised in both space and time. This dissertation develops an automated localisation method that operates directly on the weak variational formulation. It extends hierarchical bubble--cone recovery to discontinuous-Galerkin time discretisations and separates the residual into cell-volume, spatial-facet, temporal-interface and, when necessary, mixed space--time ridge contributions. The resulting local indicators drive a complete solve--estimate--mark--refine cycle with slabwise spatial refinement and temporal bisection.
 
-The abstract should give a concise summary of what you will do in the
-dissertation.
-  
+The framework is implemented in \texttt{Firedrake} and tested on heat, advection--diffusion, Benjamin--Bona--Mahony, and parabolic \(p\)-Laplace problems. The adapted meshes agree with the expected propagation of goal sensitivity and concentrate resolution where it most affects the selected output. These experiments provide numerical evidence that the entity-wise residual recovery developed in this dissertation offers an effective route to automated goal-based space--time adaptivity.
+
+
 \end{abstract}
