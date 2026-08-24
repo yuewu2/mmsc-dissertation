@@ -1,11 +1,11 @@
-\chapter{Mathematical and Computational Background}
+\chapter{Mathematical and Computational Framework}
 \label{chap:background}
 
 
 \section{Adaptive Finite Element Methods}
 \label{sec:background-afem}
 
-Let \(U\) and \(V\) be suitable trial and test spaces, and let \(\mathcal{A}:U\rightarrow V^\ast\) denote the weak residual operator associated with the problem. The continuous problem is written as
+Let \(U\) and \(V\) be reflexive Banach spaces with dual spaces \(U^\ast\) and \(V^\ast\), respectively. Let \(\mathcal{A}:U\rightarrow V^\ast\) denote the weak residual operator associated with the problem. The continuous problem is written as
 \begin{equation}
   \mathcal{A}(u)(v)=0
   \qquad\text{for all }v\in V.
@@ -18,121 +18,65 @@ For finite-dimensional spaces \(U_h\subset U\) and \(V_h\subset V\), a Galerkin 
   \label{eq:abstract-discrete-primal}
 \end{equation}
 
-Adaptive computations are commonly organised in a \textsc{Solve--Estimate--Mark--Refine} loop \cite{ENDTMAYER202419}:
+The development of adaptive finite element methods (AFEM) was inspired by the pioneering work of Babu\v{s}ka and Rheinboldt \cite{pioneer}. To make an adaptive solver practically realisable, and to study the optimality of adaptive procedures, the basic AFEM algorithm is organised as a \textsc{Solve--Estimate--Mark--Refine} loop \cite{ENDTMAYER202419}:
 \begin{enumerate}
-  \item \textsc{Solve}: compute the discrete state on the current space--time discretisation.
-  \item \textsc{Estimate}: evaluate a global error estimator and local error information.
-  \item \textsc{Mark}: select spatial cells, time intervals, or both for refinement.
-  \item \textsc{Refine}: update the discretisation and repeat until the prescribed error tolerance is met.
+  \item \textsc{Solve} the differential equation on the current space--time discretisation.
+  \item \textsc{Estimate} global estimator for the error quantity under consideration.
+  \item \textsc{Mark} the elements by localising the error estimator.
+  \item \textsc{Refine} the marked elements using a specified refinement strategy.
 \end{enumerate}
-The DWR method, detailed in the remainder of this chapter, supplies a goal-oriented realisation of the \textsc{Estimate} step. How the resulting global estimator is broken down into per-cell and per-time-step contributions is discussed in Section~\ref{sec:background-localisation}.
-% and section 3.n
+
+The automated goal-oriented solver considered in this dissertation follows this AFEM framework. The dual-weighted residual method, introduced in the following section, provides the goal-oriented error estimator used in the \textsc{Estimate} step. Section~\ref{sec:background-localisation} describes how this global estimator is decomposed into local contributions, while the marking and refinement strategy is specified at the end of this chapter.
 
 
-\section{Quantities of Interest and Goal Errors}
-\label{sec:background-qoi}
 
-As mentioned in Section~\ref{sec:introduction-background}, a quantity of interest is a functional \(J:U\rightarrow\mathbb{R}\), and the corresponding goal error is
-\begin{equation}
-  e_J=J(u)-J(u_h).
-  \label{eq:background-goal-error}
-\end{equation}
-The functional may be linear or nonlinear and may depend on the solution in the domain, on its boundary, or at selected times. For example, for a fission-reactor eigenvalue problem, let the state be \(u=(\phi,k_{\mathrm{eff}})\), where \(\phi\) is the neutron flux and \(k_{\mathrm{eff}}\) is the effective multiplication factor. A goal functional measuring the deviation from criticality can be
-\begin{equation}
-  J_{\mathrm{reactor}}(u)
-  =
-  \bigl(k_{\mathrm{eff}}-1\bigr)^2.
-  \label{eq:background-reactor-functional}
-\end{equation}
-For flow past a wing, let \(u=(\boldsymbol{u},p)\) denote the velocity and pressure, respectively. The drag in the streamwise direction \(\boldsymbol{e}_x\) is the boundary functional
-\begin{equation}
-  J_{\mathrm{drag}}(u)
-  =
-  \int_{\Gamma_{\mathrm{wing}}}
-  \boldsymbol{\sigma}(\boldsymbol{u},p)\boldsymbol{n}
-  \cdot\boldsymbol{e}_x\,\mathrm{d}s,
-  \label{eq:background-drag-functional}
-\end{equation}
-where \(\boldsymbol{\sigma}\) is the Cauchy stress tensor and \(\boldsymbol{n}\) is the outward unit normal.
-
-% i dont think its smooth..
-The adjoint problem is determined by the chosen functional \(J\). Consequently, even for a fixed primal PDE, different quantities of interest generally yield different dual weights and may therefore lead to different local refinement indicators and discretisations.
-
-
-\section{The Dual-Weighted Residual Method}
+\section{The Dual-Weighted Residual (DWR) Method}
 \label{sec:background-dwr}
 
-\subsection{The Exact Identity for a Linear Problem}
-\label{subsec:linear-dwr}
+\subsection{Quantities of Interest and Adjoint Problem}
+\label{sec:background-qoi}
 
-Consider a bilinear form \(a:U\times V\rightarrow\mathbb{R}\) and a linear functional \(\ell\in V^\ast\). The primal problem is
-\begin{equation}
-  a(u,v)=\ell(v)
-  \qquad\text{for all }v\in V,
-  \label{eq:linear-primal}
-\end{equation}
-with conforming Galerkin approximation \(u_h\in U_h\),
-\begin{equation}
-  a(u_h,v_h)=\ell(v_h)
-  \qquad\text{for all }v_h\in V_h.
-  \label{eq:linear-discrete-primal}
-\end{equation}
-For a linear functional \(J:U\rightarrow\mathbb{R}\), let \(z\in V\) solve
-\begin{equation}
-  a(w,z)=J(w)
-  \qquad\text{for all }w\in U,
-  \label{eq:linear-adjoint}
-\end{equation}
-and define the primal residual \(\rho(u_h)\in V^\ast\) by
-\begin{equation}
-  \rho(u_h)(v)=\ell(v)-a(u_h,v).
-  \label{eq:linear-residual}
-\end{equation}
+As introduced in \eqref{eq:intro-qoi-map}--\eqref{eq:intro-goal-error}, the quantity of interest may be linear or nonlinear and may contain spatial-volume, boundary, running-in-time, or terminal observations. We now make its role in the adjoint problem precise.
+% For example, for a fission-reactor eigenvalue problem, let the state be \(u=(\phi,k_{\mathrm{eff}})\), where \(\phi\) is the neutron flux and \(k_{\mathrm{eff}}\) is the effective multiplication factor. A goal functional measuring the deviation from criticality can be
+% \begin{equation}
+%   J_{\mathrm{reactor}}(u)
+%   =
+%   \bigl(k_{\mathrm{eff}}-1\bigr)^2.
+%   \label{eq:background-reactor-functional}
+% \end{equation}
+% For flow past a wing, let \(u=(\boldsymbol{u},p)\) denote the velocity and pressure, respectively. The drag in the streamwise direction \(\boldsymbol{e}_x\) is the boundary functional
+% \begin{equation}
+%   J_{\mathrm{drag}}(u)
+%   =
+%   \int_{\Gamma_{\mathrm{wing}}}
+%   \boldsymbol{\sigma}(\boldsymbol{u},p)\boldsymbol{n}
+%   \cdot\boldsymbol{e}_x\,\mathrm{d}s,
+%   \label{eq:background-drag-functional}
+% \end{equation}
+% where \(\boldsymbol{\sigma}\) is the Cauchy stress tensor and \(\boldsymbol{n}\) is the outward unit normal.
 
-Writing \(e=u-u_h\) and using \eqref{eq:linear-primal} and \eqref{eq:linear-adjoint} gives
-\begin{equation}
-  J(u)-J(u_h)
-  =
-  J(e)
-  =
-  a(e,z)
-  =
-  \rho(u_h)(z).
-  \label{eq:linear-dwr-first}
-\end{equation}
-Galerkin orthogonality, \(\rho(u_h)(v_h)=0\) for every \(v_h\in V_h\), then gives the following exact representation \cite{ENDTMAYER202419}.
-
-\begin{proposition}[Exact goal-error identity]
-\label{prop:linear-dwr}
-Let \(u\in U\) solve \eqref{eq:linear-primal} and \(u_h\in U_h\) solve \eqref{eq:linear-discrete-primal}, with dual solution \(z\) defined by \eqref{eq:linear-adjoint}. Then for every \(\varphi_h\in V_h\),
-\begin{equation}
-  J(u)-J(u_h)
-  =
-  \rho(u_h)(z-\varphi_h).
-  \label{eq:linear-dwr-exact}
-\end{equation}
-\end{proposition}
-The residual \(\rho(u_h)\) measures the defect of the discrete primal solution in the continuous variational problem. The factor \(z-\varphi_h\) is a dual weight which represents the QoI sensitivity not captured by the chosen discrete function \(\varphi_h\). Galerkin orthogonality removes every component of the dual solution lying in \(V_h\); hence only this weighted residual contributes to the goal error.
-% feel like 可有可无
-
-
-\subsection{A General Error Representation}
-\label{subsec:nonlinear-dwr}
-% i need to include more details.. maybe..
-
-For the problem~\eqref{eq:abstract-primal}, the associated dual solution \(z\in V\) satisfies
+% In order to realize goal-oriented error control,
+The DWR method requires an adjoint problem determined by the chosen functional \(J\). With primes denoting Fr\'echet derivatives, the continuous adjoint is: find \(z\in V\) such that
 \begin{equation}
   \mathcal{A}'(u)(w,z)=J'(u)(w)
-  \qquad\text{for all }w\in U.
+  \qquad\text{for all }w\in U,
   \label{eq:nonlinear-adjoint}
 \end{equation}
+where \(u\) solves \eqref{eq:abstract-primal}. The corresponding discrete adjoint is: find \(z_h\in V_h\) such that
+\begin{equation}
+  \mathcal{A}'(u_h)(w_h,z_h)=J'(u_h)(w_h)
+  \qquad\text{for all }w_h\in U_h.
+  \label{eq:discrete-nonlinear-adjoint}
+\end{equation}
+where \(u_h\) solves \eqref{eq:abstract-discrete-primal}.
 
-% ref +: [10]theorem 1 (see [181, 93]). 
-\begin{theorem}[Becker--Rannacher \cite{Becker_Rannacher_2001}]
+
+\subsection{An Error Identity}
+\label{subsec:nonlinear-dwr}
+
+\begin{theorem}[Nonlinear DWR identity; \cite{Becker_Rannacher_2001,ENDTMAYER202419}]
 \label{thm:becker-rannacher}
-Assume that \(\mathcal{A}\in C^3(U,V^\ast)\) and
-\(J\in C^3(U,\mathbb{R})\). For any approximation
-\(\widetilde{x}=(\widetilde{u},\widetilde{z})\in U\times V\),
+Assume that \(\mathcal{A}\in C^3(U,V^\ast)\) and \(J\in C^3(U,\mathbb{R})\). For any approximation \(\widetilde{x}=(\widetilde{u},\widetilde{z})\in U\times V\),
 \begin{align}
   J(u)-J(\widetilde{u})
   =
@@ -141,7 +85,7 @@ Assume that \(\mathcal{A}\in C^3(U,V^\ast)\) and
   \frac{1}{2}
   \rho^\ast(\widetilde{u},\widetilde{z})
   (u-\widetilde{u})
-  +
+  -
   \rho(\widetilde{u})(\widetilde{z})
   +
   \mathcal{R}^{(3)},
@@ -161,19 +105,129 @@ where
   (\cdot,\widetilde{z}).
   \label{eq:nonlinear-adjoint-residual}
 \end{align}
+Moreover, with \(e=u-\widetilde u\) and \(e^\ast=z-\widetilde z\),
+\begin{equation}
+ \begin{aligned}
+ \mathcal R^{(3)}
+ =\frac12\int_0^1\!\Bigl[{}
+ &J'''(\widetilde u+se)(e,e,e) -\mathcal A'''(\widetilde u+se)
+   (e,e,e,\widetilde z+se^\ast)\\
+ &-3\mathcal A''(\widetilde u+se)(e,e,e^\ast)
+ \Bigr]s(s-1)\,\mathrm ds .
+ \end{aligned}
+ \label{eq:nonlinear-dwr-remainder}
+\end{equation}
 \end{theorem}
-% include the remainder term in thm instead of writing the following sentence
-Here, \(\mathcal{R}^{(3)}\) is a remainder that is cubic in the primal and dual errors and involves third derivatives of the Lagrangian along the segment joining \(\widetilde{x}\) and \(x\).
 
-The correction term \(\rho(\widetilde{u})(\widetilde{z})\) vanishes when \(\widetilde{u}=u_h\) is the Galerkin solution and \(\widetilde{z}\in V_h\). If \(\mathcal{A}\) is affine and \(J\) is linear, then \(\mathcal{R}^{(3)}=0\). Taking \(\widetilde{u}=u_h\) and \(\widetilde{z}=\varphi_h\in V_h\), the two half-residual terms coincide, and the general identity recovers Proposition~\ref{prop:linear-dwr}.
+\begin{proof}[Proof sketch]
+Set \(X=U\times V\), \(x=(u,z)\), \(\widetilde x=(\widetilde u,\widetilde z)\), and introduce the Lagrangian
+\begin{equation}
+  \mathcal L(\widehat u,\widehat z)
+  :=J(\widehat u)-\mathcal A(\widehat u)(\widehat z).
+  \label{eq:dwr-lagrangian}
+\end{equation}
+Along the segment \(x_s=\widetilde x+s(x-\widetilde x)\), the fundamental theorem of calculus and the trapezoidal identity give
+\begin{equation}
+ \mathcal L(x)-\mathcal L(\widetilde x)
+ ={}&\frac12\bigl[\mathcal L'(x)(x-\widetilde x)
+       +\mathcal L'(\widetilde x)(x-\widetilde x)\bigr] +\frac12\int_0^1
+   \mathcal L'''(x_s)(x-\widetilde x)^3s(s-1)\,\mathrm ds.
+ \label{eq:dwr-trapezoidal-proof}
+\end{equation}
+The exact primal and adjoint equations make \(x\) a stationary point of \(\mathcal L\), so \(\mathcal L'(x)=0\). Expanding \(\mathcal L'(\widetilde x)\) in its primal and dual directions produces the primal residual \(\rho\) and adjoint residual \(\rho^\ast\); substituting the definition of \(\mathcal L\) gives the Galerkin correction in \eqref{eq:nonlinear-dwr-identity}. Expanding the third derivative gives \eqref{eq:nonlinear-dwr-remainder}. Complete algebraic details are given in \cite{181,93,ENDTMAYER202419}.
+\end{proof}
+
+The correction term \(-\rho(\widetilde u)(\widetilde z)\) vanishes when \(\widetilde u=u_h\) is solved to Galerkin accuracy and \(\widetilde z\in V_h\). If \(\mathcal A\) is affine and \(J\) is linear, then \(\mathcal R^{(3)}=0\), and the two half-residual terms coincide. To state the resulting linear identity explicitly, let \(a:U\times V\rightarrow\mathbb R\) be bilinear, let \(\ell\in V^\ast\), and define
+\begin{align}
+ a(u,v)&=\ell(v) &&\forall v\in V,
+ \label{eq:linear-primal}\\
+ a(u_h,v_h)&=\ell(v_h) &&\forall v_h\in V_h,
+ \label{eq:linear-discrete-primal}\\
+ a(w,z)&=J(w) &&\forall w\in U,
+ \label{eq:linear-adjoint}\\
+ \rho(u_h)(v)&:=\ell(v)-a(u_h,v).\notag
+ \label{eq:linear-residual}
+\end{align}
+
+\begin{proposition}[Exact linear goal-error identity]
+\label{prop:linear-dwr}
+Let \(u\in U\) solve \eqref{eq:linear-primal} and \(u_h\in U_h\) solve \eqref{eq:linear-discrete-primal}, with dual solution \(z\) defined by \eqref{eq:linear-adjoint}. Then for every \(\varphi_h\in V_h\),
+\begin{equation}
+  J(u)-J(u_h)
+  =
+  \rho(u_h)(z-\varphi_h).
+  \label{eq:linear-dwr-exact}
+\end{equation}
+\end{proposition}
+\begin{proof}
+Writing \(e=u-u_h\), the primal and adjoint equations give \(\rho(u_h)(z)=a(e,z)=J(e)=J(u)-J(u_h)\). Galerkin orthogonality gives \(\rho(u_h)(\varphi_h)=0\), and subtracting this zero term proves \eqref{eq:linear-dwr-exact}.
+\end{proof}
+The residual measures the defect of \(u_h\) in the continuous variational problem. The factor \(z-\varphi_h\) is the part of the QoI sensitivity that is not represented in the discrete test space.
 
 
-\section{Computable Estimators and Effectivity}
+\subsection{Computable Estimators and Effectivity}
 \label{sec:background-effectivity}
-% or enrichment and effectivity
 
-Both identities above are exact but not directly computable because the exact dual solution \(z\) is unknown. In practice, the dual problem is solved in an enriched space \(V_h^+\), producing an approximation \(z_h^+\) that is expected to be more accurate than an approximation in \(V_h\). Such enrichment may be obtained by increasing the polynomial degree, refining the mesh, or reconstructing a higher-order solution in time \cite{Becker_Rannacher_2001}. A systematic treatment of this assumption, together with the reliability theory it supports, is given in \cite{ENDTMAYER202419}.
-% reliable and efficient.. saturation..
+Both identities above contain the unknown exact solution or adjoint. In practice these are replaced by solutions in enriched spaces, obtained, for example, by uniform \(h\)-refinement, \(p\)-enrichment, or a higher-order time approximation \cite{Becker_Rannacher_2001,ENDTMAYER202419}.
+
+Let \(U_h\subset U_h^{(2)}\subset U\) and \(V_h\subset V_h^{(2)}\subset V\). The enriched primal and adjoint problems are
+\begin{align}
+  \mathcal{A}(u_h^{(2)})(v_h^{(2)})&=0
+  &&\text{for all }v_h^{(2)}\in V_h^{(2)},\label{eq:enriched-primal}\\
+  \mathcal{A}'(u_h^{(2)})(w_h^{(2)},z_h^{(2)})
+  &=J'(u_h^{(2)})(w_h^{(2)})
+  &&\text{for all }w_h^{(2)}\in U_h^{(2)}.\label{eq:enriched-adjoint}
+\end{align}
+The precise statement needed here is the enriched-space identity corresponding to Theorem~2 of \cite{ENDTMAYER202419}.
+
+\begin{theorem}[Enriched-space error representation]
+\label{thm:enriched-space-dwr}
+Suppose that restrictions \(\mathcal A^{(2)}\) and \(J_h\) are three-times continuously differentiable on the enriched spaces and agree there with \(\mathcal A\), \(\mathcal A'\), \(J\), and \(J'\); explicitly, for \(v,w\in U_h^{(2)}\) and \(\phi\in V_h^{(2)}\),
+\begin{align*}
+ \mathcal A(v)(\phi)
+ &=\mathcal A^{(2)}(v)(\phi),
+ &
+ \mathcal A'(v)(w,\phi)
+ &=(\mathcal A^{(2)})'(v)(w,\phi),
+ \label{eq:enriched-operator-agreement}\\
+ J(v)&=J_h(v),
+ &
+ J'(v)(w)&=J_h'(v)(w).
+ \label{eq:enriched-goal-agreement}
+\end{align*}
+If \(u_h^{(2)}\) and \(z_h^{(2)}\) solve \eqref{eq:enriched-primal}--\eqref{eq:enriched-adjoint}, then for every fixed \((\widetilde u,\widetilde z)\in U_h^{(2)}\times V_h^{(2)}\),
+\begin{align}
+ J(u)-J(\widetilde u)
+ ={}&J(u)-J(u_h^{(2)})+\eta^{(2)},
+ \label{eq:enriched-exact-splitting}\\
+ \eta^{(2)}
+ :={}&\tfrac12\rho(\widetilde u)(z_h^{(2)}-\widetilde z)
+ +\tfrac12\rho^\ast(\widetilde u,\widetilde z)
+  (u_h^{(2)}-\widetilde u)-\rho(\widetilde u)(\widetilde z)+\mathcal R_h^{(3)}.
+ \label{eq:enriched-nonlinear-dwr}
+\end{align}
+Here \(\mathcal R_h^{(3)}\) is \eqref{eq:nonlinear-dwr-remainder} with the exact errors replaced by enriched errors.
+\end{theorem}
+
+\begin{proof}
+The agreement assumptions imply that \(u_h^{(2)}\) and \(z_h^{(2)}\) form a stationary primal--adjoint pair for the restricted Lagrangian on \(U_h^{(2)}\times V_h^{(2)}\). Applying Theorem~\ref{thm:becker-rannacher} on these finite-dimensional spaces yields \(J_h(u_h^{(2)})-J_h(\widetilde u)=\eta^{(2)}\). Since \(J_h=J\) on the enriched space, adding and subtracting \(J(u_h^{(2)})\) gives \eqref{eq:enriched-exact-splitting}.
+\end{proof}
+
+Under the saturation assumption
+\begin{equation}
+ |J(u)-J(u_h^{(2)})|
+ \le b_h|J(u)-J(\widetilde u)|,
+ \qquad 0<b_h<1,
+ \label{eq:goal-saturation}
+\end{equation}
+the review \cite{ENDTMAYER202419} proves
+\begin{equation}
+ \frac{1}{1+b_h}|\eta^{(2)}|
+ \le |J(u)-J(\widetilde u)|
+ \le \frac{1}{1-b_h}|\eta^{(2)}|.
+ \label{eq:enriched-reliability-efficiency}
+\end{equation}
+The saturation assumption is problem- and goal-dependent and is not proved for the new space--time recovery proposed here; the experiments therefore report effectivities and localisation closure as numerical evidence.
 
 Let \(z_h\in V_h\) denote the numerical solution of the discrete dual problem on the current discretisation, and let \(z_h^+\in V_h^+\) be the corresponding dual solution computed in an enriched space \(V_h^+\supset V_h\). For a linear problem, a computable DWR estimator is
 \begin{equation}
@@ -182,6 +236,7 @@ Let \(z_h\in V_h\) denote the numerical solution of the discrete dual problem on
   \rho(u_h)(z_h^+-z_h).
   \label{eq:computable-dwr-two-solves}
 \end{equation}
+For the dual weight \(z-\varphi_h\), the literature \cite{ENDTMAYER202419} also distinguishes three reconstruction choices: a globally computed higher-order dual \(\widehat z_h-I_h\widehat z_h\); a local patchwise higher-order reconstruction \(I_h^+z_h-z_h\); and a difference-quotient or flux-jump surrogate. The first is usually the most direct route to a global estimator but requires an enriched dual solve. The latter two can be cheaper for marking, but their accuracy depends on the reconstruction and is not interchangeable with that of an enriched global dual. In the present code, \(z_h^+-z_h\) and \(z_h^+-I_hz_h^+\) are both implemented. The experiments use the first choice. The extra low-order adjoint solve is more expensive than a purely local interpolation, but it gives a transparent comparison of two numerical adjoints(?). The interpolant choice remains available for a cheaper study.
 
 When a sufficiently accurate reference value for \(J(u)\) is available, the effectivity index is defined by
 \begin{equation}
@@ -190,274 +245,856 @@ When a sufficiently accurate reference value for \(J(u)\) is available, the effe
   \frac{\eta}{J(u)-J(u_h)}.
   \label{eq:signed-effectivity}
 \end{equation}
-An asymptotically accurate estimator has
-\(I_{\mathrm{eff}}\to 1\) under refinement \cite{Bangerth_Rannacher_2003}.
+An effectivity index close to one indicates good agreement in the computed case \cite{Bangerth_Rannacher_2003}.
 
 
-\section{Localisation Strategies}
+
+\section{Error Localisation Strategies}
 \label{sec:background-localisation}
 
-Effectivity assesses the accuracy of the estimator at the global level. Localisation decomposes \(\eta\) into contributions associated with spatial cells, temporal intervals, or their interfaces. Three widely used representations of DWR localisation are integration by parts, a variational filtering operator over patches of elements, and variational partition-of-unity (PU) localisation.
-% +ref: Three known approaches are the classical integration by parts [5, 9], a variational filtering operator over patches of elements [11] and a variational partition-of-unity localization [53]. 
+% A global DWR estimator must be decomposed into local contributions before it can drive adaptive refinement. Commonly used strategies include elementwise integration by parts (IBP), variational filtering over element patches, and variational partition-of-unity (PU) localisation \cite{Richter_Wick_2015}. 
+% other methods to address.. more reference would be added here
+Section~\ref{sec:introduction-localisation} motivated the need for an entity-wise weak-residual localisation. We now distinguish this construction more precisely from integration-by-parts and partition-of-unity (PU) approaches.
 
-\textit{the following 4 paragraphs need to be revised, and the automotaed localisation would be included in the next chapter}
+Elementwise IBP rewrites the weak residual in terms of strong cell residuals, facet flux jumps, and boundary residuals. This form distinguishes volume, flux, and jump mechanisms explicitly and is therefore often easy to interpret for a fixed PDE. Its derivation, however, depends on the operator and boundary conditions. Carrying out this analysis separately for every variational problem is difficult to automate.
 
-% Strong-residual localisation is the classical route for converting a DWR residual representation into local refinement information. The weak residual is integrated by parts elementwise, producing volume residuals together with facet and boundary contributions. For time-dependent problems, the resulting representation additionally contains terms associated with the temporal discretisation, including interface jumps for discontinuous Galerkin methods in time \cite{Becker_Rannacher_2001,Bangerth_Rannacher_2003,Schmich_Vexler_2008}. 
-% % need to update reference here!!
+PU localisation instead inserts functions \(\{\chi_i\}_{i=1}^M\), satisfying \(\sum_{i=1}^M\chi_i=1\), into the residual, thereby producing contributions associated with nodes, degrees of freedom, or PU patches \cite{Richter_Wick_2015,PU}. This approach has proved effective for both stationary and space--time adaptivity. Space--time PU-DWR methods have, for example, been developed for parabolic problems \cite{ThieleWick2024,R6} and for nonstationary incompressible flow \cite{non-flow}. 
 
-% Automatic construction of strong-residual representations has been demonstrated for stationary variational problems by \cite{Rognes_Logg_2013}. Their approach derives cell and facet residuals from the variational formulation through auxiliary local problems. For time-dependent problems, the corresponding construction must additionally account for the temporal terms induced by the chosen fully discrete formulation.
+In a PU decomposition, each contribution is naturally indexed by a patch or basis function, and a single contribution may combine volume, spatial-interface, and temporal-interface effects. For the present study, we instead seek a decomposition whose terms are indexed by their geometric support. In particular, we want to distinguish cell-volume, spatial-facet, temporal-face, and, when present, mixed space--time ridge contributions. This entity-wise organisation makes it possible to examine which part of the weak residual drives refinement, to define separate spatial and temporal refinement diagnostics, and to test whether the local contributions reproduce the independently assembled global DWR estimator.
 
-% As for PU localisation, it decomposes the DWR residual directly in its weak form by means of locally supported partition-of-unity functions. It therefore avoids the explicit construction of strong residuals, facet flux jumps, and elementwise integrations by parts \cite{Richter_Wick_2015}. The PU approach has been extended to space--time DWR estimators for parabolic problems and provided a basis for single- and multi-goal error control \cite{ENDTMAYER202419}. 
-
-% These two approaches localise the same global DWR estimator but retain different representations of the residual. This dissertation pursues the strong-residual route and investigates its automated derivation for the time-dependent discretisations.
-
+We therefore recover polynomial residual densities on these entities directly from evaluations of the UFL weak residual in \texttt{Firedrake}. This retains the principal automation advantage of weak-residual localisation: no problem-specific strong residual or manually derived flux-jump formula is required. 
+% The trade-off is that the recovery introduces local weighted-mass problems and requires suitable polynomial-representation and support assumptions. 
+This approach is motivated by the stationary bubble--cone construction of Rognes and Logg \cite{Rognes_Logg_2013}. It uses the weak form as input while producing residual components that can be reported separately and paired with the restriction of the DWR weight to a cell, or with its one-sided finite-element value on a spatial or temporal facet.
 
 
-% ここから、ここから  add more details about the upper-bound marking 
-\section{A Goal-Oriented Adaptive Workflow for the Heat Equation}
-\label{sec:background-heat-workflow}
+\subsection{Stationary Bubble and Cone Projection}
+\label{sec:stationary-residual-recovery}
 
-\textit{more details would be included}
+We first recall the stationary construction for the primal residual. The adjoint-residual term is treated in Section~\ref{sec:nonlinear-localisation-scope}. Let \(\rho(v)\) denote the weak residual. The global residual and local residuals are denoted by \(\rho\) and \(\rho_K\), respectively. For each \(K\in\mathcal T_h\), let \(\mathcal F(K)\) denote the set of its facets. Rognes and Logg formulate the following assumptions \cite{Rognes_Logg_2013}:
+\begin{description}
+  \item[(A1) Global decomposition.] The residual is the sum of cell-local functionals:
+  \begin{equation}
+    \rho(v)
+    =
+    \sum_{K\in\mathcal T_h}\rho_K(v).
+    \label{eq:stationary-global-decomposition}
+  \end{equation}
 
-The preceding sections describe the ingredients of goal-oriented adaptation in abstract form. This section combines them in a manufactured 2D heat-equation example.
+  \item[(A2) Local decomposition.] Each local residual admits the representation
+  \begin{equation}
+    \rho_K(v)
+    =
+    \langle R_K,v\rangle_K
+    +
+    \sum_{F\in\mathcal F(K)}
+    \langle R_{K,F},v\rangle_F,
+    \qquad
+    \forall v\in\widehat V|_K,
+    \label{eq:stationary-residual-representation}
+  \end{equation}
+  where
+  \(
+    R_{K,F}:=R_{\partial K}|_F
+  \)
+  is the restriction of the boundary residual density to \(F\).
 
-\subsection{Model Problem and Quantity of Interest}
-\label{subsec:heat-model-qoi}
-
-Let \(\Omega=(0,1)^2\), \(T=0.5\), and \(\kappa=1\). We consider
+  \item[(A3) Polynomial representation.] The residual densities are piecewise polynomial: there exist \(p,q\in\mathbb N\) such that
 \begin{equation}
-  \partial_t u-\kappa\Delta u=f
-  \quad\text{in }\Omega\times(0,T],
+  R_K\in\mathbb P^p(K),
   \qquad
-  u=0\quad\text{on }\partial\Omega\times(0,T],
-  \label{eq:heat-workflow-primal}
+  R_{K,F}\in\mathbb P^q(F)
+  \quad
+  \forall F\in\mathcal F(K).
+  \label{eq:stationary-polynomial-representability}
 \end{equation}
-with initial condition \(u(\cdot,0)=\sin(\pi x)\sin(\pi y)\).  The right-hand side is chosen so that
+\end{description}
+Assumption (A1) is natural when the variational form is assembled from local cell and facet integrals. (A2) identifies the residual representation to be recovered, while (A3) determines whether recovery is exact or projective\cite{Rognes_Logg_2013}.
+
+Let \(K\) be a \(d\)-simplex with vertices \(\{v_i\}_{i=1}^{d+1}\) and associated barycentric coordinate functions \(\{\lambda_i^K\}_{i=1}^{d+1}\). The cell bubble is defined by
 \begin{equation}
-  u(x,y,t)=\mathrm{e}^{-t}\sin(\pi x)\sin(\pi y),
+  b_K:=\prod_{i=1}^{d+1}\lambda_i^K,
   \qquad
-  f(x,y,t)=(2\kappa\pi^2-1)\mathrm{e}^{-t}
-  \sin(\pi x)\sin(\pi y).
-  \label{eq:heat-workflow-exact-solution}
+  b_K|_{\partial K}=0.
+  \label{eq:recovery-cell-bubble}
 \end{equation}
+Since \(b_K\) is positive in the interior of \(K\) and vanishes on its boundary, multiplication by \(b_K\) produces test functions that probe only the cell-interior part of the residual.
 
-Let \(\omega=(1/4,3/4)^2\) be the observation region. The terminal quantity of interest is
+The recovered cell residual density \(R_K^B\in\mathbb P^p(K)\) is defined by
 \begin{equation}
-  J(v):=\int_{\omega}v(x,T)\,\mathrm{d}x
-  =\bigl(\chi_{\omega},v(T)\bigr)_{\Omega},
-  \label{eq:heat-workflow-qoi}
-\end{equation}
-where \(\chi_{\omega}\) denotes the indicator of \(\omega\).
-% The exact solution gives
-% \begin{equation}
-%   J(u)=\frac{2\mathrm{e}^{-T}}{\pi^2}.
-%   \label{eq:heat-workflow-exact-goal}
-% \end{equation}
-% This value is used solely to assess the numerical estimator.
-% The initial mesh is aligned with \(\partial\omega\), so that the discontinuity of \(\chi_{\omega}\) is represented without a cut-cell approximation.
-
-The continuous adjoint associated with \eqref{eq:heat-workflow-qoi} has the formal form
-\begin{equation}
-  -\partial_t z-\kappa\Delta z=0,
+  (R_K^B,b_K\phi)_K
+  =
+  \rho_K(b_K\phi)
   \qquad
-  z=0\quad\text{on }\partial\Omega\times(0,T],
-  \qquad
-  z(\cdot,T)=\chi_{\omega}.
-  \label{eq:heat-workflow-adjoint}
+  \forall\phi\in\mathbb P^p(K).
+  \label{eq:stationary-cell-projection}
 \end{equation}
-Thus, the terminal observation region determines the terminal adjoint data and the adjoint transports its sensitivity backwards in time.
+% Indeed, substituting \(v=b_K\phi\) into
+% \cref{eq:stationary-residual-representation} gives
+% \begin{align}
+%   \rho_K(b_K\phi)
+%   &=
+%   (R_K,b_K\phi)_K
+%   +
+%   \sum_{F\in\mathcal F(K)}
+%   (R_{K,F},b_K\phi)_F
+%   \notag\\
+%   &=
+%   (R_K,b_K\phi)_K,
+%   \label{eq:cell-bubble-isolation}
+% \end{align}
+% because \(b_K|_F=0\) for every \(F\in\mathcal F(K)\). Thus \cref{eq:stationary-cell-projection} isolates the cell density from all facet contributions.
 
-
-% will update this subsection with more details
-\subsection{Discrete DWR Workflow}
-\label{subsec:heat-discrete-workflow}
-
-The accompanying implementation uses continuous piecewise linear finite elements in space and a discontinuous Galerkin method of degree zero in time for the primal solve, denoted by \(U_{kh}\in\mathrm{CG}(1)\otimes\mathrm{dG}(0)\). The fully discrete primal and adjoint equations are assembled with \texttt{Firedrake} and \texttt{Irksome}. The numerical dual \(Z_{kh}\) is computed on the same \(\mathrm{CG}(1)\otimes\mathrm{dG}(0)\) discretisation, whereas the enriched dual \(Z_{kh}^{+}\) is computed in \(\mathrm{CG}(2)\otimes\mathrm{dG}(1)\). The computable dual weight is therefore
+To recover a facet residual, let \(F\in\mathcal F(K)\) and define
 \begin{equation}
-  Z^{\star}=Z_{kh}^{+}-Z_{kh}.
-  \label{eq:heat-workflow-dual-weight}
+  \mathcal I_F
+  :=
+  \{i\in\{1,\ldots,d+1\}:v_i\in F\},
+  \qquad
+  \beta_{K,F}
+  :=
+  \prod_{i\in\mathcal I_F}\lambda_i^K.
+  \label{eq:recovery-facet-cone}
 \end{equation}
+The cone \(\beta_{K,F}\) is positive on the relative interior of \(F\) and vanishes on every other facet of \(K\). Unlike \(b_K\), however, it does not vanish identically in the interior of \(K\).
 
-Let \(\mathcal{T}_h\) denote the current spatial mesh. With
-\(I_n=(t_{n-1},t_n]\), \(K\in\mathcal{T}_h\), and
+Let
+\begin{equation}
+  E_{K,F}:\mathbb P^q(F)\longrightarrow\mathbb P^q(K)
+  \label{eq:facet-polynomial-extension}
+\end{equation}
+be a fixed polynomial extension operator satisfying
 \[
-  Q_K^n:=K\times I_n,
+  (E_{K,F}\psi)|_F=\psi,
 \]
-the signed estimator for this linear problem is obtained by evaluating the fully discrete primal residual at \(Z^{\star}\):
+and write \(\widetilde\psi:=E_{K,F}\psi\). Once \(R_K^B\) has been recovered, the facet residual density \(R_{K,F}^B\in\mathbb P^q(F)\) is defined by
+\begin{equation}
+  \bigl(R_{K,F}^B,(\beta_{K,F}|_F)\psi\bigr)_F
+  =
+  \rho_K(\beta_{K,F}\widetilde\psi)
+  -
+  (R_K^B,\beta_{K,F}\widetilde\psi)_K
+  \qquad
+  \forall\psi\in\mathbb P^q(F).
+  \label{eq:stationary-facet-projection}
+\end{equation}
+The cone test \(\beta_{K,F}\widetilde\psi\) vanishes on all facets other than \(F\), but is generally nonzero in the cell interior. Consequently, it probes both the cell residual and the residual supported on \(F\). The cell action, which is already known from \cref{eq:stationary-cell-projection}, is therefore subtracted in \cref{eq:stationary-facet-projection}, leaving only the facet contribution.
+
+Under assumptions (A1)--(A3), the local problems \cref{eq:stationary-cell-projection,eq:stationary-facet-projection} uniquely recover the polynomial residual densities \(R_K\) and \(R_{K,F}\) \cite{Rognes_Logg_2013}.
+To clarify the role of assumption (A3), the cell recovery equation can be written as
+\begin{equation}
+  (R_K^B-R_K,b_K\phi)_K=0
+  \qquad
+  \forall\phi\in\mathbb P^p(K).
+  \label{eq:cell-recovery-orthogonality}
+\end{equation}
+If \(R_K\in\mathbb P^p(K)\), then both \(R_K^B\) and \(R_K\) belong to the same polynomial space. Hence one may choose
+\(\phi=R_K^B-R_K\) in \cref{eq:cell-recovery-orthogonality}, which gives
+\[
+  \int_K b_K|R_K^B-R_K|^2\,\mathrm dx=0.
+\]
+Since \(b_K>0\) in the interior of \(K\), it follows that \(R_K^B=R_K\).
+
+If \(R_K\notin\mathbb P^p(K)\), exact recovery is generally impossible. In this case, \(R_K^B\) is the bubble-weighted \(L^2\)-projection of \(R_K\) onto \(\mathbb P^p(K)\). The facet problem has the corresponding cone-weighted interpretation after the recovered cell contribution has been subtracted. Increasing \(p\) or \(q\) may reduce the projection error, but it cannot recover a residual contribution that is absent from the assumed cell--facet decomposition.
+
+The recovered residual densities are paired with the computable dual weight \(z^\star\) through the usual finite-element cell and facet integrals. Since \(z^\star\) is a finite-element function, its restriction to a cell and its traces on a facet are determined by its finite-element coefficients and are evaluated automatically at the corresponding quadrature points.
+
+The recovered stationary estimator may therefore be written as
 \begin{align}
-  \eta
-  =&
-  \sum_{n=1}^{N}\int_{I_n}
-  \Bigl[
-    (f,Z^{\star})
-    -(\partial_t U_{kh},Z^{\star})
-    -\bigl(\kappa\nabla U_{kh},\nabla Z^{\star}\bigr)
-  \Bigr]\,\mathrm{d}t
+  \eta_{\mathrm{rec}}
+  ={}&
+  \sum_{K\in\mathcal T_h}(R_K^B,z^\star)_K
+  +
+  \sum_{F\in\mathcal F_h^{\mathrm b}}
+  (R_F^B,z^\star)_F
   \notag\\
-  &-
-  \sum_{n=1}^{N}
-  \bigl([U_{kh}]_{n-1},Z^{\star}(t_{n-1}^{+})\bigr).
-  \label{eq:heat-workflow-dwr-estimator}
+  &+
+  \sum_{F\in\mathcal F_h^{\mathrm i}}
+  \left[
+    \bigl((R_F^B)^+,z^{\star,+}\bigr)_F
+    +
+    \bigl((R_F^B)^-,z^{\star,-}\bigr)_F
+  \right],
+  \label{eq:stationary-recovered-estimator}
 \end{align}
-Here \(u_0:=u(\cdot,0)\),
-\[
-  [U_{kh}]_{n-1}
-  :=
-  U_{kh}(t_{n-1}^{+})-U_{kh}(t_{n-1}^{-})
-  \quad (n=2,\ldots,N),
-\]
-and
-\[
-  [U_{kh}]_0:=U_{kh}(0^+)-u_0.
-\]
-The scalar \(\eta\) assesses the terminal goal error but does not itself specify where to adapt. Elementwise integration by parts of the diffusion term gives the cell residual
+where \(\mathcal F_h^{\mathrm b}\) and \(\mathcal F_h^{\mathrm i}\) denote the boundary and interior facets, respectively. The superscripts \(+\) and \(-\) denote the traces from the two cells adjacent to an interior facet.
+
+The stationary analysis of \cite{Rognes_Logg_2013} proves solvability and exact or projective recovery under the assumptions stated above. Motivated by this result, we treat time as an additional coordinate at the level of the tensor-product recovery space and extend the stationary entity hierarchy to space--time slabs. 
+% The temporal direction nevertheless retains its distinct role through the dG time derivative, one-sided traces, and inter-slab jump terms. 
+This leads to the space--time recovery construction stated below. This localisation conjecture is subsequently investigated in Chapter~\ref{chap:experiments} through localisation gaps, effectivity indices, and adaptive behaviour.
+
+
+\subsection{Space--Time Extension of the Residual Recovery}
+\label{sec:space-time-residual-recovery}
+
+We now extend the stationary test functions with temporal bubble and trace functions. The dG interface action is the feature not present in the stationary construction.
+
+% The stationary construction in Section~\ref{sec:stationary-residual-recovery} recovers entity-supported residual densities by evaluating a single weak residual with support-selective bubble and cone test functions. We now extend the same principle to an evolution problem. The essential new feature is that the weak residual on a time slab contains both an action over the slab interior and, for a discontinuous Galerkin (dG) discretisation in time, an action on the left temporal interface.
+
+\paragraph{Evolution problem and dG discretisation in time.}
+Let \(V\) be a spatial trial and test space. We consider an abstract evolution problem of the form
 \begin{equation}
-  R(U_{kh})|_{Q_K^n}
-  :=
-  f-\partial_t U_{kh}+\nabla\!\cdot(\kappa\nabla U_{kh}),
-  \label{eq:heat-workflow-cell-residual}
+  m(\partial_tu(t),v)
+  +
+  a(u(t);v,t)
+  =
+  \ell(v;t)
+  \qquad
+  \forall v\in V,\quad t\in(0,T),
+  \label{eq:abstract-evolution-problem}
 \end{equation}
-and the local facet residual
+with initial condition \(u(0)=u_0\). Here \(m(\cdot,\cdot)\) is the pairing through which the time derivative is tested, \(a\) contains the remaining spatial and possibly nonlinear terms, and \(\ell\) is the right-hand side. For a sufficiently regular approximation \(U\) and a time-dependent test function \(V\), the corresponding continuous-in-time weak residual is
 \begin{equation}
-  r(U_{kh})|_{\Gamma\times I_n}
+  \rho(U)(V)
+  :=
+  \int_0^T
+  \Big[
+    \ell(V;t)
+    -
+    m(\partial_tU,V)
+    -
+    a(U;V,t)
+  \Big]\,\mathrm dt .
+  \label{eq:continuous-evolution-residual}
+\end{equation}
+The initial condition is imposed separately at \(t=0\).
+
+A discontinuous Galerkin discretisation in time is well suited to the slabwise adaptive setting considered here because consecutive slabs may employ independent temporal polynomial representations and spatial finite-element spaces. This permits the primal problem to be advanced slab by slab, the adjoint problem to be propagated in the reverse direction, and the spatial and temporal discretisations to be adapted locally. We therefore employ a dG discretisation in time throughout this work.
+
+Since the discrete solution is allowed to be discontinuous at the temporal nodes, restricting the continuous residual \eqref{eq:continuous-evolution-residual} to a time slab does not give the complete residual of the discrete dG problem. The mismatch between consecutive one-sided traces must also be retained as a temporal-interface action. Let
+\begin{equation}
+  I_n=(t_{n-1},t_n],
+  \qquad
+  k_n=t_n-t_{n-1},
+  \qquad
+  Q_{K,n}=K\times I_n,
+  \qquad
+  \tau=\frac{t-t_{n-1}}{k_n}.
+  \label{eq:space-time-cell}
+\end{equation}
+On \(I_n\), let \(U_h|_{I_n}\) be a time polynomial with values in the spatial finite-element space \(V_n\). Its incoming and outgoing traces at a temporal node are denoted by
+\begin{equation}
+  U_{h,n-1}^{+}
+  :=
+  \lim_{t\downarrow t_{n-1}}U_h(t),
+  \qquad
+  U_{h,n-1}^{-}
+  :=
+  \lim_{t\uparrow t_{n-1}}U_h(t).
+  \label{eq:dg-time-traces}
+\end{equation}
+For matching spatial spaces on consecutive slabs, we can define the incoming defect by
+\begin{equation}
+  \delta_{n-1}(U_h)
   :=
   \begin{cases}
-    -\dfrac{1}{2}
-    [\![\kappa\nabla U_{kh}\cdot\boldsymbol{n}_{\Gamma}]\!]_{\Gamma},
-      & \Gamma\subset\partial K\setminus\partial\Omega,\\[4pt]
-    0,
-      & \Gamma\subset\partial K\cap\partial\Omega.
+    U_{h,0}^{+}-u_0,
+      & n=1,\\[0.3em]
+    U_{h,n-1}^{+}-U_{h,n-1}^{-},
+      & n>1.
   \end{cases}
-  \label{eq:heat-workflow-facet-residual}
+  \label{eq:dg-incoming-defect}
 \end{equation}
-For an interior facet \(\Gamma\) shared by \(K^+\) and \(K^-\), the jump is the sum of the outward normal fluxes,
+The complete dG residual on the \(n\)-th slab is then
 \begin{equation}
-  [\![\kappa\nabla U_{kh}\cdot\boldsymbol{n}_{\Gamma}]\!]_{\Gamma}
-  =
-  \kappa\nabla U_{kh}^{+}\cdot\boldsymbol{n}_{\Gamma}
-  +
-  \kappa\nabla U_{kh}^{-}\cdot(-\boldsymbol{n}_{\Gamma}).
-  \label{eq:heat-workflow-flux-jump}
-\end{equation}
-Consequently, the weak expression \eqref{eq:heat-workflow-dwr-estimator} has the strong-residual form
-\begin{align}
-  \eta
-  =&
-  \sum_{n=1}^{N}
-  \sum_{K\in\mathcal{T}_h}
-  \biggl[
-    \bigl(R(U_{kh}),Z^{\star}\bigr)_{Q_K^n}
-    +
-    \bigl(r(U_{kh}),Z^{\star}\bigr)_{\partial K\times I_n}
-    \notag\\
-  &\hspace{43mm}
+  \begin{aligned}
+  \rho_n(U_h)(V)
+  :={}&
+  \int_{I_n}
+  \Big[
+    \ell(V;t)
     -
-    \bigl([U_{kh}]_{n-1},Z^{\star}(t_{n-1}^{+})\bigr)_K
-  \biggr].
-  \label{eq:heat-workflow-strong-localisation}
-\end{align}
+    m(\partial_tU_h,V)
+    -
+    a(U_h;V,t)
+  \Big]\,\mathrm dt
+  \\
+  &-
+  m\!\left(
+    \delta_{n-1}(U_h),
+    V(t_{n-1}^{+})
+  \right).
+  \end{aligned}
+  \label{eq:complete-slabwise-dg-residual}
+\end{equation}
+The first line is the restriction of the evolution residual to the slab interior. The second is the dG temporal-interface term, which weakly enforces the initial value on the first slab and couples the incoming trace on every subsequent slab to the outgoing trace from its predecessor. 
 
-In the present homogeneous Dirichlet problem, the boundary facet residual is identically zero, so only interior facet contributions appear in \eqref{eq:heat-workflow-strong-localisation}.
-
-The individual terms in \eqref{eq:heat-workflow-strong-localisation} are signed and may cancel. For marking, the implementation instead uses
-non-negative cell--slab scores. A residual factor and a dual-weight factor are defined by
-\begin{align}
-  \rho_K^{n,1}
-  &:=
-  \lVert R(U_{kh})\rVert_{Q_K^n}
-  +
-  h_K^{-1/2}
-  \lVert r(U_{kh})\rVert_{\partial K\times I_n},
-  \notag\\
-  \zeta_K^{n,1}
-  &:=
-  \lVert Z^{\star}\rVert_{Q_K^n}
-  +
-  h_K^{1/2}
-  \lVert Z^{\star}\rVert_{\partial K\times I_n}.
-  \label{eq:heat-workflow-space-factors}
-\end{align}
-\begin{align}
-  \rho_K^{n,2}
-  &:=
-  k_n^{-1/2}\lVert[U_{kh}]_{n-1}\rVert_K,
-  \notag\\
-  \zeta_K^{n,2}
-  &:=
-  k_n^{1/2}
-  \lVert Z^{\star}(t_{n-1}^{+})\rVert_K,
-  \label{eq:heat-workflow-time-factors}
-\end{align}
-where \(h_K\) is the cell diameter and \(k_n=|I_n|\). The marking score is
+Restricting both parts of \eqref{eq:complete-slabwise-dg-residual} to a spatial cell \(K\) gives the complete local space--time residual
 \begin{equation}
-  m_{K,n}
+  \begin{aligned}
+  \rho_{K,n}(U_h)(V)
+  :={}&
+  \int_{I_n}
+  \Big[
+    \ell_{K,n}(V;t)
+    -
+    m_{n,K}(\partial_tU_h,V)
+    -
+    a_{K,n}(U_h;V,t)
+  \Big]\,\mathrm dt
+  \\
+  &-
+  m_{n,K}\!\left(
+    \delta_{n-1}(U_h),
+    V(t_{n-1}^{+})
+  \right).
+  \end{aligned}
+  \label{eq:complete-local-slab-residual}
+\end{equation}
+Compared with the stationary cell residual \(\rho_K\), the local residual \(\rho_{K,n}\) therefore contains a slab-interior evolution action and a left-interface action supported on \(K\times\{t_{n-1}\}\). The space--time recovery below evaluates this same \(\rho_{K,n}(U_h)\) with different support-selective test functions.
+
+Note that if \(V_{n-1}\neq V_n\), the outgoing trace \(U_{h,n-1}^{-}\in V_{n-1}\) cannot in general be compared directly with the incoming trace \(U_{h,n-1}^{+}\in V_n\). In this case, the defect used in \eqref{eq:complete-slabwise-dg-residual} and \eqref{eq:complete-local-slab-residual} is
+\begin{equation}
+  \delta_{n-1}(U_h)
   =
-  \rho_K^{n,1}\zeta_K^{n,1}
-  +
-  \rho_K^{n,2}\zeta_K^{n,2},
-  \qquad
-  M_K=\sum_{n=1}^{N}m_{K,n},
-  \qquad
-  M_n=\sum_{K\in\mathcal{T}_h}m_{K,n}.
-  \label{eq:heat-workflow-marking-scores}
+  U_{h,n-1}^{+}
+  -
+  P_{n-1}U_{h,n-1}^{-},
+  \qquad n>1,
+  \label{eq:transferred-dg-time-defect}
 \end{equation}
-
-\textit{marking strategy changed! so as the table below. since we want to compare this manually derived approach vs automated approach in the next chapter}
-
-At each adaptive iteration, minimal D\"orfler sets \(\mathcal{M}_h\) and \(\mathcal{M}_k\) are selected such that
+where
 \begin{equation}
-  \sum_{K\in\mathcal{M}_h}M_K
-  \geq
-  \theta_h\sum_{K\in\mathcal{T}_h}M_K,
-  \qquad
-  \sum_{n\in\mathcal{M}_k}M_n
-  \geq
-  \theta_k\sum_{n=1}^{N}M_n.
-  \label{eq:heat-workflow-dorfler}
+  P_{n-1}:V_{n-1}\longrightarrow V_n
 \end{equation}
-with \(\theta_h=0.2\) and \(\theta_k=0.6\). Marked temporal slabs are bisected and marked spatial cells are refined. Both sets are computed from the same iterate before either discretisation is changed. The resulting workflow is:
-\begin{enumerate}
-  \item solve the primal problem on the current mesh and time partition;
-  \item solve the numerical and enriched terminal adjoints;
-  \item evaluate the signed DWR estimator and the positive spatial and temporal scores;
-  \item mark slabs and cells by \eqref{eq:heat-workflow-dorfler}; and
-  \item bisect the marked slabs, refine the marked cells, and repeat.
-\end{enumerate}
-This is a concrete instance of the \textsc{Solve--Estimate--Mark--Refine} loop introduced in Section~\ref{sec:background-afem}.
+is the inter-slab transfer operator. The definition of \(P_{n-1}\), the corresponding adjoint transfer \(P_{n-1}^{\ast}\), and their roles in the forward primal and backward adjoint propagation are discussed in Section~\ref{sec:slab-transfer-adjoint}. For the present localisation construction, it is sufficient to note that the temporal-interface part of \(\rho_{K,n}\) must be evaluated using the same transferred defect as the discrete primal problem.
 
 
-\subsection{Effectivity Test}
-\label{subsec:heat-effectivity-test}
+\paragraph{Space--time support assumptions.}
+The extension of the stationary recovery is based on the following assumptions.
 
-The exact goal value permits the effectivity index
+\begin{description}
+  \item[(A1) Global decomposition.] The global residual is the sum of local space–time functionals,
+  \begin{equation}
+    \rho(U_h)(V)
+    =
+    \sum_{n=1}^{N}
+    \sum_{K\in\mathcal T_n}
+    \rho_{K,n}(U_h)(V).
+    \label{eq:space-time-residual-decomposition}
+  \end{equation}
+
+  \item[(A2) Local decomposition.] On each space--time cell \(Q_{K,n}\), the residual admits a representation by contributions supported on the cell interior, spatial facets, temporal facets, and, when required by the chosen pairing, their intersections:
+  \begin{equation}
+    \begin{aligned}
+    \rho_{K,n}(U_h)(V)
+    ={}&
+    (R_{K,n}^{B,\mathrm{vol}},V)_{Q_{K,n}}
+    +
+    \sum_{F\subset\partial K}
+    (R_{F,n}^{B,\mathrm{sf}},V)_{F\times I_n}
+    \\
+    &+
+    (R_{K,n-1}^{B,\mathrm{tf}},V(t_{n-1}^{+}))_{K} +
+    \sum_{F\subset\partial K}
+    (R_{F,n-1}^{B,\mathrm{xt}},
+      V(t_{n-1}^{+}))_{F}.
+    \end{aligned}
+    \label{eq:space-time-entity-representation}
+  \end{equation}
+  % The last line is a mixed spatial--temporal ridge contribution. It is included only when the residual pairing or the selected recovery functions permit such a contribution.
+  
+\item[(A3) Polynomial representation.]
+The residual densities belong to the selected recovery spaces,
+\begin{align}
+  R_{K,n}^{\mathrm{vol}}
+  &\in Q_{K,n}^{p_x,p_t},
+  &
+  R_{K,F,n}^{\mathrm{sf}}
+  &\in Q_{F,n}^{q_x,q_t},
+  \notag\\
+  R_{K,n-1}^{\mathrm{tf}}
+  &\in \mathbb P^{r_x}(K),
+  &
+  R_{K,F,n-1}^{\mathrm{xt}}
+  &\in \mathbb P^{s_x}(F),
+  \label{eq:space-time-polynomial-representability}
+\end{align}
+whenever the corresponding densities are present.
+\end{description}
+
+Similarly, assumption (A1) follows naturally when the weak form is assembled slab by slab from cell and facet integrals. (A2) records the geometric supports that the recovery must distinguish. Under (A3), problems recover a density exactly when it belongs to the selected polynomial space. Otherwise, they return the corresponding weighted projection.
+
+
+\paragraph{Volume recovery.}
+We define the temporal interior bubble and its tensor product with the spatial cell bubble from~\cref{eq:recovery-cell-bubble} by
 \begin{equation}
-  I_{\mathrm{eff}}
-  =\frac{\eta}{J(u)-J(U_{kh})}
-  \label{eq:heat-workflow-effectivity}
+  b_n^t(\tau):=4\tau(1-\tau),
+  \qquad
+  B_{K,n}:=b_Kb_n^t.
+  \label{eq:space-time-volume-bubble}
 \end{equation}
-to be evaluated. Table~\ref{tab:heat-h-only-effectivity} reports the results by simultaneous adaptation of spatial and time discretization by the DWR method.
+The function \(B_{K,n}\) vanishes on every codimension-one face of \(Q_{K,n}\). In particular,
+\[
+  B_{K,n}(t_{n-1}^{+})
+  =
+  B_{K,n}(t_n^{-})
+  =
+  0,
+\]
+so the temporal-interface term in \cref{eq:complete-local-slab-residual} vanishes under this test.
 
-\begin{table}[h]
-  \centering
-  \small
-  \label{tab:heat-h-only-effectivity}
-  \begin{tabular}{ccccc}
-    \toprule
-    Iteration & Spatial DOFs & \(N\) & \(I_{\mathrm{eff}}\) \\
-    \midrule
-    0 &   83 &  8 & 1.3130 \\
-    1 &  102 & 10 & 1.0864 \\
-    2 &  146 & 14 & 1.1231 \\
-    3 &  216 & 20 & 1.0671 \\
-    4 &  338 & 29 & 1.0606 \\
-    5 &  519 & 43 & 1.0375 \\
-    6 &  754 & 65 & 1.0335 \\
-    7 & 1145 & 99 & 1.0296 \\
-    \bottomrule
-  \end{tabular}
-  \caption{Effectivity indices under simultaneous spatial and temporal \(h\)-adaptation.}
-\end{table}
+The recovered volume density \(R_{K,n}^{B,\mathrm{vol}}\in Q_{K,n}^{p_x,p_t}\) is defined by
+\begin{equation}
+  \bigl(
+    R_{K,n}^{B,\mathrm{vol}},
+    B_{K,n}\Phi
+  \bigr)_{Q_{K,n}}
+  =
+  \rho_{K,n}(U_h)\bigl(B_{K,n}\Phi\bigr)
+  \qquad
+  \forall\Phi\in Q_{K,n}^{p_x,p_t}.
+  \label{eq:space-time-volume-projection}
+\end{equation}
+All spatial-facet and temporal-endpoint contributions vanish under this test.
+\paragraph{Spatial-facet recovery.}
+For \(F\subset\partial K\), define
+\begin{equation}
+  C_{K,F,n}^{\mathrm{sf}}
+  :=
+  \beta_{K,F}b_n^t.
+  \label{eq:space-time-spatial-cone}
+\end{equation}
+This function is nonzero on \(F\times I_n\), vanishes on the other spatial facets, and has zero trace at both temporal endpoints. It therefore exposes the slab-volume contribution and the contribution supported on the selected spatial facet, but not the dG temporal-interface contribution.
 
-For this manufactured problem, the estimator is close in magnitude to the goal error on the later discretisations. The heat equation supplies an explicit strong-residual decomposition and an analytically known reference value. In a general time-dependent variational problem neither is available in this form. The task is therefore to generate, from the stated variational formulation and its fully discrete time scheme, the corresponding volume, facet, boundary, and temporal-interface information needed by the same goal-oriented adaptive loop.
+Let
+\[
+  E_{K,F,n}:
+  Q_{F,n}^{q_x,q_t}
+  \longrightarrow
+  Q_{K,n}^{q_x,q_t}
+\]
+be a fixed polynomial extension and write \(\widetilde\Psi:=E_{K,F,n}\Psi\). After the volume density has been recovered, define \(R_{K,F,n}^{B,\mathrm{sf}}\in Q_{F,n}^{q_x,q_t}\) by
+\begin{align}
+  &\Bigl(
+    R_{K,F,n}^{B,\mathrm{sf}},
+    \bigl.C_{K,F,n}^{\mathrm{sf}}\bigr|_{F\times I_n}\Psi
+  \Bigr)_{F\times I_n}
+  \notag\\
+  &\qquad =
+  \rho_{K,n}(U_h)
+  \bigl(C_{K,F,n}^{\mathrm{sf}}\widetilde\Psi\bigr)
+  -
+  \Bigl(
+    R_{K,n}^{B,\mathrm{vol}},
+    C_{K,F,n}^{\mathrm{sf}}\widetilde\Psi
+  \Bigr)_{Q_{K,n}}
+  \notag
+  \qquad \quad
+  \forall\Psi\in Q_{F,n}^{q_x,q_t}.
+  \label{eq:space-time-spatial-facet-projection}
+\end{align}
 
 
+\paragraph{Temporal-face recovery.}
+The volume and spatial-facet tests above vanish at \(t_{n-1}\) and therefore do not see the dG interface term. To expose it, we retain the spatial cell bubble and replace the temporal interior bubble by a function with nonzero left trace:
+\begin{equation}
+  C_{K,n}^{\mathrm{tf},-}
+  :=
+  b_K(1-\tau).
+  \label{eq:temporal-trace-cone}
+\end{equation}
+It satisfies
+\begin{equation}
+  \begin{aligned}
+  C_{K,n}^{\mathrm{tf},-}(t_{n-1}^{+})&=b_K,
+  &
+  C_{K,n}^{\mathrm{tf},-}(t_n^{-})&=0,
+  &
+  \left.C_{K,n}^{\mathrm{tf},-}\right|_{\partial K\times I_n}&=0.
+  \end{aligned}
+  \label{eq:temporal-cone-traces}
+\end{equation}
+
+For \(\chi\in\mathbb P^{r_x}(K)\), we denote
+\begin{equation}
+  \mathcal{E}_{K,n}^{\mathrm{tf}}(\chi)
+  :=
+  C_{K,n}^{\mathrm{tf},-}\chi
+  =
+  b_K(1-\tau)\chi.
+  \label{eq:temporal-recovery-test}
+\end{equation}
+Its left temporal trace is
+\begin{equation}
+  \mathcal{E}_{K,n}^{\mathrm{tf}}(\chi)(t_{n-1}^{+})
+  =
+  b_K\chi.
+  \label{eq:temporal-recovery-test-trace}
+\end{equation}
+Substitution into the complete local residual gives
+\begin{align}
+  \rho_{K,n}(U_h)
+  \bigl(\mathcal{E}_{K,n}^{\mathrm{tf}}(\chi)\bigr) &=
+  \int_{I_n}
+  \Big[
+    \ell_{K,n}\bigl(\mathcal{E}_{K,n}^{\mathrm{tf}}(\chi);t\bigr)
+    -
+    m_{n,K}\bigl(
+      \partial_tU_h,
+      \mathcal{E}_{K,n}^{\mathrm{tf}}(\chi)
+    \bigr)
+    -
+    a_{K,n}\bigl(
+      U_h;
+      \mathcal{E}_{K,n}^{\mathrm{tf}}(\chi),t
+    \bigr)
+  \Big]\,\mathrm dt
+  \notag\\
+  &-
+  m_{n,K}\bigl(
+    \delta_{n-1}(U_h),
+    b_K\chi
+  \bigr).
+  \label{eq:temporal-cone-complete-residual}
+\end{align}
+The last term is precisely the left-interface component already present in the dG residual. It appears here because \(\mathcal{E}_{K,n}^{\mathrm{tf}}(\chi)\) has a nonzero left temporal trace.
+
+Applying the support decomposition in \cref{eq:space-time-volume-projection} gives
+\begin{equation}
+  \begin{aligned}
+  \rho_{K,n}(U_h)
+  \bigl(\mathcal{E}_{K,n}^{\mathrm{tf}}(\chi)\bigr)
+  ={}&
+  \Bigl(
+    R_{K,n}^{\mathrm{vol}},
+    \mathcal{E}_{K,n}^{\mathrm{tf}}(\chi)
+  \Bigr)_{Q_{K,n}} +
+  \bigl(
+    R_{K,n-1}^{\mathrm{tf}},
+    b_K\chi
+  \bigr)_K.
+  \end{aligned}
+  \label{eq:temporal-cone-support-splitting}
+\end{equation}
+There is no spatial-facet contribution because \(b_K|_{\partial K}=0\). Hence this test exposes exactly the slab volume and the left temporal face.
+
+After the volume solve, define \(R_{K,n-1}^{B,\mathrm{tf}}\in\mathbb P^{r_x}(K)\) by
+\begin{equation}
+  \begin{aligned}
+  \bigl(
+    R_{K,n-1}^{B,\mathrm{tf}},
+    b_K\chi
+  \bigr)_K
+  ={}&
+  \rho_{K,n}(U_h)
+  \bigl(\mathcal{E}_{K,n}^{\mathrm{tf}}(\chi)\bigr) -
+  \Bigl(
+    R_{K,n}^{B,\mathrm{vol}},
+    \mathcal{E}_{K,n}^{\mathrm{tf}}(\chi)
+  \Bigr)_{Q_{K,n}},
+  \qquad
+  \forall\chi\in\mathbb P^{r_x}(K).
+  \end{aligned}
+  \label{eq:temporal-facet-projection}
+\end{equation}
+The volume action must be subtracted because \(\mathcal{E}_{K,n}^{\mathrm{tf}}(\chi)\) is nonzero in the interior of \(Q_{K,n}\). No spatial-facet subtraction is required.
+
+For the \(L^2\) temporal pairing, and assuming that the volume density has been recovered exactly on the required test space, \cref{eq:temporal-facet-projection} reduces to
+\begin{equation}
+  \bigl(
+    R_{K,n-1}^{B,\mathrm{tf}},
+    b_K\chi
+  \bigr)_K
+  =
+  -
+  \bigl(
+    \delta_{n-1}(U_h),
+    b_K\chi
+  \bigr)_K
+  \qquad
+  \forall\chi\in\mathbb P^{r_x}(K).
+  \label{eq:temporal-density-projected-jump}
+\end{equation}
+Thus \(R_{K,n-1}^{B,\mathrm{tf}}\) is the bubble-weighted polynomial projection of \(-\delta_{n-1}(U_h)\). In particular,
+\begin{equation}
+  R_{K,n-1}^{B,\mathrm{tf}}
+  =
+  -\delta_{n-1}(U_h)
+  \label{eq:exact-temporal-density}
+\end{equation}
+whenever the defect belongs to \(\mathbb P^{r_x}(K)\).
+
+This is the temporal analogue of the stationary facet recovery. The stationary cone exposes a residual supported on a spatial facet, whereas \(b_K(1-\tau)\) exposes the dG continuity defect supported on the left temporal face. The interface at \(t_{n-1}\) is assigned to the slab on its right. For \(n=1\), it measures the mismatch with the initial datum. For \(n>1\), it measures the possibly transferred inter-slab defect from \cref{eq:transferred-dg-time-defect}. Assigning the same interface to the right face of \(I_{n-1}\) would count it twice. The primal initial-value problem has no independent residual at \(T\); the terminal data of the adjoint are instead determined by the terminal part of \(J'(U_h)\).
+
+\begin{remark}[Possible mixed spatial--temporal ridge]
+\label{rem:mixed-space-time-ridge}
+
+A separate mixed recovery is required only if the complete residual contains a nonzero functional supported on \(F\times\{t_{n-1}\}\). Such a contribution does not normally arise from an \(L^2\) time-mass pairing, but it can occur when the pairing contains spatial derivatives, as discussed for the BBM problem in Section~\ref{sec:bbm-mixed-ridge-specialisation}.
+
+For \(\psi\in\mathbb P^{s_x}(F)\), let \(\widetilde\psi=E_{K,F}\psi\) be the fixed extension used in the stationary facet recovery and define
+\begin{equation}
+  \begin{aligned}
+  C_{K,F,n}^{\mathrm{xt},-}
+  &:=
+  \beta_{K,F}(1-\tau),
+  \\
+  \mathcal{E}_{K,F,n}^{\mathrm{xt}}(\psi)
+  &:=
+  C_{K,F,n}^{\mathrm{xt},-}\widetilde\psi.
+  \end{aligned}
+  \label{eq:mixed-ridge-test}
+\end{equation}
+This test is nonzero in the slab interior, on the selected spatial facet, and on the left temporal face. The mixed density \(R_{K,F,n-1}^{B,\mathrm{xt}}\in\mathbb P^{s_x}(F)\) is consequently defined by
+\begin{align}
+  \bigl(
+    R_{K,F,n-1}^{B,\mathrm{xt}},
+    (\beta_{K,F}|_F)\psi
+  \bigr)_F &=
+  \rho_{K,n}(U_h)
+  \bigl(\mathcal{E}_{K,F,n}^{\mathrm{xt}}(\psi)\bigr)
+  -
+  \Bigl(
+    R_{K,n}^{B,\mathrm{vol}},
+    \mathcal{E}_{K,F,n}^{\mathrm{xt}}(\psi)
+  \Bigr)_{Q_{K,n}}
+  \notag\\
+  &-
+  \Bigl(
+    R_{K,F,n}^{B,\mathrm{sf}},
+    \left.\mathcal{E}_{K,F,n}^{\mathrm{xt}}(\psi)\right|_{F\times I_n}
+  \Bigr)_{F\times I_n}
+  \notag\\
+  &-
+  \Bigl(
+    R_{K,n-1}^{B,\mathrm{tf}},
+    \mathcal{E}_{K,F,n}^{\mathrm{xt}}(\psi)(t_{n-1}^{+})
+  \Bigr)_K,
+  \qquad
+  \forall\psi\in\mathbb P^{s_x}(F).
+  \label{eq:mixed-ridge-recovery}
+\end{align}
+The four terms on the right-hand side are, respectively, the complete residual action and the previously recovered volume, spatial-facet, and temporal-face actions. Their subtraction leaves only the contribution supported on \(F\times\{t_{n-1}\}\).
+\end{remark}
+
+
+\subsection{Nonlinear DWR Terms and Code Implementation}
+\label{sec:nonlinear-localisation-scope}
+
+The construction above isolates the primal residual. For the nonlinear identity, the implemented estimator is
+\begin{equation}
+ \eta_{\mathrm{NL}}
+ =
+ \frac12\rho(u_h)(z_h^+-z_h)
+ +\frac12\rho^\ast(u_h,z_h)(u_h^+-u_h)
+ -\rho(u_h)(z_h),
+ \label{eq:symmetric-nonlinear-dwr}
+\end{equation}
+with the unknown cubic remainder omitted but measured against the enriched goal difference when that value is available. The first and third terms use the recovered primal-residual entities. The adjoint-residual action is weighted by \(u_h^+-u_h\) and partitioned by the original weak cell integrals.
+
+
+\subsubsection{Temporal Quadrature and the Recovery Space}
+\label{sec:recovery-quadrature-implementation}
+
+Time is not represented by an explicit \((d+1)\)-dimensional mesh. On slab \(I_n\), a saved dG polynomial is reconstructed as
+\begin{equation}
+ U_h(t_{n-1}+k_ns)
+ =\sum_{j=0}^{r}\ell_j(s)U_{n,j},
+ \qquad
+ \partial_tU_h
+ =\frac1{k_n}\sum_{j=0}^{r}\ell_j'(s)U_{n,j},
+ \label{eq:saved-dg-polynomial}
+\end{equation}
+where \(\ell_j\) are the temporal Lagrange basis functions. A Gauss--Legendre rule on \([0,1]\) gives
+\begin{equation}
+ \int_{I_n}F(t)\,\mathrm dt
+ \approx
+ k_n\sum_{q=1}^{N_q}w_q
+ F(t_{n-1}+k_ns_q).
+ \label{eq:slab-gauss-quadrature}
+\end{equation}
+At each \(s_q\), \texttt{Firedrake} assembles the spatial \(dx\), \(ds\), and \(dS\) integrals. Endpoint-supported temporal-face and mixed-ridge terms are assembled directly from one-sided traces and carry no temporal quadrature factor.
+
+(code implementation, recovery space)
+% The implementation solves the local moment systems in hierarchical order:
+% \begin{enumerate}
+%   \item recover the volume density with \(b_Kb_n^t\);
+%   \item subtract the recovered volume action and recover spatial facets with \(\beta_{K,F}b_n^t\);
+%   \item subtract the volume action and recover the left temporal face with \(b_K(1-\tau)\);
+%   \item subtract all three visible actions and recover any remaining mixed ridge with \(\beta_{K,F}(1-\tau)\).
+% \end{enumerate}
+
+% Recovery accuracy depends on both polynomial representation and quadrature. Exact polynomial counting is used when available. Otherwise, recovery degree and \(N_q\) should be increased together until the global recovered sum and marked set are insensitive to further enrichment. 
+
+
+\subsubsection{Localisation Diagnostics and Scope}
+
+Let
+\begin{equation}
+ \eta_{\mathrm{loc}}:=\sum_{n,K}\eta_{K,n},
+ \qquad
+ \delta_{\mathrm{loc}}
+ :=\eta_{\mathrm{loc}}-\eta_{\mathrm{glob}}.
+ \label{eq:localisation-gap}
+\end{equation}
+The code records the signed gap, its relative value \(|\delta_{\mathrm{loc}}|/\max(|\eta_{\mathrm{glob}}|,\epsilon_{\mathrm{mach}})\), 
+and the closure ratio \(\eta_{\mathrm{loc}}/\eta_{\mathrm{glob}}\). These quantities test whether the entity recovery reproduces the independently assembled weak estimator. They are distinct from effectivity, which compares an estimator with the true goal error and therefore also tests the enriched primal--dual approximation.
+
+The construction requires a local finite-order weak residual, inclusion of all physical and discretisation terms, and stable weighted mass systems. Conforming scalar \(H^1\) problems fit this description directly. Discontinuous, \(H(\mathrm{div})\), and \(H(\mathrm{curl})\) formulations require recovery spaces that respect their numerical fluxes and normal or tangential traces. Saddle-point systems, variational inequalities, nonlocal operators, shocks, and distributional sources may require additional problem-specific support entities.
+
+
+\section{Automated Adaptive Loop}
+\label{sec:single-indicator-loop}
+
+\subsection{Primal, Goal, and Adjoint Solves}
+
+% talk about irksome, adjoint
+% The discrete goal contains a terminal contribution and, possibly, a contribution accumulated over time:
+% \begin{equation}
+%   J_h(U_h)
+%   =
+%   J_T(U_h(T))
+%   +
+%   \sum_{n=1}^{N}\int_{I_n}j(U_h(t),t)\,\mathrm dt.
+%   \label{eq:discrete-terminal-running-goal}
+% \end{equation}
+% (construct the code first)
+
+% The running contribution is evaluated by the slab quadrature rule \eqref{eq:slab-gauss-quadrature}. Its presence affects both the data that must be retained from the forward solve and the construction of the adjoint. In particular, the terminal functional supplies the final adjoint condition
+% \begin{equation}
+%   m_N(z(T),w)=J_T'(U_h(T))(w)
+%   \qquad\forall w\in V_N,
+%   \label{eq:terminal-goal-riesz}
+% \end{equation}
+% whereas the derivative of the running integrand acts as a source term at every stage of the backward solve. Therefore, the complete primal dG polynomial is stored on each slab, so that derivatives of the PDE and of the goal can be evaluated at the corresponding physical time during the reverse-time sweep. The production solver forms these derivatives symbolically with UFL. 
+
+
+\subsection{Marking and Refinement}
+
+Let \(\eta_{K,n}\) denote the signed indicator associated with \(K\in\mathcal T_n\), and define its marking activity by
+\begin{equation*}
+  s_{K,n}:=|\eta_{K,n}|,
+  \qquad
+  S:=\sum_{n=1}^{N}\sum_{K\in\mathcal T_n}s_{K,n}.
+  \label{eq:marking-activity}
+\end{equation*}
+For \(S>0\), a single global D\"orfler marking step \cite{Dorfler1996} is applied over the complete space--time index set. More precisely, all activities \(s_{K,n}\) are flattened into one array and sorted in non-increasing order. Entries are then marked sequentially until their cumulative activity first reaches the fraction \(\theta\) of the total:
+\begin{equation}
+  \sum_{(K,n)\in\mathcal M}s_{K,n}\ge\theta S.
+  \label{eq:space-time-dorfler}
+\end{equation}
+
+The global marking decision is subsequently restricted to each slab:
+\begin{equation*}
+  M_n:=\{K\in\mathcal T_n:(K,n)\in\mathcal M\}.
+  \label{eq:slabwise-marked-cells}
+\end{equation*}
+Under the default independent-slab refinement policy, the spatial mesh on \(I_n\) is refined using precisely these cells,
+\begin{equation*}
+  \mathcal T_n^{\mathrm{new}}
+  :=\operatorname{refine}(\mathcal T_n,M_n).
+  \label{eq:slabwise-spatial-refinement}
+\end{equation*}
+The slab is bisected in time when its marked-cell fraction exceeds the within-slab threshold,
+\begin{equation}
+  \frac{|M_n|}{|\mathcal T_n|}\ge\varphi_t,
+  \qquad
+  \varphi_t=0.05.
+  \label{eq:within-slab-time-trigger}
+\end{equation}
+When \(I_n\) is bisected, both temporal children inherit \(\mathcal T_n^{\mathrm{new}}\). Hence the procedure consists of one global space--time bulk selection, followed by slab-local spatial refinement and a separate slabwise decision on temporal bisection.
+
+
+
+\subsection{Transfer on Nonmatching Slab Meshes}
+\label{sec:slab-transfer-adjoint}
+
+Following the refinement strategy above, successive time slabs may use different spatial meshes and hence different finite-element spaces,
+\[
+  V_{n-1}\neq V_n.
+\]
+The outgoing primal trace \(U_{h,n-1}^{-}\in V_{n-1}\) cannot then be inserted directly as the incoming datum for the solve in \(V_n\). We therefore introduce a linear transfer operator
+\begin{equation}
+  P_{n-1}:V_{n-1}\longrightarrow V_n
+  \label{eq:forward-slab-transfer}
+\end{equation}
+and define the dG interface defect by
+\begin{equation}
+  \delta_{n-1}(U_h)
+  =
+  U_{h,n-1}^{+}
+  -
+  P_{n-1}U_{h,n-1}^{-}.
+  \label{eq:transferred-interface-defect-full}
+\end{equation}
+% For an \(L^2\)-projection transfer, \(P_{n-1}w\in V_n\) is defined by
+% \begin{equation}
+%   \left(
+%     P_{n-1}w,v_n
+%   \right)_{\Omega}
+%   =
+%   (w,v_n)_{\Omega}
+%   \qquad
+%   \forall v_n\in V_n.
+%   \label{eq:l2-forward-transfer}
+% \end{equation}
+
+The adjoint must use the transpose of the same discrete forward transfer. Let \(P_{n-1}^{\ast}:V_n\rightarrow V_{n-1}\) be the mass-adjoint operator defined by
+\begin{equation}
+  \left(
+    P_{n-1}w,z_n
+  \right)_{M_n}
+  =
+  \left(
+    w,P_{n-1}^{\ast}z_n
+  \right)_{M_{n-1}}
+  \qquad
+  \forall w\in V_{n-1},\quad z_n\in V_n,
+  \label{eq:mass-adjoint-transfer-definition}
+\end{equation}
+where \(M_{n-1}\) and \(M_n\) denote the mass pairings on the two spaces. If the coefficient matrix of the forward transfer is \(P_{n-1}\), then
+\begin{equation}
+  P_{n-1}^{\ast}
+  =
+  M_{n-1}^{-1}P_{n-1}^{T}M_n.
+  \label{eq:mass-adjoint-transfer-matrix}
+\end{equation}
+
+This formula follows directly from
+\[
+  (P_{n-1}w)^{T}M_n z_n
+  =
+  w^{T}P_{n-1}^{T}M_n z_n
+  =
+  w^{T}M_{n-1}
+  \left(
+    M_{n-1}^{-1}P_{n-1}^{T}M_n z_n
+  \right).
+\]
+% Consequently, the primal propagates information forward through \(P_{n-1}\), whereas the adjoint propagates sensitivities backward through \(P_{n-1}^{\ast}\). Using an unrelated interpolation in the backward solve would no longer give the exact transpose of the implemented discrete primal map and would therefore make the computed adjoint inconsistent with the reported discrete goal functional.
+
+In the implementation, ......
+% the forward transfer is applied when constructing the incoming state for a newly refined slab. The corresponding transpose mass-weighted action is used when the adjoint information is passed from slab \(n\) back to slab \(n-1\). The recovery then uses the same transferred defect \eqref{eq:transferred-interface-defect-full} in the temporal-interface action. Thus transfer affects the primal solve, the adjoint solve, and temporal localisation, but it is logically prior to the subsequent marking decision.
+
+
+
+\subsection{Complete Algorithm}
+
+The complete solve--estimate--mark--refine cycle is summarised in Algorithm~\ref{alg:complete-adaptive-cycle}.
+
+\begin{algorithm}[h]
+\caption{Goal-oriented slabwise space--time adaptive cycle}
+\label{alg:complete-adaptive-cycle}
+\begin{algorithmic}[1]
+\Require PDE, initial slab meshes, tolerance \(\mathrm{TOL}_J\), goal functional \(J\)
+% \Ensure Adapted space--time discretisation and DWR estimate
+
+\While{the stopping criterion is not satisfied}
+  \State Build \(V_n\), the enriched spaces, \(P_n\), and \(P_n^\ast\) on the current slab meshes.
+  \State Solve the primal problem forward and retain every dG slab polynomial.
+  \If{\eqref{eq:symmetric-nonlinear-dwr} is used}
+    \State Solve the enriched primal problem.
+  \EndIf
+  \State Solve the low-order and enriched adjoints backward, differentiating the PDE and the actual terminal/running goal functional, and applying \(P_n^\ast\) at mesh changes.
+  \State Form \(z^\star=z_h^+-z_h\), or optionally \(z^\star=z_h^+-I_hz_h^+\).
+  \State Assemble the independent global DWR estimator.
+  \State Recover volume, spatial-facet, temporal-face, and, when nonzero, mixed-ridge residuals in hierarchical order.
+  \State Weight the recovered entities, assemble indicators \(\eta_{K,n}\), and record the localisation gap \eqref{eq:localisation-gap}.
+  \If{\(|\eta_{\mathrm{glob}}|\le\mathrm{TOL}_J\)}
+    \State \Return the current discretisation and estimators.
+  \EndIf
+  \State Apply the marking criteria \eqref{eq:space-time-dorfler} and \eqref{eq:within-slab-time-trigger}.
+  \State Refine the selected slab meshes, bisect selected time intervals, and rebuild the transfer operators.
+\EndWhile
+
+\end{algorithmic}
+\end{algorithm}

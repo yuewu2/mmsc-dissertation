@@ -9,7 +9,21 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage{booktabs}
 
-\title{Automated Goal-Based Adaptivity for Time-Dependent PDEs}
+% 中文，最后compile 改成pdf 
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\usepackage{cleveref}
+\usepackage{booktabs}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{subcaption}
+\usepackage{stmaryrd}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\title{Automated Goal-Based Adaptivity for Time-Dependent \\Partial Differential Equations}
 \author{Yue Wu}
 \college{Pembroke College}
 %\renewcommand{\submittedtext}{Dissertation submitted in partial fulfilment of the requirements for the degree of}
@@ -35,7 +49,12 @@
 
 \include{intro}
 \include{body}
-\include{body2}
+\include{body2.1}
+\input{body2.2}
+\input{body2.3}
+\input{body2.4}
+% \include{body3}
+
 \include{concl}
 
 \appendix

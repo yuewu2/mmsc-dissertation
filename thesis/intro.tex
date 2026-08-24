@@ -1,59 +1,82 @@
 \chapter{Introduction}
 \label{chap:introduction}
 
-\section{Background}
+\section{Motivation and Background}
 \label{sec:introduction-background}
 
-% where to introduce U
-In many partial differential equation (PDE) problems, the numerical solution is not required with uniform accuracy over the whole computational domain. What matters instead is an accurate value of a specific \emph{quantity of interest} (QoI), a functional
-\begin{equation*}
-  J : U \longrightarrow \mathbb{R}
+In many partial differential equation (PDE) problems, the numerical solution is not required with uniform accuracy throughout the computational domain. What matters instead is the accurate evaluation of a specific \emph{quantity of interest} (QoI), a functional  
+\begin{equation}
+  J:U\longrightarrow\mathbb R
   \label{eq:intro-qoi-map}
-\end{equation*}
-that encodes why the simulation is being run in the first place. Examples include the average temperature in a prescribed observation region, the effective multiplication factor of a fission reactor, and the drag on an airfoil. The relevant discretisation error is consequently
-\begin{equation*}
-  e_J = J(u)-J(u_h),
+\end{equation}
+that encodes why the simulation is being run in the first place, where $U$ is the state space. If $u\in U$ is the exact solution and $u_h$ is a finite element approximation, the error relevant to the stated purpose of the computation is
+\begin{equation}
+  e_J:=J(u)-J(u_h).
   \label{eq:intro-goal-error}
-\end{equation*}
-where \(u\in U\) denotes the exact solution and \(u_h\) its finite element approximation. Quantifying \(e_J\) is therefore necessary when the output, rather than the full state, informs the scientific or engineering conclusion.
+\end{equation}
+For an evolution problem, $J$ may describe a terminal observation, an accumulated response over time, or a combination of the two, and it may be linear or nonlinear in the state.
 
-% Classical adaptive finite element methods estimate the discretisation error in some global norm and refine wherever that error is not yet resolved. This is a reasonable strategy when the full solution is the object of interest, but if only a single scalar output is required, it can waste substantial computational effort correcting errors that barely affect that output.
+Conventional adaptive finite element methods (AFEM) commonly seek to control a norm of the state error $u-u_h$ by a \textsc{Solve--Estimate--Mark--Refine} cycle \cite{pioneer,Ainsworth_Oden_1997,Eriksson_Estep_Hansbo_Johnson_1995,MorinNochettoSiebert2002}. This is appropriate when the accuracy of the state throughout the computational domain is itself the objective. However, when the aim is to compute only a selected output, the relevant question is not where the numerical error is largest, but where it has the largest effect on that output. Refinement based only on a global state norm may therefore spend computational effort in regions that have little influence on $J$. Goal-oriented adaptivity instead seeks to identify and reduce the discretisation errors that matter for the chosen functional.
 
-Conventional adaptive finite element methods (AFEM) aim to control a prescribed norm of the state error,
-\[
-e_u:=u-u_h,
-\]
-by means of local a posteriori error indicators within a \textsc{Solve--Estimate--Mark--Refine} loop \cite{ENDTMAYER202419}. Common indicator constructions include residual, recovery-based, and equilibrated-residual estimators \cite{Ainsworth_Oden_1997}. Their purpose is to estimate and reduce a global norm of \(e_u\). Goal-oriented error estimation instead targets \(e_J\) itself and localises it to obtain refinement indicators for the chosen output \cite{Becker_Rannacher_2001,Bangerth_Rannacher_2003}.
-% check the ref, should it be 2000
+The dual-weighted residual (DWR) method provides a systematic framework for goal-oriented error estimation \cite{Becker_Rannacher_1996,Becker_Rannacher_2001,Bangerth_Rannacher_2003}. It combines the residual of the discrete primal solution with a solution of an adjoint problem. The residual measures the defect of the numerical state in the variational equation, while the adjoint measures the sensitivity of the QoI to that defect. Because the adjoint is determined by $J$, changing the functional while keeping the primal PDE fixed can change the dual weight, the local refinement indicators, and ultimately the adapted mesh.
 
-The dual weighted residual (DWR) method provides a systematic framework for this purpose \cite{Becker_Rannacher_1996,Becker_Rannacher_2001}. It weights the residual of the discrete primal solution by a solution of the dual problem. The residual quantifies the defect of the discrete solution in the continuous variational problem, whereas the dual weight represents the sensitivity of the QoI to that defect.
-For linear problems, the QoI error can be represented exactly as the primal residual evaluated at the difference between the exact and discrete adjoint solutions. In practice, this adjoint error is approximated using an enriched adjoint solution, which yields a computable estimator of the QoI error.
-% should nonlinear case be mentioned here
-
-For time-dependent problems, the global QoI-error estimate must be localised over spatial elements and time intervals to furnish indicators for mesh and time-step adaptation \cite{Becker_Rannacher_2001,Schmich_Vexler_2008}. 
-Several localisation strategies for DWR estimators have been proposed, including classical elementwise integration-by-parts localisation, variational filtering over element patches, and variational partition-of-unity localisation \cite{ThieleWick2024,RichterWick2015}. The first produces strong cell, facet, boundary, and, for discontinuous time discretisations, temporal-jump residuals, whereas the latter two retain a variational representation of the residual and avoids the explicit construction of strong residuals.
-% check the last sentence
-% Strong-residual localisation applies elementwise integration by parts and produces cell residuals, facet and boundary terms, and, for discontinuous temporal discretisations, temporal jump terms. Variational partition-of-unity localisation instead decomposes the weak residual directly and avoids the explicit construction of strong residuals \cite{Richter_Wick_2015}.
-
-% stationary already exist
-This dissertation considers strong-residual localisation for a class of linear time-dependent problems. The objective is to automate the conversion of a weak residual into cell, facet, boundary, and temporal-interface contributions from a symbolic Unified Form Language (UFL) representation, thereby avoiding problem-specific derivations.
-
-\texttt{Firedrake} expresses finite element variational problems using UFL \cite{Firedrake}. Starting from a semidiscrete UFL formulation, \texttt{Irksome} constructs the coupled stage equations associated with a chosen Runge--Kutta scheme \cite{Farrell_Kirby_Marchena_2021}. Recent work extends this automation to discontinuous Galerkin time discretisations \cite{andrews2026automatedgalerkintimestepping}.
-\texttt{firedrake.adjoint} provides the corresponding discrete adjoint calculations using the methodology first published in \cite{Farrell_Ham_Funke_Rognes_2013}.
-These symbolic primal and dual descriptions provide the basis for automatically constructing local strong-residual indicators. 
-% i think i need to explain fd.adjoint in more detail but where
+Exact DWR identities contain errors in the primal and adjoint solutions that are not available computationally. In practice, these terms are approximated using enriched finite element spaces. The detailed identities, computable approximations, and the assumptions under which they estimate the true goal error are presented in Chapter~\ref{chap:background}.
 
 
+\section{The Localisation Problem in Space--Time}
+\label{sec:introduction-localisation}
 
-\section{Main Contributions}
+A global DWR estimator indicates whether the selected output is sufficiently accurate, but it does not by itself determine where the discretisation should be refined. To drive adaptation, it must be decomposed into contributions associated with spatial cells and time intervals. 
+
+Classical elementwise integration by parts produces strong cell residuals, spatial flux jumps, boundary terms, and, for discontinuous time discretisations, temporal-jump terms. These contributions are interpretable for a fixed equation, but their derivation depends on the differential operator, boundary conditions, and discretisation. Repeating that derivation for every new variational problem limits automation.
+
+Variational filtering and partition-of-unity localisation avoid an explicit strong-form derivation by acting directly on the weak residual \cite{BraackErn2003,Richter_Wick_2015}. Space--time partition-of-unity DWR methods have been developed for several classes of nonstationary problems \cite{ThieleWick2024,R6,non-flow}. Their local contributions are naturally associated with basis functions or patches. 
+Beyond these generic constructions, localisation can also exploit structure specific to a problem class or discretisation. Examples include gradient-averaged and nodal decompositions for convection--diffusion transport \cite{KUZMIN20101674}, equilibrated flux and potential reconstructions for elliptic and parabolic approximations \cite{MOZOLEVSKI2015127,CREUSE2023323}, space--time error splitting for dynamically changing meshes \cite{Schmich_Vexler_2008}, and coarse-neighbourhood indicators for high-contrast multiscale models \cite{CHUNG2016625}.
+
+% The aim of this dissertation is complementary: to retain the weak variational form as input while recovering contributions distinguished by their geometric support. This gives separate access to residuals supported in a space--time cell volume, on a spatial facet, or on a temporal interface, and permits their signed sum to be compared with an independently assembled global estimator.
+
+The localisation developed in this dissertation is motivated by the stationary bubble--cone construction of Rognes and Logg \cite{Rognes_Logg_2013}. That construction recovers polynomial residual densities by evaluating a weak residual on support-selective bubble and cone test functions. Here the same principle is extended to space--time slabs. Tensor-product spatial and temporal test functions are used in a hierarchical sequence to recover volume, spatial-facet, temporal-face, and, when nonzero, mixed-ridge contributions. At each stage, contributions already exposed on higher-dimensional entities are subtracted before the next residual density is recovered. The resulting entity contributions are paired with a computable DWR weight to obtain signed cell--slab indicators.
+
+Time dependence introduces more than an additional coordinate. In this dissertation, time is divided into slabs and discretised by discontinuous Galerkin methods. The weak residual therefore contains both slab-interior actions and defects at temporal interfaces. Moreover, slab-local spatial refinement can give consecutive finite element spaces $V_{n-1}\neq V_n$. The outgoing primal state must then be transferred forward between meshes, and adjoint sensitivity must be propagated backwards using the adjoint of the same discrete transfer. The transferred interface defect is also part of the temporal residual and must be treated consistently by the localisation.
+
+The geometric support of an interface residual also depends on the time-mass pairing of the evolution equation. For the standard spatial $L^2$ pairing, the discontinuous-Galerkin defect acts on a temporal face. If the pairing contains spatial derivatives, integration over that face can additionally reveal a contribution on the intersection of a spatial facet and a temporal interface. This lower-dimensional entity is referred to here as a mixed space--time ridge. It is not required for every problem, but it cannot in general be represented by merely increasing the polynomial degree of a volume recovery.
+
+The stationary recovery has an established exact or projective interpretation under polynomial-representation and stability assumptions. The space--time extension proposed here is a computational construction. It is therefore assessed numerically in two distinct ways. The \emph{effectivity index} compares the global estimator with a reference goal error, whereas the \emph{localisation gap} measures whether the recovered local contributions reproduce the independently assembled global DWR estimator. These tests separate the quality of the enriched primal--adjoint approximation from the algebraic completeness of the localisation.
 
 
 
-\section{Code}
-The development repository can be found at...
+\section{Objectives and Main Contributions}
+\label{sec:introduction-contributions}
+
+The objective of this dissertation is to develop and investigate an automated, goal-oriented, slabwise space--time adaptive finite element workflow whose local indicators are constructed from the weak variational problem rather than from a problem-specific strong-residual derivation. The main contributions are as follows.
+
+\begin{enumerate}
+  \item A bubble--cone residual recovery is extended from stationary finite element problems to discontinuous-Galerkin time slabs. The construction distinguishes volume, spatial-facet, and temporal-face residual entities and combines them into signed cell--slab DWR contributions.
+
+  % \item The entity hierarchy is augmented by a mixed space--time ridge when the temporal-interface functional has additional support on the intersection of a spatial facet and a time interface. Its necessity is tested by removing only this contribution from otherwise identical BBM alculations.
+
+  \item Linear and symmetric nonlinear DWR estimators are incorporated with enriched primal and adjoint approximations. Both terminal and running-in-time goal functionals are differentiated from their UFL representations.
+
+  \item The estimator is embedded in a complete \textsc{Solve--Estimate--Mark--Refine} cycle with global space--time bulk marking, slab-local spatial refinement, and temporal bisection. On nonmatching consecutive meshes, the forward state transfer, its mass-adjoint backward action, and the transferred temporal defect are used consistently in the primal, adjoint, and localisation stages.
+
+  % \item The framework is investigated on three complementary examples. A two-dimensional rotating-hill heat problem compares the automated recovery with a manually derived strong-residual marking score for a nonlinear running goal. A one-dimensional advection--diffusion problem isolates how changing a terminal sensor changes the dual sensitivity and adapted mesh. A nonlinear Benjamin--Bona--Mahony problem tests the symmetric DWR estimator and demonstrates the role of the mixed space--time ridge for an $H^1$-type temporal mass pairing.
+\end{enumerate}
+
+
+
+\section{Software and Reproducibility}
+\label{sec:introduction-code}
+
+The implementation is written in Python using \texttt{Firedrake}, which represents and assembles finite element variational forms through the Unified Form Language (UFL) \cite{Firedrake}. UFL differentiation is used to form the linearised and transposed spatial operators and the derivatives of the specified goal functional. The time discretisation follows the automated Galerkin time-stepping framework developed in and around \texttt{Irksome} \cite{Farrell_Kirby_Marchena_2021,andrews2026automatedgalerkintimestepping}.
+
+The development repository can be found at https://github.com/yuewu2/mmsc-dissertation.
 
 
 
 \section{Structure of the Dissertation}
+\label{sec:introduction-structure}
 
+Chapter~\ref{chap:background} develops the mathematical and computational framework. It first introduces AFEM and the linear and nonlinear DWR error representations, then describes enriched estimators and effectivity. It next reviews residual localisation and develops the stationary and space--time bubble--cone recovery, including temporal interfaces, the optional mixed ridge, temporal quadrature, and localisation diagnostics. The chapter concludes by incorporating these components into a complete slabwise adaptive algorithm and by specifying transfer between nonmatching spatial meshes.
+
+Chapter~\ref{chap:experiments} presents the numerical investigation. The rotating-hill heat equation compares automated bubble recovery with a manually derived strong-residual strategy. The advection--diffusion example demonstrates the dependence of the adapted space--time mesh on the chosen goal functional. The nonlinear BBM example then tests the estimator for a dispersive equation and uses a localisation gap to identify the mixed space--time ridge... The final chapter summarises the findings, limitations, and directions for further work.
 

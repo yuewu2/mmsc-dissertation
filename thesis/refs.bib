@@ -197,3 +197,246 @@ abstract = { In this paper we demonstrate a new technique for deriving discrete 
   doi     = {10.1007/s10915-024-02485-6},
   url     = {https://doi.org/10.1007/s10915-024-02485-6}
 }
+
+
+@article{pioneer,
+author = {Babuv{\v s}ka, I. and Rheinboldt, W. C.},
+title = {Error Estimates for Adaptive Finite Element Computations},
+journal = {SIAM Journal on Numerical Analysis},
+volume = {15},
+number = {4},
+pages = {736-754},
+year = {1978},
+doi = {10.1137/0715049},
+URL = {https://doi.org/10.1137/0715049},
+eprint = {https://doi.org/10.1137/0715049},
+abstract = { A mathematical theory is developed for a class of a-posteriors error estimates of finite element solutions. It is based on a general formulation of the finite element method in terms of certain bilinear forms on suitable Hilbert spaces. The main theorem gives an error estimate in terms of localized quantities which can be computed approximately. The estimate is optimal in the sense that, up to multiplicative constants which are independent of the mesh and solution, the upper and lower error bounds are the same. The theoretical results also lead to a heuristic characterization of optimal meshes, which in turn suggests a strategy for adaptive mesh refinement. Some numerical examples show the approach to be very effective. }
+}
+
+
+@misc{93,
+      title={Multigoal-Oriented Error Estimates for Non-linear Problems}, 
+      author={B. Endtmayer and U. Langer and T. Wick},
+      year={2018},
+      eprint={1804.01331},
+      archivePrefix={arXiv},
+      primaryClass={math.NA},
+      url={https://arxiv.org/abs/1804.01331}, 
+}
+
+
+@article{181,
+url = {https://doi.org/10.1515/jnum-2013-0002},
+title = {Adaptive finite element analysis of nonlinear problems: balancing of discretization and iteration errors},
+title = {},
+author = {R. Rannacher and J. Vihharev},
+pages = {23--62},
+volume = {21},
+number = {1},
+journal = {Journal of Numerical Mathematics},
+doi = {doi:10.1515/jnum-2013-0002},
+year = {2013},
+lastchecked = {2026-08-22}
+}
+
+
+@article{BraackErn2003,
+author = {Braack, Malte and Ern, Alexandre},
+title = {A Posteriori Control of Modeling Errors and Discretization Errors},
+journal = {Multiscale Modeling \& Simulation},
+volume = {1},
+number = {2},
+pages = {221-238},
+year = {2003},
+doi = {10.1137/S1540345902410482},
+URL = {https://doi.org/10.1137/S1540345902410482},
+eprint = {https://doi.org/10.1137/S1540345902410482},
+abstract = { We investigate the concept of dual-weighted residuals for measuring model errors in the numerical solution of nonlinear partial differential equations. The method is first derived in the case where only model errors arise and then extended to handle simultaneously model and discretization errors. We next present an adaptive model/mesh refinement procedure where both sources of error are equilibrated. Various test cases involving Poisson equations and convection-diffusion-reaction equations with complex diffusion models (oscillating diffusion coefficient, nonlinear diffusion, multicomponent diffusion matrix) confirm the reliability of the analysis and the efficiency of the proposed methodology. }
+}
+
+
+@article{PU,
+title = {Variational localizations of the dual weighted residual estimator},
+journal = {Journal of Computational and Applied Mathematics},
+volume = {279},
+pages = {192-208},
+year = {2015},
+issn = {0377-0427},
+doi = {https://doi.org/10.1016/j.cam.2014.11.008},
+url = {https://www.sciencedirect.com/science/article/pii/S0377042714004798},
+author = {Thomas Richter and Thomas Wick},
+keywords = {Finite elements, Error estimation, Adjoint, Dual weighted residuals, Adaptivity},
+abstract = {The dual weighted residual method (DWR) and its localization for mesh adaptivity applied to elliptic partial differential equations are investigated. The contribution of this paper is twofold: first, we introduce a novel localization technique based on the introduction of a partition of unity. This new technique is very easy to apply, as neither strong residuals nor jumps over element edges are required. Second, we compare and analyze (theoretically and numerically) different localization techniques used for mesh adaptivity with respect to their effectivity. Here, we focus on localizations in variational formulations that do not require the evaluation of the corresponding differential operator in the classical strong formulation. In our mathematical analysis, we show for different localization techniques (established methods and our new approach) that the local error indicators used for mesh adaptivity converge with proper order in the error functional. Several numerical tests substantiate our theoretical investigations.}
+}
+
+
+@unknown{non-flow,
+author = {Roth, Julian and Thiele, Jan and Köcher, Uwe and Wick, Thomas},
+year = {2022},
+month = {10},
+pages = {},
+title = {Tensor-product space-time goal-oriented error control and adaptivity with partition-of-unity dual-weighted residuals for nonstationary flow problems},
+doi = {10.48550/arXiv.2210.02965}
+}
+
+
+@article{rotatinghill,
+author = {Thiele, J. and Wick, Thomas},
+year = {2024},
+month = {03},
+pages = {},
+title = {Numerical Modeling and Open-Source Implementation of Variational Partition-of-Unity Localizations of Space-Time Dual-Weighted Residual Estimators for Parabolic Problems},
+volume = {99},
+journal = {Journal of Scientific Computing},
+doi = {10.1007/s10915-024-02485-6}
+}
+
+
+@article{R6,
+title = {Goal-oriented adaptive space-time finite element methods for regularized parabolic p-Laplace problems},
+journal = {Computers & Mathematics with Applications},
+volume = {167},
+pages = {286-297},
+year = {2024},
+issn = {0898-1221},
+doi = {https://doi.org/10.1016/j.camwa.2024.05.017},
+url = {https://www.sciencedirect.com/science/article/pii/S0898122124002293},
+author = {B. Endtmayer and U. Langer and A. Schafelner},
+keywords = {Regularized parabolic p-Laplacian, Space-time finite element discretization, Goal-oriented adaptivity},
+abstract = {We consider goal-oriented adaptive space-time finite-element discretizations of the regularized parabolic p-Laplace problem on completely unstructured simplicial space-time meshes. The adaptivity is driven by the dual-weighted residual (DWR) method since we are interested in an accurate computation of some possibly nonlinear functionals at the solution. Such functionals represent goals in which engineers are often more interested than the solution itself. The DWR method requires the numerical solution of a linear adjoint problem that provides the sensitivities for the mesh refinement. This can be done by means of the same full space-time finite element discretization as used for the primal non-linear problems. The numerical experiments presented demonstrate that this goal-oriented, full space-time finite element solver efficiently provides accurate numerical results for different functionals.}
+}
+
+
+
+
+
+
+
+
+@article{MorinNochettoSiebert2002,
+author = {Morin, Pedro and Nochetto, Ricardo H. and Siebert, Kunibert G.},
+title = {Convergence of Adaptive Finite Element Methods},
+journal = {SIAM Review},
+volume = {44},
+number = {4},
+pages = {631-658},
+year = {2002},
+doi = {10.1137/S0036144502409093},
+
+URL = { 
+    
+        https://doi.org/10.1137/S0036144502409093
+    
+    
+
+},
+eprint = { 
+    
+        https://doi.org/10.1137/S0036144502409093
+    
+    
+
+}
+,
+    abstract = { Adaptive finite element methods (FEMs) have been widely used in applications for over 20 years now. In practice, they converge starting from coarse grids, although no mathematical theory has been able to prove this assertion. Ensuring an error reduction rate based on a posteriori error estimators, together with a reduction rate of data oscillation (information missed by the underlying averaging process), we construct a simple and efficient adaptive FEM for elliptic partial differential equations. We prove that this algorithm converges with linear rate without any preliminary mesh adaptation nor explicit knowledge of constants. Any prescribed error tolerance is thus achieved in a finite number of steps. A number of numerical experiments in two and three dimensions yield quasi-optimal meshes along with a competitive performance. Extensions to higher order elements and applications to saddle point problems are discussed as well. }
+}
+
+
+@article{KUZMIN20101674,
+title = {Goal-oriented a posteriori error estimates for transport problems},
+journal = {Mathematics and Computers in Simulation},
+volume = {80},
+number = {8},
+pages = {1674-1683},
+year = {2010},
+note = {ESCO 2008 Conference},
+issn = {0378-4754},
+doi = {https://doi.org/10.1016/j.matcom.2009.03.008},
+url = {https://www.sciencedirect.com/science/article/pii/S0378475409000755},
+author = {Dmitri Kuzmin and Sergey Korotov},
+keywords = {Stationary convection–diffusion equations, The finite element method, A posteriori error estimates, Goal-oriented quantities, Mesh adaptation},
+abstract = {Some aspects of goal-oriented a posteriori error estimation are addressed in the context of steady convection–diffusion equations. The difference between the exact and approximate values of a linear target functional is expressed in terms of integrals that depend on the solutions to the primal and dual problems. Gradient averaging techniques are employed to separate the element residual and diffusive flux errors without introducing jump terms. The dual solution is computed numerically and interpolated using higher-order basis functions. A node-based approach to localization of global errors in the quantities of interest is pursued. A possible violation of Galerkin orthogonality is taken into account. Numerical experiments are performed for centered and upwind-biased approximations of a 1D boundary value problem.}
+}
+
+
+@article{MOZOLEVSKI2015127,
+title = {Goal-oriented error estimation based on equilibrated-flux reconstruction for finite element approximations of elliptic problems},
+journal = {Computer Methods in Applied Mechanics and Engineering},
+volume = {288},
+pages = {127-145},
+year = {2015},
+note = {Error Estimation and Adaptivity for Nonlinear and Time-Dependent Problems},
+issn = {0045-7825},
+doi = {https://doi.org/10.1016/j.cma.2014.09.025},
+url = {https://www.sciencedirect.com/science/article/pii/S004578251400348X},
+author = {Igor Mozolevski and Serge Prudhomme},
+keywords = {Finite element method, Goal-oriented estimates, Quantity of interest, Dual problem, Asymptotically-exact error estimates},
+abstract = {We propose an approach for goal-oriented error estimation in finite element approximations of second-order elliptic problems that combines the dual-weighted residual method and equilibrated-flux reconstruction methods for the primal and dual problems. The objective is to be able to consider discretization schemes for the dual solution that may be different from those used for the primal solution. It is only assumed here that the discretization methods come with a priori error estimates and an equilibrated-flux reconstruction algorithm. A high-order discontinuous Galerkin (dG) method is actually the preferred choice for the approximation of the dual solution thanks to its flexibility and straightforward construction of equilibrated fluxes. One contribution of the paper is to show how the order of the dG method for asymptotic exactness of the proposed estimator can be chosen in the cases where a conforming finite element method, a dG method, or a mixed Raviart–Thomas method is used for the solution of the primal problem. Numerical experiments are also presented to illustrate the performance and convergence of the error estimates in quantities of interest with respect to the mesh size.}
+}
+
+
+@article{CREUSE2023323,
+title = {Goal-oriented error estimation based on equilibrated flux and potential reconstruction for the approximation of elliptic and parabolic problems},
+journal = {Computers & Mathematics with Applications},
+volume = {146},
+pages = {323-338},
+year = {2023},
+issn = {0898-1221},
+doi = {https://doi.org/10.1016/j.camwa.2023.07.008},
+url = {https://www.sciencedirect.com/science/article/pii/S0898122123003000},
+author = {Emmanuel Creusé and Serge Nicaise and Zuqi Tang},
+keywords = {Goal-oriented estimates, Quantity of interest, Elliptic and parabolic problems},
+abstract = {We present a unified framework for goal-oriented estimates for elliptic and parabolic problems that combines the dual-weighted residual method with equilibrated flux and potential reconstruction. These frameworks allow to analyze simultaneously different approximation schemes for the space discretization of the primal and the dual problems such as conforming or nonconforming finite element methods, discontinuous Galerkin methods, or the finite volume method. Our main contribution is twofold: first in a unified framework we prove the splitting of the error into a fully computable estimator η and a remainder, second this remainder is estimated by the product of the fully computable energy-based error estimators of the primal and dual problems. Some illustrative numerical examples that validate our theoretical results are finally presented.}
+}
+
+
+@article{CHUNG2016625,
+title = {Goal-oriented adaptivity for GMsFEM},
+journal = {Journal of Computational and Applied Mathematics},
+volume = {296},
+pages = {625-637},
+year = {2016},
+issn = {0377-0427},
+doi = {https://doi.org/10.1016/j.cam.2015.10.021},
+url = {https://www.sciencedirect.com/science/article/pii/S037704271500521X},
+author = {Eric T. Chung and Wing Tat Leung and Sara Pollock},
+keywords = {High-contrast flow, Multiscale finite element methods, A posteriori error estimation, Goal-oriented adaptivity, Adaptive enrichment},
+abstract = {In this paper we develop two goal-oriented adaptive strategies for a posteriori error estimation within the generalized multiscale finite element framework. In this methodology, one seeks to determine the number of multiscale basis functions adaptively for each coarse region to efficiently reduce the error in the goal functional. Our first error estimator uses a residual based strategy where local indicators on each coarse neighborhood are the product of local indicators for the primal and dual problems, respectively. In the second approach, viewed as the multiscale extension of the dual weighted residual method (DWR), the error indicators are computed as the pairing of the local H−1 residual of the primal problem weighed by a projection into the primal space of the H01 dual solution from an enriched space, over each coarse neighborhood. In both of these strategies, the goal-oriented indicators are then used in place of a standard residual-based indicator to mark coarse neighborhoods of the mesh for further enrichment in the form of additional multiscale basis functions. The method is demonstrated on high-contrast problems with heterogeneous multiscale coefficients, and is seen to outperform the standard residual based strategy with respect to efficient reduction of error in the goal function.}
+}
+
+
+
+
+
+
+
+
+@article{Dorfler1996,
+author = {D{\"o}rfler, Willy},
+title = {A Convergent Adaptive Algorithm for Poisson’s Equation},
+journal = {SIAM Journal on Numerical Analysis},
+volume = {33},
+number = {3},
+pages = {1106-1124},
+year = {1996},
+doi = {10.1137/0733054},
+
+URL = { 
+    
+        https://doi.org/10.1137/0733054
+    
+    
+
+},
+eprint = { 
+    
+        https://doi.org/10.1137/0733054
+    
+    
+
+}
+,
+    abstract = { We construct a converging adaptive algorithm for linear elements applied to Poisson’s equation in two space dimensions. Starting from a macro triangulation, we describe how to construct an initial triangulation from a priori information. Then we use a posteriors error estimators to get a sequence of refined triangulation and approximate solutions. It is proved that the error, measured in the energy norm, decreases at a constant rate in each step until a prescribed error bound is reached. Extension to higher-order elements in two space dimension and numerical results are included. }
+}
+
+
