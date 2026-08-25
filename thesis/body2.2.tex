@@ -207,14 +207,25 @@ where $\eta_{K,n}^{\mathrm{vol}}$ is the cell-interior contribution, $\eta_{K,n}
 
 
 \subsection{Results and Interpretation}
-\textcolor{blue}{space time axis}
 
 In this numerical test, the initial discretisation contains $12$ spatial cells and $8$ time slabs. The primal solution and numerical dual use CG1 in space and dG0 in time. The enriched dual uses the corresponding higher-order space--time approximation. A marking parameter \(\theta=0.6\) is used. A time slab is bisected when the fraction of its marked spatial cells is at least \(15\%\).
 
 First of all, Figure~\ref{fig:advection-diffusion-evolution} shows the evolution of the space--time mesh for the central sensor at $x_d=0.8$. Refinement is concentrated around the transported pulse and occurs in both the spatial and temporal directions.
 \begin{figure}[htbp]
   \centering
-  \begin{subfigure}[t]{0.31\textwidth}
+  % space--time axis
+  \begin{subfigure}[b]{0.05\textwidth}
+    \centering
+    \begin{tikzpicture}[>=latex, line width=0.6pt, scale=0.8]
+      \draw[->] (0,0) -- (0,0.6) node[above=1pt] {$t$};
+      \draw[->] (0,0) -- (0.6,0) node[below=1pt] {$x$};
+    \end{tikzpicture}
+    \vspace{-2em}
+    \captionsetup{labelformat=empty}
+    \caption{}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.30\textwidth}
     \centering
     \includegraphics[
       width=\linewidth
@@ -222,7 +233,7 @@ First of all, Figure~\ref{fig:advection-diffusion-evolution} shows the evolution
     \caption{Iteration 0.}
   \end{subfigure}
   \hfill
-  \begin{subfigure}[t]{0.31\textwidth}
+  \begin{subfigure}[t]{0.30\textwidth}
     \centering
     \includegraphics[
       width=\linewidth
@@ -230,7 +241,7 @@ First of all, Figure~\ref{fig:advection-diffusion-evolution} shows the evolution
     \caption{Iteration 2.}
   \end{subfigure}
   \hfill
-  \begin{subfigure}[t]{0.31\textwidth}
+  \begin{subfigure}[t]{0.30\textwidth}
     \centering
     \includegraphics[
       width=\linewidth
@@ -246,7 +257,19 @@ Figure~\ref{fig:advection-diffusion-initial-marks} compares the space--time cell
 For the detector at $x_d=0.7$, the marked cells form a relatively continuous diagonal band towards the trailing side of the pulse. Fifteen space--time cells are selected, distributed over eight time slabs. For the central detector at $x_d=0.8$, the marked set is more concentrated: the bulk marking criterion is satisfied using only ten cells, and only two time slabs satisfy the temporal refinement criterion. In contrast, the detector at $x_d=0.9$ produces a broader marked region at later times, shifted towards the leading side of the pulse. Sixteen cells are selected and four time slabs are marked for temporal refinement.
 \begin{figure}[h]
   \centering
-  \begin{subfigure}[t]{0.31\textwidth}
+  % space--time axis
+  \begin{subfigure}[b]{0.05\textwidth}
+    \centering
+    \begin{tikzpicture}[>=latex, line width=0.6pt, scale=0.8]
+      \draw[->] (0,0) -- (0,0.6) node[above=1pt] {$t$};
+      \draw[->] (0,0) -- (0.6,0) node[below=1pt] {$x$};
+    \end{tikzpicture}
+    \vspace{-2em}
+    \captionsetup{labelformat=empty}
+    \caption{}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.30\textwidth}
     \centering
     \includegraphics[
       width=\linewidth
@@ -254,7 +277,7 @@ For the detector at $x_d=0.7$, the marked cells form a relatively continuous dia
     \caption{$x_d=0.7$.}
   \end{subfigure}
   \hfill
-  \begin{subfigure}[t]{0.31\textwidth}
+  \begin{subfigure}[t]{0.30\textwidth}
     \centering
     \includegraphics[
       width=\linewidth
@@ -262,7 +285,7 @@ For the detector at $x_d=0.7$, the marked cells form a relatively continuous dia
     \caption{$x_d=0.8$.}
   \end{subfigure}
   \hfill
-  \begin{subfigure}[t]{0.31\textwidth}
+  \begin{subfigure}[t]{0.30\textwidth}
     \centering
     \includegraphics[
       width=\linewidth
@@ -274,7 +297,19 @@ For the detector at $x_d=0.7$, the marked cells form a relatively continuous dia
 \end{figure}
 \begin{figure}[h]
   \centering
-  \begin{subfigure}[t]{0.31\textwidth}
+  % space--time axis
+  \begin{subfigure}[b]{0.05\textwidth}
+    \centering
+    \begin{tikzpicture}[>=latex, line width=0.6pt, scale=0.8]
+      \draw[->] (0,0) -- (0,0.6) node[above=1pt] {$t$};
+      \draw[->] (0,0) -- (0.6,0) node[below=1pt] {$x$};
+    \end{tikzpicture}
+    \vspace{-2em}
+    \captionsetup{labelformat=empty}
+    \caption{}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.30\textwidth}
     \centering
     \includegraphics[
       width=\linewidth
@@ -282,7 +317,7 @@ For the detector at $x_d=0.7$, the marked cells form a relatively continuous dia
     \caption{$x_d=0.7$.}
   \end{subfigure}
   \hfill
-  \begin{subfigure}[t]{0.31\textwidth}
+  \begin{subfigure}[t]{0.30\textwidth}
     \centering
     \includegraphics[
       width=\linewidth
@@ -290,7 +325,7 @@ For the detector at $x_d=0.7$, the marked cells form a relatively continuous dia
     \caption{$x_d=0.8$.}
   \end{subfigure}
   \hfill
-  \begin{subfigure}[t]{0.31\textwidth}
+  \begin{subfigure}[t]{0.30\textwidth}
     \centering
     \includegraphics[
       width=\linewidth

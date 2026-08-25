@@ -1,9 +1,7 @@
 \section{Parabolic p-Laplace Problem on an L-shaped Domain}
 \label{sec:lshape-plaplace}
 
-The preceding numerical settings were smooth. They were useful for verifying the automated residual localisation, but they did not provide a comparison between goal-oriented and uniform refinement. The final experiment therefore considers a parabolic $p$-Laplace problem on an L-shaped domain. The re-entrant corner introduces the classical $r^{2/3}$ singular mode, while a spatially and temporally localised nonlinear functional tests whether the adaptive method concentrates resolution only where it is relevant to the prescribed quantity of interest, despite the reduced spatial regularity at the re-entrant corner.
-
-The experiment is based on the L-shaped example in \cite[Section~6.4]{ENDTMAYER202419} and on the regularised parabolic $p$-Laplace analysis of \cite{R6}. 
+The preceding experiments considered smooth spatial settings and were useful for verifying the automated residual localisation. They did not yet provide a comparison with uniform refinement. We therefore consider the classical L-shaped domain benchmark based on \cite[Section~6.4]{ENDTMAYER202419}, together with the regularised parabolic $p$-Laplace model analysed in \cite{R6}. The example combines reduced primal regularity with goal functionals that may or may not be sensitive to the singularity.
 
 
 \subsection{$p$-Laplace Problem and Goal Functional}
@@ -13,68 +11,123 @@ Let
 \begin{equation}
   \Omega=(-1,1)^2\setminus\bigl([0,1]\times[-1,0]\bigr),
   \qquad Q=\Omega\times(0,1).
-  \label{eq:lshape-domain}
 \end{equation}
 We solve
 \begin{equation}
   \partial_t u
   -\nabla\cdot\left[
-    \bigl(|\nabla u|^2+\varepsilon^2\bigr)^{(p-2)/2}\nabla u
-  \right]
-  =f
+    \bigl(|\nabla u|^2+\varepsilon^2\bigr)^{(p-2)/2}
+    \nabla u
+  \right]=f
   \quad\text{in }Q,
-  \label{eq:lshape-plaplace}
 \end{equation}
-subject to homogeneous Dirichlet conditions on $\partial\Omega\times(0,1)$ and $u(\cdot,0)=0$. In this section, we take $p=4$ and $\varepsilon=10^{-2}$. 
-% The positive regularisation parameter prevents the effective diffusion coefficient from vanishing at points where \(\lvert\nabla u\rvert=0\). It therefore yields a uniformly non-degenerate linearised operator and improves the robustness of the Newton and adjoint solves. More generally, the regularised formulation provides the smoothness assumptions used in the nonlinear DWR framework and is motivated by the Carreau model \cite{R6}.
+with homogeneous Dirichlet conditions and $u(\cdot,0)=0$. Throughout this section,
+\[
+p=4,\qquad \varepsilon=10^{-2}.
+\]
+The regularisation removes the degeneracy of the diffusion law at $|\nabla u|=0$ and supplies the differentiability required by the nonlinear DWR identity \cite{R6}.
 
 Writing $(r,\vartheta)$ for polar coordinates centred at the re-entrant corner, the manufactured solution is
 \begin{equation}
  u_{\mathrm{ex}}(x,y,t)
  =\frac32(1-x^2)^2(1-y^2)^2
-   r^{2/3}\sin\!\left(\frac{2\vartheta}{3}\right)\sin t.
- \label{eq:lshape-exact}
+ r^{2/3}\sin\!\left(\frac{2\vartheta}{3}\right)\sin t .
 \end{equation}
-The source $f$ is obtained by substituting \eqref{eq:lshape-exact} into \eqref{eq:lshape-plaplace}. The factor $r^{2/3}\sin(2\vartheta/3)$ is the classical singular corner mode. The solution remains finite at $r=0$, but its gradient behaves like $r^{-1/3}$. Consequently, conforming finite elements can approximate the weak solution, but quasi-uniform refinement does not enjoy the efficiency available for a globally smooth solution.
-
-Following \cite[Section~6.4.3]{ENDTMAYER202419}, the single quantity of interest is
+The source term is obtained by inserting this expression into the differential equation. Following \cite[Section~6.4.3]{ENDTMAYER202419}, we first consider the terminal spatial functional
 \begin{equation}
-  J_1(u)
-  =\int_{0.5}^{0.75}\int_{\Omega_I}|\nabla u(x,t)|^4\,\mathrm dx\,\mathrm dt,
+  J_1(u)=\int_{\Omega}u(x,T)\,\mathrm dx.
+  \label{eq:lshape-j1-terminal}
+\end{equation}
+The exact value used in the computation is
+\(
+J_1(u_{\mathrm{ex}})
+ =0.4142466902.
+\)
+
+We then consider the localised nonlinear goal functional
+\begin{equation}
+  J_2(u)
+  =\int_{0.5}^{0.75}\int_{\Omega_I}
+  |\nabla u(x,t)|^4\,\mathrm dx\,\mathrm dt,
   \qquad
   \Omega_I=
   \left(-\frac{15}{16},-\frac{11}{16}\right)
   \times
-  \left(\frac{11}{16},\frac{15}{16}\right).
-  \label{eq:lshape-j1}
+  \left(\frac{11}{16},\frac{15}{16}\right),
+  \label{eq:lshape-j2-local}
 \end{equation}
-This is a localised gradient-energy functional. For the regularised $p$-Laplace operator the associated energy density is proportional to $(|\nabla u|^2+\varepsilon^2)^{p/2}$. Hence $J_1$ may be interpreted as an unregularised $p=4$ measure of accumulated gradient or shear activity in a small observation region. Numerically, its more important features are that it is nonlinear in $u$, supported only on a remote spatial subdomain, and active only during one quarter of the time interval.
+which is nonlinear, spatially localised, and active only on the time window $[0.5,0.75]$. The reference value used in the computation is
+\(
+J_1(u_{\mathrm{ex}})=5.2366347\times10^{-5}.
+\)
+% High-order tensor-product Gauss quadrature applied to the analytic gradient of \eqref{eq:lshape-exact} gives
 
-The observation rectangle is represented as a separate \texttt{Netgen} material subdomain. Its boundary therefore consists of mesh facets. 
-% This fitted construction removes the avoidable integration-domain error that is identified in \cite{ENDTMAYER202419} as a cause of initial effectivity oscillations.
-High-order tensor-product Gauss quadrature applied to the analytic gradient of \eqref{eq:lshape-exact} gives
-\begin{equation*}
-  J_1(u_{\mathrm{ex}})=5.2366347\times10^{-5}.
-  \label{eq:lshape-j1-exact}
-\end{equation*}
+For the following experiments, the primal space is $\mathrm{CG}(1)$--$\mathrm{DG}(0)$ and both the enriched primal and adjoint use $\mathrm{CG}(2)$--$\mathrm{DG}(1)$. The nonlinear DWR identity is localised by hierarchical bubble recovery.
 
 
-\subsection{Results and Interpretation}
-\label{subsec:lshape-discretisation}
-\textcolor{blue}{J2}
 
-The initial discretisation contains eight time slabs and uses the fitted Netgen mesh with $75$ terminal spatial degrees of freedom. The primal space is $\mathrm{CG}(1)$--$\mathrm{DG}(0)$ and both the enriched primal and adjoint use $\mathrm{CG}(2)$--$\mathrm{DG}(1)$. The nonlinear DWR identity is localised by hierarchical bubble recovery.
+\subsubsection{Global Terminal Goal and Componentwise Marking}
 
-For the adaptive run, the spatial refinement fraction is set to be $\theta=0.30$. A slab is bisected when at least $10\%$ of its cells have been selected by the global marking step. The uniform run refines every spatial cell and bisects every time slab. Both runs start from the same space--time discretisation.
+Since the terminal spatial-average functional $J_1$ is global in space, it retains some sensitivity to the singularity at the re-entrant corner. The adaptive computation employs the spatial bulk parameter $\theta=0.35$ and a temporal marking fraction of $0.10$.
 
-Since the adaptive spatial mesh depends on the slab, the terminal spatial dimension is not an appropriate cost measure. In fact, the terminal mesh remains at $75$ degrees of freedom throughout the adaptive sequence because $J_1$ is inactive after $t=0.75$. All convergence plots therefore use the total primal space--time degrees of freedom,
-\begin{equation}
-  N_{\mathrm{st}}=\sum_{n=1}^{N_t}\dim V_h^n,
-  \label{eq:lshape-spacetime-dofs}
-\end{equation}
-which counts the actual slabwise primal unknowns.
+The computed goal error exhibits an overall decreasing trend over the six
+adaptive cycles,
+% Its magnitude decreases from
+% \(
+%  |J_1(u)-J_1(u_h)|=4.699\times 10^{-3}
+% \)
+% on the initial discretisation to $1.21\times 10^{-3}$ at adaptive iteration~7. 
+% The decrease is not strictly monotone, which is expected for a signed global quantity of interest because local space--time contributions may partially cancel after each non-uniform refinement step.
+while the global effectivity starts from $0.0559$ and increases to $ 1.0550$ at iteration~7. The localised effectivity is much closer to one throughout the sequence.
+Figure~\ref{fig:lshape-terminal-meshes} shows the spatial meshes associated with four representative time slabs from the final adaptive sequence. The refinement becomes progressively denser near the re-entrant corner and extends into its surrounding region as the terminal time is approached. This pattern is consistent with the global terminal functional retaining sensitivity to the reduced regularity generated by the corner singularity.
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}[t]{0.24\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]
+      {figures/lshape/j2_mesh.0000.png}
+    \caption{$t=0$}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.24\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]
+      {figures/lshape/j2_mesh.0003.png}
+    \caption{$t=0.5$}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.24\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]
+      {figures/lshape/j2_mesh.0006.png}
+    \caption{$t=0.75$}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.24\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]
+      {figures/lshape/j2_mesh.0007.png}
+    \caption{$t=1$}
+  \end{subfigure}
 
-Figure~\ref{fig:lshape-j1-comparison} compares the true $J_1$ error against $N_{\mathrm{st}}$. The adaptive sequence reduces the error much more rapidly than uniform refinement. The errors and effectivity indices at representative iterates are reported in Table~\ref{tab:lshape-j1-results}.
+  \caption{Spatial meshes at time $t=0,\,0.5,\,0.75,\,1$ for goal $J_1$ at iteration~7.}
+  \label{fig:lshape-terminal-meshes}
+\end{figure}
+
+
+
+
+
+
+
+
+
+\subsubsection{Localised Nonlinear Goal}
+
+
+For goal functinoal $J_2$, the observation rectangle is represented as a separate \texttt{Netgen} material subdomain so that its boundary consists of mesh facets. The initial discretisation contains eight time slabs and uses the fitted mesh with $75$ terminal spatial degrees of freedom. For the adaptive run, the spatial refinement fraction is set to be $\theta=0.30$. A slab is bisected when at least $10\%$ of its cells have been selected by the global marking step. The uniform run refines every spatial cell and bisects every time slab. Both runs start from the same space--time discretisation.
+
+Figure~\ref{fig:lshape-j1-comparison} compares the true $J_1$ error against $N_{\mathrm{st}}=\sum_{n=1}^{N_t}\dim V_h^n$, which counts the actual slabwise primal unknowns. The errors and effectivity indices at representative iterates are reported in Table~\ref{tab:lshape-j1-results}.
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.65\textwidth]
@@ -107,19 +160,18 @@ Figure~\ref{fig:lshape-j1-comparison} compares the true $J_1$ error against $N_{
   \end{tabular}
 \end{table}
 
-Thus uniform refinement uses approximately $245824/2901\simeq84.7$ times as many primal space--time degrees of freedom to reach a comparable goal accuracy. 
-At the initial level the global and localised estimates are $-1.6628\times10^{-4}$ and $-1.6645\times10^{-4}$, giving effectivities $0.925$ and $0.926$, respectively. Uniform refinement subsequently drives both indices smoothly towards one. The adaptive global index remains between $0.925$ and $1.321$ through iterate~6, despite changing only a small fraction of the space--time cells.
-An unexpected decrease to $I_{\mathrm{eff}}^{\mathrm{glob}}=0.550$ occurs at adaptive iterate~7. The available exact goal value shows that this is associated with a failure of the saturation property underlying the DWR reliability and efficiency theory \cite{ENDTMAYER202419}. With $u_h^+$ denoting the enriched primal solution, the observed ratio 
+The adaptive sequence reduces the error much more rapidly than uniform refinement. Uniform refinement uses approximately $245824/2901\simeq84.7$ times as many primal space--time degrees of freedom to reach a comparable goal accuracy. 
+% At the initial level the global and localised estimates are $-1.6628\times10^{-4}$ and $-1.6645\times10^{-4}$, giving effectivities $0.925$ and $0.926$, respectively. Uniform refinement subsequently drives both indices smoothly towards one. The adaptive global index remains between $0.925$ and $1.321$ through iterate~6, despite changing only a small fraction of the space--time cells.
+
+However, from the table, an unexpected decrease to $I_{\mathrm{eff}}^{\mathrm{glob}}=0.550$ occurs at adaptive iterate~7. The available reference goal value shows that this is associated with a failure of the saturation property underlying the DWR reliability and efficiency theory \cite{ENDTMAYER202419}. With $u_h^+$ denoting the enriched primal solution, the observed ratio 
 \begin{equation*}
   b_h^{\mathrm{obs}}
   :=\frac{|J_1(u)-J_1(u_h^+)|}{|J_1(u)-J_1(u_h)|}
   \label{eq:lshape-observed-saturation}
 \end{equation*}
-equals $0.1296<1$ at iterate~6, where the enriched approximation is clearly more accurate, but increases to $1.382>1$ at iterate~7. At the latter level the low-order goal error has crossed zero and has the very small magnitude $1.561\times10^{-7}$, whereas the enriched goal lies on the opposite side of the exact value with error $2.157\times10^{-7}$. Enrichment no longer reduces the goal error, and the saturation-based estimate is not guaranteed.
+equals $0.1296<1$ at iterate~6, where the enriched approximation is clearly more accurate, but increases to $1.382>1$ at iterate~7. At the latter level the low-order goal error has crossed zero and has the very small magnitude $1.561\times10^{-7}$, whereas the enriched goal lies on the opposite side of the exact value with error $2.157\times10^{-7}$. Enrichment no longer reduces the goal error, and the saturation-based estimate is not guaranteed. This suggested that the enriched problem should be strengthened, for example by increasing its spatial or temporal polynomial degree, if further accuracy is required.
 
-(how to address this, or is it a problem? though Ieff is incorrect but the error is indeed decreasing)
-% If further accuracy is required, the enriched problem should be strengthened, for example by increasing its spatial or temporal polynomial degree.
-
+\textcolor{blue}{does this make sense? though Ieff is incorrect but the error is indeed decreasing}
 
 Finally, Figure~\ref{fig:lshape-j1-meshes} and~\ref{fig:lshape-j1-3d} show the actual two-dimensional mesh carried by the selected time slab. 
 \begin{figure}[h]
@@ -162,7 +214,7 @@ Finally, Figure~\ref{fig:lshape-j1-meshes} and~\ref{fig:lshape-j1-3d} show the a
     ]{figures/lshape/j1_mesh.0015.png}
     \caption{}
   \end{subfigure}
-  \caption{Evolution of the slabwise spatial meshes. (a) shows the initial mesh, (b)--(e) show the spatial meshes carried by the adaptive time slabs whose right endpoints are $t=0.5$, $0.625$, $0.75$, and $1$, respectively.}
+  \caption{Spatial meshes for goal $J_2$ at iteration~7. (a) shows the initial mesh, (b)--(e) show the spatial meshes carried by the adaptive time slabs whose right endpoints are $t=0.5$, $0.625$, $0.75$, and $1$, respectively.}
   \label{fig:lshape-j1-meshes}
 \end{figure}
 \begin{figure}[h]
@@ -173,8 +225,8 @@ Finally, Figure~\ref{fig:lshape-j1-meshes} and~\ref{fig:lshape-j1-3d} show the a
   \label{fig:lshape-j1-3d}
 \end{figure}
 
-The mesh sequence clarifies the source of the adaptive advantage. At $t=0.625$ the selected slab contains $1\,473$ cells and at $t=0.75$ it contains $1\,959$, whereas the terminal slab contains only the initial $116$ cells. Refinement is concentrated around $\Omega_I$ and its surrounding sensitivity region. It is not comparably dense at the re-entrant corner. This is consistent with the interpretation in \cite{ENDTMAYER202419}: the observation region is remote from the singularity. It is the DWR algorithm that does not attempt to resolve every loss of primal regularity. A norm-oriented estimator would be expected to prioritise the corner more strongly.
+The mesh sequence clarifies the advantage of the goal-oriented adaptivity. At $t=0.625$ the selected slab contains $1\,473$ cells and at $t=0.75$ it contains $1\,959$, whereas the terminal slab contains only the initial $116$ cells. Refinement is concentrated around $\Omega_I$ and its surrounding sensitivity region. By contrast, the re-entrant corner is not refined to a comparable extent. This behaviour is expected for goal-oriented adaptivity as the DWR algorithm does not attempt to resolve every loss of primal regularity. 
 
-In summary, the L-shaped problem supplies the adaptive--uniform comparison that the preceding smooth tests did not stress. Here DWR-driven space-time adaptivity is more efficient than uniform refinement for the prescribed localised goal functional \(J_1\).
+In summary, the L-shaped problem supplies the adaptive--uniform comparison that the preceding smooth tests did not stress. Here DWR-driven space-time adaptivity is more efficient than uniform refinement for the prescribed localised goal functional \(J_2\).
 
 

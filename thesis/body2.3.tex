@@ -159,7 +159,6 @@ The derivative part of the interface defect can consequently have a substantial 
 
 
 \subsection{Results and Interpretation}
-\textcolor{blue}{space time axis}
 
 The global estimator uses the nonlinear DWR identity with the unknown cubic remainder omitted.
 \begin{equation}
@@ -217,6 +216,18 @@ With the mixed ridge included, $|\delta_{\mathrm{loc}}|$ stays at floating-point
 Figure~\ref{fig:bbm-mesh-evolution} displays the adapted meshes in the $(x,t)$ plane. The initial mesh is uniform. By iteration $8$, local spatial and temporal refinements form a recognisable diagonal corridor from the initial wave position towards the terminal sensor. At iteration $12$ this corridor is substantially denser, while cells far from it remain comparatively coarse. Its alignment with the exact space--time wave whose centre moves from $x=30$ at $t=0$ to $x=54$ at $T=18$.
 \begin{figure}[!htbp]
   \centering
+  % space--time axis
+  \begin{subfigure}[b]{0.05\textwidth}
+  \centering
+    \begin{tikzpicture}[>=latex, line width=0.6pt, scale=0.8]
+      \draw[->] (0,0) -- (0,0.6) node[above=1pt] {$t$};
+      \draw[->] (0,0) -- (0.6,0) node[right=1pt] {$x$};
+    \end{tikzpicture}
+    \vspace{-1.5em}
+    \captionsetup{labelformat=empty}
+    \caption{}
+  \end{subfigure}
+  \hfill
   \begin{subfigure}[b]{0.90\linewidth}
     \centering
     \includegraphics[width=\linewidth, height=0.25\textheight, keepaspectratio]{figures/bbm/bbm_mesh_iter_00.png}
