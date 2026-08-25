@@ -45,7 +45,7 @@ where $\alpha=50$ and
 \end{equation}
 Thus $u_{\mathrm{ex}}$ is a smooth, localised hill whose centre travels once around a circle of radius $1/4$ about the centre of the unit square. Although the solution remains smooth, its strongest spatial variation is concentrated near the moving peak.
 
-The reference rotating-hill benchmark uses the space--time $L^2$ error to measure how well the local behaviour of the solution is captured \cite{rotatinghill}. Here we use its squared, differentiable counterpart. More precisely, we define the manufactured-error or space--time tracking functional
+The reference rotating-hill benchmark uses the space--time $L^2$ error to measure how well the local behaviour of the solution is captured \cite{ThieleWick2024}. Here we use its squared, differentiable counterpart. More precisely, we define the manufactured-error or space--time tracking functional
 \begin{equation}
   J(v)
   :=
@@ -102,7 +102,7 @@ The homogeneous adjoint boundary condition follows because variations of the pri
 % \paragraph{Uniform baseline.}
 % The uniform run provides a non-adaptive reference sequence. At each iteration, every spatial cell on every time slab is refined and every time slab is bisected. For the triangular meshes used here, one spatial cell therefore produces four children, while bisection of the time partition produces two child slabs. Consequently, the number of space--time cells increases by approximately a factor of eight at each uniform refinement step.
 
-\paragraph{Strong-residual marking score.}
+\paragraph{Strong-residual marking score.\cite{Bangerth_Rannacher_2003,Becker_Rannacher_2001}}
 For comparison, we construct a positive residual-based activity using the classical strong residual representation for the heat equation. On a space--time cell $Q_{K,n}=K\times I_n$, define
 \begin{equation}
   R_{K,n}
@@ -151,7 +151,7 @@ where the last term is the dG time-interface contribution. Pairing this action w
   \label{eq:mh-time-cauchy}
 \end{align}
 \end{subequations}
-To combine volume and facet quantities with compatible scaling, we insert the factors $h_K^{-1/2}h_K^{1/2}=1$. Likewise, $k_n^{-1/2}k_n^{1/2}=1$ gives the natural scaling for the temporal jump \cite{Becker_Rannacher_2001}. This yields
+To combine volume and facet quantities with compatible scaling, we insert the factors $h_K^{-1/2}h_K^{1/2}=1$. Likewise, $k_n^{-1/2}k_n^{1/2}=1$ gives the natural scaling for the temporal jump. This yields
 \begin{subequations}
 \begin{align}
   \rho_{K,n}^{1}

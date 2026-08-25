@@ -258,7 +258,7 @@ Section~\ref{sec:introduction-localisation} motivated the need for an entity-wis
 
 Elementwise IBP rewrites the weak residual in terms of strong cell residuals, facet flux jumps, and boundary residuals. This form distinguishes volume, flux, and jump mechanisms explicitly and is therefore often easy to interpret for a fixed PDE. Its derivation, however, depends on the operator and boundary conditions. Carrying out this analysis separately for every variational problem is difficult to automate.
 
-PU localisation instead inserts functions \(\{\chi_i\}_{i=1}^M\), satisfying \(\sum_{i=1}^M\chi_i=1\), into the residual, thereby producing contributions associated with nodes, degrees of freedom, or PU patches \cite{Richter_Wick_2015,PU}. This approach has proved effective for both stationary and space--time adaptivity. Space--time PU-DWR methods have, for example, been developed for parabolic problems \cite{ThieleWick2024,R6} and for nonstationary incompressible flow \cite{non-flow}. 
+PU localisation instead inserts functions \(\{\chi_i\}_{i=1}^M\), satisfying \(\sum_{i=1}^M\chi_i=1\), into the residual, thereby producing contributions associated with nodes, degrees of freedom, or PU patches \cite{Richter_Wick_2015}. This approach has proved effective for both stationary and space--time adaptivity. Space--time PU-DWR methods have, for example, been developed for parabolic problems \cite{ThieleWick2024,R6} and for nonstationary incompressible flow \cite{non-flow}. 
 
 In a PU decomposition, each contribution is naturally indexed by a patch or basis function, and a single contribution may combine volume, spatial-interface, and temporal-interface effects. For the present study, we instead seek a decomposition whose terms are indexed by their geometric support. In particular, we want to distinguish cell-volume, spatial-facet, temporal-face, and, when present, mixed space--time ridge contributions. This entity-wise organisation makes it possible to examine which part of the weak residual drives refinement, to define separate spatial and temporal refinement diagnostics, and to test whether the local contributions reproduce the independently assembled global DWR estimator.
 
@@ -954,6 +954,8 @@ When \(I_n\) is bisected, both temporal children inherit \(\mathcal T_n^{\mathrm
 
 The complete procedure therefore consists of one global space--time bulk selection, followed by slab-local spatial refinement and a separate slabwise decision on temporal bisection.
 
+\textcolor{blue}{more common way in space--time adaptivity is \cite{Bangerth_Rannacher_2003}. spatial or temporal indicator: dual weight on different directions... (future work)}
+
 
 
 \section{Automated Adaptive Algorithm}
@@ -997,7 +999,7 @@ The complete solve--estimate--mark--refine cycle is summarised in Algorithm~\ref
 
 The time-dependent problems are supplied as semidiscrete UFL residuals. Firedrake provides the spatial finite-element spaces and variational solvers, while Irksome's \texttt{TimeStepper} uses these residuals to construct and solve the coupled stage systems associated with the chosen discontinuous Galerkin time discretisation \cite{andrews2026automatedgalerkintimestepping}.
 
-\textcolor{blue}{Using pyadjoint and discard the current ufl-generated adjoint solver would be a better idea for automation. Should I rerun the experiments and so only pyadjoint would be included here?}
+\textcolor{blue}{Using pyadjoint and discard the current ufl-generated adjoint solver would be a better idea for automation. Should I rerun the experiments and so only pyadjoint would be included here? or maybe I'll list this as a future work that will be carried out soon}
 
 Most of the experiments use an explicit UFL-generated adjoint implementation. In compact form, the discrete adjoint satisfies
 \[
@@ -1011,6 +1013,7 @@ A fully automated alternative is provided by \texttt{firedrake-adjoint}, followi
 
 The current implementation retains the complete forward trajectory in memory. For longer simulations, checkpointing could store only selected forward states and recompute intermediate states during the reverse traversal, reducing memory consumption at the cost of additional forward computation.
 
+% https://www.firedrakeproject.org/checkpointing.html#using-checkpointing-in-adjoint-simulations
 
 
 \subsection{Residual Localisation}
@@ -1018,6 +1021,7 @@ The current implementation retains the complete forward trajectory in memory. Fo
 The primal residual is localised using a hierarchical bubble--cone recovery. Firedrake's scalar Bubble (\texttt{B}) and FacetBubble (\texttt{FB}) element families provide the auxiliary cell-interior and facet-supported test functions, respectively \cite{Firedrake}.
 Temporal integration is performed using Gauss--Legendre quadrature, while the spatial forms are assembled by Firedrake using an explicitly selected quadrature degree.
 
+% https://www.firedrakeproject.org/variational-problems.html
 
 
 \subsection{Transfer on Nonmatching Slab Meshes}

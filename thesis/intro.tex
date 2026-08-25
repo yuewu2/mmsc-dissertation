@@ -48,23 +48,17 @@ The stationary recovery has an established exact or projective interpretation un
 \section{Objectives and Main Contributions}
 \label{sec:introduction-contributions}
 
-The objective of this dissertation is to develop and investigate an automated, goal-oriented, slabwise space--time adaptive finite element workflow whose local indicators are constructed from the weak variational problem rather than from a problem-specific strong-residual derivation. The main contributions are as follows.
+The objective of this dissertation is to develop and investigate an automated, goal-oriented, slabwise space--time adaptive finite element workflow whose local indicators are constructed from the weak variational problem rather than from a problem-specific strong-residual derivation. 
 
-\begin{enumerate}
-  \item A bubble--cone residual recovery is extended from stationary finite element problems to discontinuous-Galerkin time slabs. The construction distinguishes volume, spatial-facet, and temporal-face residual entities and combines them into signed cell--slab DWR contributions.
+A bubble--cone residual recovery is extended from stationary finite element problems to discontinuous-Galerkin time slabs. The construction distinguishes volume, spatial-facet, and temporal-face residual entities and combines them into signed cell--slab DWR contributions.
 
-  % \item The entity hierarchy is augmented by a mixed space--time ridge when the temporal-interface functional has additional support on the intersection of a spatial facet and a time interface. Its necessity is tested by removing only this contribution from otherwise identical BBM alculations.
+  % \item Linear and symmetric nonlinear DWR estimators are incorporated with enriched primal and adjoint approximations. Both terminal and running-in-time goal functionals are differentiated from their UFL representations.
 
-  \item Linear and symmetric nonlinear DWR estimators are incorporated with enriched primal and adjoint approximations. Both terminal and running-in-time goal functionals are differentiated from their UFL representations.
-
-  \item The estimator is embedded in a complete \textsc{Solve--Estimate--Mark--Refine} cycle with global space--time bulk marking, slab-local spatial refinement, and temporal bisection. On nonmatching consecutive meshes, the forward state transfer, its mass-adjoint backward action, and the transferred temporal defect are used consistently in the primal, adjoint, and localisation stages.
-
-  % \item The framework is investigated on three complementary examples. A two-dimensional rotating-hill heat problem compares the automated recovery with a manually derived strong-residual marking score for a nonlinear running goal. A one-dimensional advection--diffusion problem isolates how changing a terminal sensor changes the dual sensitivity and adapted mesh. A nonlinear Benjamin--Bona--Mahony problem tests the symmetric DWR estimator and demonstrates the role of the mixed space--time ridge for an $H^1$-type temporal mass pairing.
-\end{enumerate}
+  % \item The estimator is embedded in a complete \textsc{Solve--Estimate--Mark--Refine} cycle with global space--time bulk marking, slab-local spatial refinement, and temporal bisection. On nonmatching consecutive meshes, the forward state transfer, its mass-adjoint backward action, and the transferred temporal defect are used consistently in the primal, adjoint, and localisation stages.
 
 
 
-\section{Software and Reproducibility}
+\section{Code and Software}
 \label{sec:introduction-code}
 
 The implementation is written in Python using \texttt{Firedrake}, which represents and assembles finite element variational forms through the Unified Form Language (UFL) \cite{Firedrake}. UFL differentiation is used to form the linearised and transposed spatial operators and the derivatives of the specified goal functional. The time discretisation follows the automated Galerkin time-stepping framework developed in and around \texttt{Irksome} \cite{Farrell_Kirby_Marchena_2021,andrews2026automatedgalerkintimestepping}.
@@ -78,5 +72,5 @@ The development repository can be found at https://github.com/yuewu2/mmsc-disser
 
 Chapter~\ref{chap:background} develops the mathematical and computational framework. It first introduces AFEM and the linear and nonlinear DWR error representations, then describes enriched estimators and effectivity. It next reviews residual localisation and develops the stationary and space--time bubble--cone recovery, including temporal interfaces, the optional mixed ridge, temporal quadrature, and localisation diagnostics. The chapter concludes by incorporating these components into a complete slabwise adaptive algorithm and by specifying transfer between nonmatching spatial meshes.
 
-Chapter~\ref{chap:experiments} presents the numerical investigation. The rotating-hill heat equation compares automated bubble recovery with a manually derived strong-residual strategy. The advection--diffusion example demonstrates the dependence of the adapted space--time mesh on the chosen goal functional. The nonlinear BBM example then tests the estimator for a dispersive equation and uses a localisation gap to identify the mixed space--time ridge... The final chapter summarises the findings, limitations, and directions for further work.
+Chapter~\ref{chap:experiments} presents the numerical investigation. The rotating-hill heat equation compares automated bubble recovery with a manually derived strong-residual strategy. The advection--diffusion example demonstrates the dependence of the adapted space--time mesh on the chosen goal functional. The nonlinear BBM example then tests the estimator for a dispersive equation and uses a localisation gap to identify the mixed space--time ridge. The final L-shaped parabolic \(p\)-Laplace example examines the nonlinear estimator in the presence of a re-entrant-corner singularity and a localised observation region. The final chapter summarises the findings, limitations, and directions for further work.
 
