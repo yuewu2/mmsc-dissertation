@@ -867,56 +867,26 @@ The four terms on the right-hand side are, respectively, the complete residual a
 \end{remark}
 
 
-\subsection{Nonlinear DWR Terms and Code Implementation}
-\label{sec:nonlinear-localisation-scope}
+\subsection{Localisation of the Nonlinear Adjoint-Residual Term}
+\label{sec:nonlinear-adjoint-residual-localisation}
 
 The construction above isolates the primal residual. For the nonlinear identity, the implemented estimator is
 \begin{equation}
- \eta_{\mathrm{NL}}
+ \eta
  =
  \frac12\rho(u_h)(z_h^+-z_h)
  +\frac12\rho^\ast(u_h,z_h)(u_h^+-u_h)
  -\rho(u_h)(z_h),
  \label{eq:symmetric-nonlinear-dwr}
 \end{equation}
-with the unknown cubic remainder omitted but measured against the enriched goal difference when that value is available. The first and third terms use the recovered primal-residual entities. The adjoint-residual action is weighted by \(u_h^+-u_h\) and partitioned by the original weak cell integrals.
+with the unknown cubic remainder omitted. For the adjoint-residual term \(\rho^\ast(u_h,z_h)(u_h^+-u_h)\). Once \(u_h\) and \(z_h\) are fixed, \(\rho^\ast(u_h,z_h)\) is a linear functional of the primal variation. Consequently, the same bubble--cone principle can be applied to this term, but it requires a separate recovery of the linearised PDE and goal derivatives rather than reuse of the primal-residual densities.
+
+In the present implementation, this second hierarchical recovery is not performed. Instead, the adjoint-residual action is assembled directly against discontinuous cellwise-constant test functions. Since the DG0 cell characteristic functions sum to one, this produces an algebraically closing cellwise partition of the assembled weak action. 
+The resulting cell contributions are used together with the recovered primal-residual and Galerkin-correction terms in the nonlinear indicator. A complete bubble--cone recovery of \(\rho^\ast\) remains a possible extension when a separate entity-resolved interpretation of the adjoint-residual term is required.
 
 
-\subsubsection{Temporal Quadrature and the Recovery Space}
-\label{sec:recovery-quadrature-implementation}
 
-Time is not represented by an explicit \((d+1)\)-dimensional mesh. On slab \(I_n\), a saved dG polynomial is reconstructed as
-\begin{equation}
- U_h(t_{n-1}+k_ns)
- =\sum_{j=0}^{r}\ell_j(s)U_{n,j},
- \qquad
- \partial_tU_h
- =\frac1{k_n}\sum_{j=0}^{r}\ell_j'(s)U_{n,j},
- \label{eq:saved-dg-polynomial}
-\end{equation}
-where \(\ell_j\) are the temporal Lagrange basis functions. A Gauss--Legendre rule on \([0,1]\) gives
-\begin{equation}
- \int_{I_n}F(t)\,\mathrm dt
- \approx
- k_n\sum_{q=1}^{N_q}w_q
- F(t_{n-1}+k_ns_q).
- \label{eq:slab-gauss-quadrature}
-\end{equation}
-At each \(s_q\), \texttt{Firedrake} assembles the spatial \(dx\), \(ds\), and \(dS\) integrals. Endpoint-supported temporal-face and mixed-ridge terms are assembled directly from one-sided traces and carry no temporal quadrature factor.
-
-(code implementation, recovery space)
-% The implementation solves the local moment systems in hierarchical order:
-% \begin{enumerate}
-%   \item recover the volume density with \(b_Kb_n^t\);
-%   \item subtract the recovered volume action and recover spatial facets with \(\beta_{K,F}b_n^t\);
-%   \item subtract the volume action and recover the left temporal face with \(b_K(1-\tau)\);
-%   \item subtract all three visible actions and recover any remaining mixed ridge with \(\beta_{K,F}(1-\tau)\).
-% \end{enumerate}
-
-% Recovery accuracy depends on both polynomial representation and quadrature. Exact polynomial counting is used when available. Otherwise, recovery degree and \(N_q\) should be increased together until the global recovered sum and marked set are insensitive to further enrichment. 
-
-
-\subsubsection{Localisation Diagnostics and Scope}
+\subsection{Localisation Diagnostics and Scope}
 
 Let
 \begin{equation}
@@ -932,142 +902,61 @@ and the closure ratio \(\eta_{\mathrm{loc}}/\eta_{\mathrm{glob}}\). These quanti
 The construction requires a local finite-order weak residual, inclusion of all physical and discretisation terms, and stable weighted mass systems. Conforming scalar \(H^1\) problems fit this description directly. Discontinuous, \(H(\mathrm{div})\), and \(H(\mathrm{curl})\) formulations require recovery spaces that respect their numerical fluxes and normal or tangential traces. Saddle-point systems, variational inequalities, nonlocal operators, shocks, and distributional sources may require additional problem-specific support entities.
 
 
-\section{Automated Adaptive Loop}
-\label{sec:single-indicator-loop}
 
-\subsection{Primal, Goal, and Adjoint Solves}
+\section{Marking and Refinement}
+\label{sec:marking-refinement}
 
-% talk about irksome, adjoint
-% The discrete goal contains a terminal contribution and, possibly, a contribution accumulated over time:
-% \begin{equation}
-%   J_h(U_h)
-%   =
-%   J_T(U_h(T))
-%   +
-%   \sum_{n=1}^{N}\int_{I_n}j(U_h(t),t)\,\mathrm dt.
-%   \label{eq:discrete-terminal-running-goal}
-% \end{equation}
-% (construct the code first)
-
-% The running contribution is evaluated by the slab quadrature rule \eqref{eq:slab-gauss-quadrature}. Its presence affects both the data that must be retained from the forward solve and the construction of the adjoint. In particular, the terminal functional supplies the final adjoint condition
-% \begin{equation}
-%   m_N(z(T),w)=J_T'(U_h(T))(w)
-%   \qquad\forall w\in V_N,
-%   \label{eq:terminal-goal-riesz}
-% \end{equation}
-% whereas the derivative of the running integrand acts as a source term at every stage of the backward solve. Therefore, the complete primal dG polynomial is stored on each slab, so that derivatives of the PDE and of the goal can be evaluated at the corresponding physical time during the reverse-time sweep. The production solver forms these derivatives symbolically with UFL. 
-
-
-\subsection{Marking and Refinement}
-
-Let \(\eta_{K,n}\) denote the signed indicator associated with \(K\in\mathcal T_n\), and define its marking activity by
-\begin{equation*}
+Let \(\eta_{K,n}\) denote the signed indicator associated with the spatial cell \(K\in\mathcal T_n\) on the time slab \(I_n\). Each pair \((K,n)\) is treated as one space--time marking entity. Under the default marking score, its non-negative activity is defined by
+\begin{equation}
   s_{K,n}:=|\eta_{K,n}|,
   \qquad
   S:=\sum_{n=1}^{N}\sum_{K\in\mathcal T_n}s_{K,n}.
   \label{eq:marking-activity}
-\end{equation*}
-For \(S>0\), a single global D\"orfler marking step \cite{Dorfler1996} is applied over the complete space--time index set. More precisely, all activities \(s_{K,n}\) are flattened into one array and sorted in non-increasing order. Entries are then marked sequentially until their cumulative activity first reaches the fraction \(\theta\) of the total:
+\end{equation}
+
+A single global D\"orfler-type bulk marking operation \cite{Dorfler1996} is applied to all space--time cell--slab pairs. The activities from all slabs are concatenated and sorted in non-increasing order. The marking set \(\mathcal M_{\mathrm{st}}\) is the smallest descending prefix whose cumulative activity reaches the prescribed fraction \(\theta\):
 \begin{equation}
-  \sum_{(K,n)\in\mathcal M}s_{K,n}\ge\theta S.
+  \sum_{(K,n)\in\mathcal M_{\mathrm{st}}}s_{K,n}
+  \ge
+  \theta S.
   \label{eq:space-time-dorfler}
 \end{equation}
 
-The global marking decision is subsequently restricted to each slab:
-\begin{equation*}
-  M_n:=\{K\in\mathcal T_n:(K,n)\in\mathcal M\}.
-  \label{eq:slabwise-marked-cells}
-\end{equation*}
-Under the default independent-slab refinement policy, the spatial mesh on \(I_n\) is refined using precisely these cells,
-\begin{equation*}
-  \mathcal T_n^{\mathrm{new}}
-  :=\operatorname{refine}(\mathcal T_n,M_n).
-  \label{eq:slabwise-spatial-refinement}
-\end{equation*}
-The slab is bisected in time when its marked-cell fraction exceeds the within-slab threshold,
+The global marking set is then restricted to each time slab:
 \begin{equation}
-  \frac{|M_n|}{|\mathcal T_n|}\ge\varphi_t,
-  \qquad
-  \varphi_t=0.05.
+  M_n
+  :=
+  \left\{
+    K\in\mathcal T_n:
+    (K,n)\in\mathcal M_{\mathrm{st}}
+  \right\}.
+  \label{eq:slabwise-marked-cells}
+\end{equation}
+Under the default independent-slab policy, only the cells in \(M_n\) are refined on \(I_n\):
+\begin{equation}
+  \mathcal T_n^{\mathrm{new}}
+  :=
+  \operatorname{refine}(\mathcal T_n,M_n).
+  \label{eq:slabwise-spatial-refinement}
+\end{equation}
+
+Temporal refinement is then controlled by a separate concentration trigger. A slab containing at least one marked cell is bisected when
+\begin{equation}
+  \frac{|M_n|}{|\mathcal T_n|}
+  \ge
+  \varphi_t.
+  % \qquad
+  % \varphi_t=0.05
+  % \quad\text{by default}.
   \label{eq:within-slab-time-trigger}
 \end{equation}
-When \(I_n\) is bisected, both temporal children inherit \(\mathcal T_n^{\mathrm{new}}\). Hence the procedure consists of one global space--time bulk selection, followed by slab-local spatial refinement and a separate slabwise decision on temporal bisection.
+When \(I_n\) is bisected, both temporal children inherit \(\mathcal T_n^{\mathrm{new}}\).
+
+The complete procedure therefore consists of one global space--time bulk selection, followed by slab-local spatial refinement and a separate slabwise decision on temporal bisection.
 
 
 
-\subsection{Transfer on Nonmatching Slab Meshes}
-\label{sec:slab-transfer-adjoint}
-
-Following the refinement strategy above, successive time slabs may use different spatial meshes and hence different finite-element spaces,
-\[
-  V_{n-1}\neq V_n.
-\]
-The outgoing primal trace \(U_{h,n-1}^{-}\in V_{n-1}\) cannot then be inserted directly as the incoming datum for the solve in \(V_n\). We therefore introduce a linear transfer operator
-\begin{equation}
-  P_{n-1}:V_{n-1}\longrightarrow V_n
-  \label{eq:forward-slab-transfer}
-\end{equation}
-and define the dG interface defect by
-\begin{equation}
-  \delta_{n-1}(U_h)
-  =
-  U_{h,n-1}^{+}
-  -
-  P_{n-1}U_{h,n-1}^{-}.
-  \label{eq:transferred-interface-defect-full}
-\end{equation}
-% For an \(L^2\)-projection transfer, \(P_{n-1}w\in V_n\) is defined by
-% \begin{equation}
-%   \left(
-%     P_{n-1}w,v_n
-%   \right)_{\Omega}
-%   =
-%   (w,v_n)_{\Omega}
-%   \qquad
-%   \forall v_n\in V_n.
-%   \label{eq:l2-forward-transfer}
-% \end{equation}
-
-The adjoint must use the transpose of the same discrete forward transfer. Let \(P_{n-1}^{\ast}:V_n\rightarrow V_{n-1}\) be the mass-adjoint operator defined by
-\begin{equation}
-  \left(
-    P_{n-1}w,z_n
-  \right)_{M_n}
-  =
-  \left(
-    w,P_{n-1}^{\ast}z_n
-  \right)_{M_{n-1}}
-  \qquad
-  \forall w\in V_{n-1},\quad z_n\in V_n,
-  \label{eq:mass-adjoint-transfer-definition}
-\end{equation}
-where \(M_{n-1}\) and \(M_n\) denote the mass pairings on the two spaces. If the coefficient matrix of the forward transfer is \(P_{n-1}\), then
-\begin{equation}
-  P_{n-1}^{\ast}
-  =
-  M_{n-1}^{-1}P_{n-1}^{T}M_n.
-  \label{eq:mass-adjoint-transfer-matrix}
-\end{equation}
-
-This formula follows directly from
-\[
-  (P_{n-1}w)^{T}M_n z_n
-  =
-  w^{T}P_{n-1}^{T}M_n z_n
-  =
-  w^{T}M_{n-1}
-  \left(
-    M_{n-1}^{-1}P_{n-1}^{T}M_n z_n
-  \right).
-\]
-% Consequently, the primal propagates information forward through \(P_{n-1}\), whereas the adjoint propagates sensitivities backward through \(P_{n-1}^{\ast}\). Using an unrelated interpolation in the backward solve would no longer give the exact transpose of the implemented discrete primal map and would therefore make the computed adjoint inconsistent with the reported discrete goal functional.
-
-In the implementation, ......
-% the forward transfer is applied when constructing the incoming state for a newly refined slab. The corresponding transpose mass-weighted action is used when the adjoint information is passed from slab \(n\) back to slab \(n-1\). The recovery then uses the same transferred defect \eqref{eq:transferred-interface-defect-full} in the temporal-interface action. Thus transfer affects the primal solve, the adjoint solve, and temporal localisation, but it is logically prior to the subsequent marking decision.
-
-
-
-\subsection{Complete Algorithm}
+\section{Automated Adaptive Algorithm}
 
 The complete solve--estimate--mark--refine cycle is summarised in Algorithm~\ref{alg:complete-adaptive-cycle}.
 
@@ -1075,7 +964,7 @@ The complete solve--estimate--mark--refine cycle is summarised in Algorithm~\ref
 \caption{Goal-oriented slabwise space--time adaptive cycle}
 \label{alg:complete-adaptive-cycle}
 \begin{algorithmic}[1]
-\Require PDE, initial slab meshes, tolerance \(\mathrm{TOL}_J\), goal functional \(J\)
+\Require PDE, initial slab meshes, tolerance \(\mathrm{TOL}\), goal functional \(J\)
 % \Ensure Adapted space--time discretisation and DWR estimate
 
 \While{the stopping criterion is not satisfied}
@@ -1089,7 +978,7 @@ The complete solve--estimate--mark--refine cycle is summarised in Algorithm~\ref
   \State Assemble the independent global DWR estimator.
   \State Recover volume, spatial-facet, temporal-face, and, when nonzero, mixed-ridge residuals in hierarchical order.
   \State Weight the recovered entities, assemble indicators \(\eta_{K,n}\), and record the localisation gap \eqref{eq:localisation-gap}.
-  \If{\(|\eta_{\mathrm{glob}}|\le\mathrm{TOL}_J\)}
+  \If{\(|\eta_{\mathrm{glob}}|\le\mathrm{TOL}\)}
     \State \Return the current discretisation and estimators.
   \EndIf
   \State Apply the marking criteria \eqref{eq:space-time-dorfler} and \eqref{eq:within-slab-time-trigger}.
@@ -1098,3 +987,75 @@ The complete solve--estimate--mark--refine cycle is summarised in Algorithm~\ref
 
 \end{algorithmic}
 \end{algorithm}
+
+
+\section{Code Implementation}
+\label{sec:single-indicator-loop}
+
+\subsection{Primal, Goal, and Adjoint Solves}
+\label{sec:primal-goal-adjoint-solves}
+
+The time-dependent problems are supplied as semidiscrete UFL residuals. Firedrake provides the spatial finite-element spaces and variational solvers, while Irksome's \texttt{TimeStepper} uses these residuals to construct and solve the coupled stage systems associated with the chosen discontinuous Galerkin time discretisation \cite{andrews2026automatedgalerkintimestepping}.
+
+\textcolor{blue}{Using pyadjoint and discard the current ufl-generated adjoint solver would be a better idea for automation. Should I rerun the experiments and so only pyadjoint would be included here?}
+
+Most of the experiments use an explicit UFL-generated adjoint implementation. In compact form, the discrete adjoint satisfies
+\[
+  \mathcal F_h'(U_h)^*Z_h=J_h'(U_h).
+\]
+UFL \texttt{derivative} constructs the linearisation of the primal residual, \texttt{adjoint} transposes the resulting bilinear form, and \texttt{action} inserts the current adjoint coefficient. For nonlinear problems, the resulting form is evaluated at the saved primal polynomial at the corresponding physical time. The common solver supplies the reverse-time mass term and solves the resulting linear problem slab by slab using the same Irksome dG machinery.
+
+Terminal and running contributions to the goal functional are handled separately because they enter the reverse-time problem differently. The derivative of a terminal goal determines the final adjoint state, whose sensitivity is subsequently propagated through all preceding slabs. The derivative of a running goal instead acts as a source throughout the backward solve. Both derivatives are generated symbolically from the user-supplied UFL goal forms.
+
+A fully automated alternative is provided by \texttt{firedrake-adjoint}, following the high-level discrete-adjoint methodology of \cite{Farrell_Ham_Funke_Rognes_2013} and implemented using Pyadjoint \cite{Mitusch2019}. It records the forward operations on a tape and traverses them in reverse to generate the corresponding discrete adjoint. This removes the need to write an explicit reverse-time solver.
+
+The current implementation retains the complete forward trajectory in memory. For longer simulations, checkpointing could store only selected forward states and recompute intermediate states during the reverse traversal, reducing memory consumption at the cost of additional forward computation.
+
+
+
+\subsection{Residual Localisation}
+
+The primal residual is localised using a hierarchical bubble--cone recovery. Firedrake's scalar Bubble (\texttt{B}) and FacetBubble (\texttt{FB}) element families provide the auxiliary cell-interior and facet-supported test functions, respectively \cite{Firedrake}.
+Temporal integration is performed using Gauss--Legendre quadrature, while the spatial forms are assembled by Firedrake using an explicitly selected quadrature degree.
+
+
+
+\subsection{Transfer on Nonmatching Slab Meshes}
+\label{sec:slab-transfer-adjoint}
+
+Following the refinement strategy in Section~\ref{sec:marking-refinement}, consecutive time slabs may use different spatial meshes and finite-element spaces. The outgoing primal trace from \(I_{n-1}\) must therefore be transferred into \(V_n\). We denote the resulting linear interpolation operator by
+\begin{equation}
+  P_{n-1}:V_{n-1}\longrightarrow V_n
+  \label{eq:forward-slab-transfer}
+\end{equation}
+and define the transferred dG interface defect by
+\begin{equation}
+  \delta_{n-1}(U_h)
+  =
+  U_h(t_{n-1}^{+})
+  -
+  P_{n-1}U_h(t_{n-1}^{-}).
+  \label{eq:transferred-interface-defect-full}
+\end{equation}
+
+The reverse propagation is determined by the same discrete forward operator. Let \(P_{n-1}^{\ast}:V_n\rightarrow V_{n-1}\) denote its adjoint with respect to the time-mass pairings:
+\begin{equation}
+  \bigl(P_{n-1}w,z_n\bigr)_{M_n}
+  =
+  \bigl(w,P_{n-1}^{\ast}z_n\bigr)_{M_{n-1}}
+  \qquad
+  \forall w\in V_{n-1},\quad z_n\in V_n.
+  \label{eq:mass-adjoint-transfer-definition}
+\end{equation}
+In coefficient form,
+\begin{equation}
+  P_{n-1}^{\ast}
+  =
+  M_{n-1}^{-1}P_{n-1}^{T}M_n.
+  \label{eq:mass-adjoint-transfer-matrix}
+\end{equation}
+
+In the implementation, Firedrake assembles \(P_{n-1}\) as a cross-mesh finite-element interpolation operator. The forward trace is obtained by applying this matrix, while the reverse transfer is evaluated by a target mass action, a transpose matrix action, and a source mass solve as stated in ~\eqref{eq:mass-adjoint-transfer-matrix}.
+
+\textcolor{blue}{Again, using pyadjoint could make life easier..? as there will be no need to include $P_{n-1}^{\ast}$.}
+
