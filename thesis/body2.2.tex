@@ -576,16 +576,17 @@ This subtraction leaves only the contribution supported on \(F\times\{t_{n-1}\}\
 \subsection{Localisation of the Nonlinear Adjoint-Residual Term}
 \label{sec:nonlinear-adjoint-residual-localisation}
 
-For the nonlinear identity, the implemented estimator is
-\begin{equation}
- \eta
- =
- \frac12\rho(u_h)(z_h^+-z_h)
- +\frac12\rho^\ast(u_h,z_h)(u_h^+-u_h)
- -\rho(u_h)(z_h),
- \label{eq:symmetric-nonlinear-dwr}
-\end{equation}
-with the unknown cubic remainder omitted. The construction above recovers densities for the primal residual \(\rho(u_h)\), thus it can be used directly for both primal-residual contributions and the correction term. Once \(u_h\) and \(z_h\) are fixed, the adjoint-residual term \(\rho^\ast(u_h,z_h)(\cdot)\) is a linear functional of the primal variation. It can therefore be evaluated on the same test functions used above, but it requires a separate recovery of the linearised PDE and goal derivatives rather than reuse of the primal-residual densities.
+For the nonlinear identity, the implemented estimator is stated in~\cref{eq:practical-nonlinear-estimator}.
+% \begin{equation}
+%  \eta
+%  =
+%  \frac12\rho(u_h)(z_h^+-z_h)
+%  +\frac12\rho^\ast(u_h,z_h)(u_h^+-u_h)
+%  -\rho(u_h)(z_h),
+%  \label{eq:symmetric-nonlinear-dwr}
+% \end{equation}
+% with the unknown cubic remainder omitted.
+The construction above recovers densities for the primal residual \(\rho(u_h)\), thus it can be used directly for both primal-residual contributions and the correction term. Once \(u_h\) and \(z_h\) are fixed, the adjoint-residual term \(\rho^\ast(u_h,z_h)(\cdot)\) is a linear functional of the primal variation. It can therefore be evaluated on the same test functions used above, but it requires a separate recovery of the linearised PDE and goal derivatives rather than reuse of the primal-residual densities.
 
 In the present implementation, we do not perform a second bubble--cone recovery for the adjoint residual. Instead, we evaluate the adjoint-residual functional using the cellwise-constant dG0 basis functions. As these functions form a partition of unity, summing these contributions recovers the assembled adjoint-residual term.
 These cellwise contributions are combined with the recovered primal-residual and Galerkin-correction contributions to form the nonlinear indicator. A complete bubble--cone recovery of \(\rho^\ast\) remains a possible extension when a separate entity-resolved interpretation of the adjoint-residual term is needed.
@@ -601,7 +602,7 @@ Let
 \sum_{n,K}\eta_{K,n},
 \label{eq:localisation-gap}
 \end{equation}
-To assess the quality of localisation, we define the localisation effectivity index
+To assess the quality of localisation, we define the \emph{localisation effectivity index}
 \begin{equation}
 I_{\mathrm{eff}}^{\mathrm{loc}}
 :=

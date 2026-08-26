@@ -67,14 +67,14 @@ The complete solve--estimate--mark--refine cycle is summarised in Algorithm~\ref
 \While{the stopping criterion is not satisfied}
   \State Build \(V_n\), the enriched spaces, \(P_n\), and \(P_n^\ast\) on the current slab meshes.
   \State Solve the primal problem forward and retain every dG slab polynomial.
-  \If{\eqref{eq:symmetric-nonlinear-dwr} is used}
+  \If{\cref{eq:practical-nonlinear-estimator} is used}
     \State Solve the enriched primal problem.
   \EndIf
   \State Solve the low-order and enriched adjoints backward, differentiating the PDE and the actual terminal/running goal functional, and applying \(P_n^\ast\) at mesh changes.
   \State Form \(z^\star=z_h^+-z_h\), or optionally \(z^\star=z_h^+-I_hz_h^+\).
   \State Assemble the independent global DWR estimator.
   \State Recover volume, spatial-facet, temporal-face, and, when nonzero, mixed-ridge residuals in hierarchical order.
-  \State Weight the recovered entities, assemble indicators \(\eta_{K,n}\), and record the localisation gap \eqref{eq:localisation-gap}.
+  \State Weight the recovered entities, assemble indicators \(\eta_{K,n}\), and record \(\eta_{\mathrm{loc}}\).
   \If{\(|\eta_{\mathrm{glob}}|\le\mathrm{TOL}\)}
     \State \Return the current discretisation and estimators.
   \EndIf

@@ -66,7 +66,7 @@ For the following experiments, the primal space is $\mathrm{CG}(1)$--$\mathrm{DG
 
 
 
-\subsubsection{Global Terminal Goal and Componentwise Marking}
+\subsection{Global Terminal Goal and Componentwise Marking}
 
 Since the terminal spatial-average functional $J_1$ is global in space, it retains some sensitivity to the singularity at the re-entrant corner. The adaptive computation employs the spatial bulk parameter $\theta=0.35$ and a temporal marking fraction of $0.10$.
 
@@ -122,7 +122,7 @@ Figure~\ref{fig:lshape-terminal-meshes} shows the spatial meshes associated with
 
 
 
-\subsubsection{Localised Nonlinear Goal}
+\subsection{Localised Nonlinear Goal}
 
 
 For goal functinoal $J_2$, the observation rectangle is represented as a separate \texttt{Netgen} material subdomain so that its boundary consists of mesh facets. The initial discretisation contains eight time slabs and uses the fitted mesh with $75$ terminal spatial degrees of freedom. For the adaptive run, the spatial refinement fraction is set to be $\theta=0.30$. A slab is bisected when at least $10\%$ of its cells have been selected by the global marking step. The uniform run refines every spatial cell and bisects every time slab. Both runs start from the same space--time discretisation.

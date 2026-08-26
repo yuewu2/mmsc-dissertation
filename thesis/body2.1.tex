@@ -18,7 +18,8 @@ For finite-dimensional spaces \(U_h\subset U\) and \(V_h\subset V\), a Galerkin 
   \label{eq:abstract-discrete-primal}
 \end{equation}
 
-The development of adaptive finite element methods (AFEM) was inspired by the pioneering work of Babu\v{s}ka and Rheinboldt \cite{pioneer}. To make an adaptive solver practically realisable, and to study the optimality of adaptive procedures, the basic AFEM algorithm is organised as a \textsc{Solve--Estimate--Mark--Refine} loop \cite{ENDTMAYER202419}:
+The development of adaptive finite element methods (AFEM) was inspired by the pioneering work of Babu\v{s}ka and Rheinboldt \cite{pioneer}. 
+To make an adaptive solver practically realisable, and to study the optimality of adaptive procedures, the basic AFEM algorithm is organised as a \textsc{Solve--Estimate--Mark--Refine} loop \cite{ENDTMAYER202419}:
 \begin{enumerate}
   \item \textsc{Solve} the differential equation on the current space--time discretisation.
   \item \textsc{Estimate} global estimator for the error quantity under consideration.
@@ -36,7 +37,7 @@ The automated goal-oriented solver considered in this dissertation follows this 
 \subsection{Quantities of Interest and Adjoint Problem}
 \label{sec:background-qoi}
 
-As introduced in \eqref{eq:intro-qoi-map}--\eqref{eq:intro-goal-error}, the quantity of interest may be linear or nonlinear and may contain spatial-volume, boundary, running-in-time, or terminal observations. We now make its role in the adjoint problem precise.
+As introduced in \eqref{eq:intro-qoi-map}--\eqref{eq:intro-goal-error}, we seek to control the error in a prescribed quantity of interest $J$. We now make its role in the adjoint problem precise.
 % For example, for a fission-reactor eigenvalue problem, let the state be \(u=(\phi,k_{\mathrm{eff}})\), where \(\phi\) is the neutron flux and \(k_{\mathrm{eff}}\) is the effective multiplication factor. A goal functional measuring the deviation from criticality can be
 % \begin{equation}
 %   J_{\mathrm{reactor}}(u)
@@ -55,7 +56,6 @@ As introduced in \eqref{eq:intro-qoi-map}--\eqref{eq:intro-goal-error}, the quan
 % \end{equation}
 % where \(\boldsymbol{\sigma}\) is the Cauchy stress tensor and \(\boldsymbol{n}\) is the outward unit normal.
 
-% In order to realize goal-oriented error control,
 The DWR method requires an adjoint problem determined by the chosen functional \(J\). With primes denoting Fr\'echet derivatives, the continuous adjoint is: find \(z\in V\) such that
 \begin{equation}
   \mathcal{A}'(u)(w,z)=J'(u)(w)
@@ -74,7 +74,7 @@ where \(u_h\) solves \eqref{eq:abstract-discrete-primal}.
 \subsection{An Error Identity}
 \label{subsec:nonlinear-dwr}
 
-\begin{theorem}[Nonlinear DWR identity; \cite{Becker_Rannacher_2001,ENDTMAYER202419}]
+\begin{theorem}[Nonlinear DWR identity \cite{Becker_Rannacher_2001,ENDTMAYER202419}]
 \label{thm:becker-rannacher}
 Assume that \(\mathcal{A}\in C^3(U,V^\ast)\) and \(J\in C^3(U,\mathbb{R})\). For any approximation \(\widetilde{x}=(\widetilde{u},\widetilde{z})\in U\times V\),
 \begin{align}
@@ -134,10 +134,10 @@ Along the segment \(x_s=\widetilde x+s(x-\widetilde x)\), the fundamental theore
    \mathcal L'''(x_s)(x-\widetilde x)^3s(s-1)\,\mathrm ds.
  \label{eq:dwr-trapezoidal-proof}
 \end{align}
-The exact primal and adjoint equations make \(x\) a stationary point of \(\mathcal L\), so \(\mathcal L'(x)=0\). Expanding \(\mathcal L'(\widetilde x)\) in its primal and dual directions produces the primal residual \(\rho\) and adjoint residual \(\rho^\ast\); substituting the definition of \(\mathcal L\) gives the Galerkin correction in \eqref{eq:nonlinear-dwr-identity}. Expanding the third derivative gives \eqref{eq:nonlinear-dwr-remainder}. Complete algebraic details are given in \cite{181,93,ENDTMAYER202419}.
+The exact primal and adjoint equations make \(x\) a stationary point of \(\mathcal L\), so \(\mathcal L'(x)=0\). Expanding \(\mathcal L'(\widetilde x)\) in its primal and dual directions produces the primal residual \(\rho\) and adjoint residual \(\rho^\ast\); substituting the definition of \(\mathcal L\) gives the Galerkin correction in \eqref{eq:nonlinear-dwr-identity}. Expanding the third derivative gives \eqref{eq:nonlinear-dwr-remainder}. Complete algebraic details are given in, for example, \cite{181,93,ENDTMAYER202419}.
 \end{proof}
 
-The correction term \(-\rho(\widetilde u)(\widetilde z)\) vanishes when \(\widetilde u=u_h\) is solved to Galerkin accuracy and \(\widetilde z\in V_h\). If \(\mathcal A\) is affine and \(J\) is linear, then \(\mathcal R^{(3)}=0\), and the two half-residual terms coincide. To state the resulting linear identity explicitly, let \(a:U\times V\rightarrow\mathbb R\) be bilinear, let \(\ell\in V^\ast\), and define
+The correction term \(-\rho(\widetilde u)(\widetilde z)\) vanishes when \(\widetilde u=u_h\) is solved to Galerkin accuracy and \(\widetilde z\in V_h\). If \(\mathcal A\) is affine and \(J\) is linear, then \(\mathcal R^{(3)}=0\), and the two half-residual terms coincide. To state the resulting linear identity explicitly, let \(a:U\times V\rightarrow\mathbb R\) be bilinear, \(\ell\in V^\ast\), and define
 \begin{align}
  a(u,v)&=\ell(v) &&\forall v\in V,
  \label{eq:linear-primal}\\
@@ -145,7 +145,7 @@ The correction term \(-\rho(\widetilde u)(\widetilde z)\) vanishes when \(\widet
  \label{eq:linear-discrete-primal}\\
  a(w,z)&=J(w) &&\forall w\in U,
  \label{eq:linear-adjoint}\\
- \rho(u_h)(v)&:=\ell(v)-a(u_h,v).\notag
+ \rho(u_h)(v)&:=\ell(v)-a(u_h,v).
  \label{eq:linear-residual}
 \end{align}
 
@@ -159,16 +159,16 @@ Let \(u\in U\) solve \eqref{eq:linear-primal} and \(u_h\in U_h\) solve \eqref{eq
   \label{eq:linear-dwr-exact}
 \end{equation}
 \end{proposition}
-\begin{proof}
-Writing \(e=u-u_h\), the primal and adjoint equations give \(\rho(u_h)(z)=a(e,z)=J(e)=J(u)-J(u_h)\). Galerkin orthogonality gives \(\rho(u_h)(\varphi_h)=0\), and subtracting this zero term proves \eqref{eq:linear-dwr-exact}.
-\end{proof}
+% \begin{proof}
+% Writing \(e=u-u_h\), the primal and adjoint equations give \(\rho(u_h)(z)=a(e,z)=J(e)=J(u)-J(u_h)\). Galerkin orthogonality gives \(\rho(u_h)(\varphi_h)=0\), and subtracting this zero term proves \eqref{eq:linear-dwr-exact}.
+% \end{proof}
 The residual measures the defect of \(u_h\) in the continuous variational problem. The factor \(z-\varphi_h\) is the part of the QoI sensitivity that is not represented in the discrete test space.
 
 
 \subsection{Computable Estimators and Effectivity}
 \label{sec:background-effectivity}
 
-Both identities above contain the unknown exact solution or adjoint. In practice these are replaced by solutions in enriched spaces, obtained, for example, by uniform \(h\)-refinement, \(p\)-enrichment, or a higher-order time approximation \cite{Becker_Rannacher_2001,ENDTMAYER202419}.
+Both identities above involve the unknown exact primal and adjoint solutions. In practice these are replaced by solutions in enriched spaces, obtained, for example, by uniform \(h\)-refinement, \(p\)-enrichment, or a higher-order time approximation \cite{Becker_Rannacher_2001,ENDTMAYER202419}.
 
 Let \(U_h\subset U_h^{(2)}\subset U\) and \(V_h\subset V_h^{(2)}\subset V\). The enriched primal and adjoint problems are
 \begin{align}
@@ -178,12 +178,12 @@ Let \(U_h\subset U_h^{(2)}\subset U\) and \(V_h\subset V_h^{(2)}\subset V\). The
   &=J'(u_h^{(2)})(w_h^{(2)})
   &&\text{for all }w_h^{(2)}\in U_h^{(2)}.\label{eq:enriched-adjoint}
 \end{align}
-The precise statement needed here is the enriched-space identity corresponding to Theorem~2 of \cite{ENDTMAYER202419}.
+We use the following enriched-space error identity, corresponding to Theorem~2 of \cite{ENDTMAYER202419}.
 
 \begin{theorem}[Enriched-space error representation]
 \label{thm:enriched-space-dwr}
 Suppose that restrictions \(\mathcal A^{(2)}\) and \(J_h\) are three-times continuously differentiable on the enriched spaces and agree there with \(\mathcal A\), \(\mathcal A'\), \(J\), and \(J'\); explicitly, for \(v,w\in U_h^{(2)}\) and \(\phi\in V_h^{(2)}\),
-\begin{align}
+\begin{align*}
  \mathcal A(v)(\phi)
  &=\mathcal A^{(2)}(v)(\phi),
  &
@@ -192,8 +192,8 @@ Suppose that restrictions \(\mathcal A^{(2)}\) and \(J_h\) are three-times conti
  J(v)&=J_h(v),
  &
  J'(v)(w)&=J_h'(v)(w).
- \label{eq:enriched-goal-agreement}
-\end{align}
+ % \label{eq:enriched-goal-agreement}
+\end{align*}
 If \(u_h^{(2)}\) and \(z_h^{(2)}\) solve \eqref{eq:enriched-primal}--\eqref{eq:enriched-adjoint}, then for every fixed \((\widetilde u,\widetilde z)\in U_h^{(2)}\times V_h^{(2)}\),
 \begin{align}
  J(u)-J(\widetilde u)
@@ -208,40 +208,58 @@ If \(u_h^{(2)}\) and \(z_h^{(2)}\) solve \eqref{eq:enriched-primal}--\eqref{eq:e
 Here \(\mathcal R_h^{(3)}\) is \eqref{eq:nonlinear-dwr-remainder} with the exact errors replaced by enriched errors.
 \end{theorem}
 
-\begin{proof}
-The agreement assumptions imply that \(u_h^{(2)}\) and \(z_h^{(2)}\) form a stationary primal--adjoint pair for the restricted Lagrangian on \(U_h^{(2)}\times V_h^{(2)}\). Applying Theorem~\ref{thm:becker-rannacher} on these finite-dimensional spaces yields \(J_h(u_h^{(2)})-J_h(\widetilde u)=\eta^{(2)}\). Since \(J_h=J\) on the enriched space, adding and subtracting \(J(u_h^{(2)})\) gives \eqref{eq:enriched-exact-splitting}.
-\end{proof}
 
-Under the saturation assumption
+Equation~\eqref{eq:enriched-exact-splitting} shows that \(\eta^{(2)}\) differs from the goal error by the remaining error of the enriched primal solution \(J(u)-J(u_h^{(2)})\). Therefore, \(\eta^{(2)}\) can approximate the goal error only when this remaining term is sufficiently small. This is expressed by the saturation assumption
 \begin{equation}
- |J(u)-J(u_h^{(2)})|
- \le b_h|J(u)-J(\widetilde u)|,
- \qquad 0<b_h<1,
- \label{eq:goal-saturation}
+|J(u)-J(u_h^{(2)})|
+\le b_h |J(u)-J(\widetilde u)|,
+\qquad 0<b_h<1.
+\label{eq:goal-saturation}
 \end{equation}
-the review \cite{ENDTMAYER202419} proves
+Combining \cref{eq:enriched-exact-splitting,eq:goal-saturation} with the triangle inequality yields
 \begin{equation}
- \frac{1}{1+b_h}|\eta^{(2)}|
- \le |J(u)-J(\widetilde u)|
- \le \frac{1}{1-b_h}|\eta^{(2)}|.
- \label{eq:enriched-reliability-efficiency}
+\frac{1}{1+b_h}|\eta^{(2)}|
+\le |J(u)-J(\widetilde u)|
+\le \frac{1}{1-b_h}|\eta^{(2)}|.
+\label{eq:enriched-reliability-efficiency}
 \end{equation}
-The saturation assumption is problem- and goal-dependent and is not proved for the new space--time recovery proposed here; the experiments therefore report effectivities and localisation closure as numerical evidence.
+Hence, under saturation, the computable estimator \(\eta^{(2)}\) bounds the unknown goal error from both sides. The upper bound gives reliability, since the estimator cannot substantially underestimate the error. The lower bound gives efficiency, since it cannot substantially overestimate it.
 
-Let \(z_h\in V_h\) denote the numerical solution of the discrete dual problem on the current discretisation, and let \(z_h^+\in V_h^+\) be the corresponding dual solution computed in an enriched space \(V_h^+\supset V_h\). For a linear problem, a computable DWR estimator is
+In the computations, the cubic remainder in \cref{eq:enriched-nonlinear-dwr} will be omitted. This gives the practical nonlinear estimator
 \begin{equation}
-  \eta
-  =
-  \rho(u_h)(z_h^+-z_h).
-  \label{eq:computable-dwr-two-solves}
+\eta_{\mathrm{global}}
+:=
+\frac12\rho(u_h)(z_h^+-z_h)
++
+\frac12\rho^\ast(u_h,z_h)(u_h^+-u_h)
+-
+\rho(u_h)(z_h),
+\label{eq:practical-nonlinear-estimator}
 \end{equation}
-For the dual weight \(z-\varphi_h\), the literature \cite{ENDTMAYER202419} also distinguishes three reconstruction choices: a globally computed higher-order dual \(\widehat z_h-I_h\widehat z_h\); a local patchwise higher-order reconstruction \(I_h^+z_h-z_h\); and a difference-quotient or flux-jump surrogate. The first is usually the most direct route to a global estimator but requires an enriched dual solve. The latter two can be cheaper for marking, but their accuracy depends on the reconstruction and is not interchangeable with that of an enriched global dual. In the present code, \(z_h^+-z_h\) and \(z_h^+-I_hz_h^+\) are both implemented. The experiments use the first choice. The extra low-order adjoint solve is more expensive than a purely local interpolation, but it gives a transparent comparison of two numerical adjoints(?). The interpolant choice remains available for a cheaper study.
+where \(u_h\) and \(z_h\) are the primal and adjoint solutions on the current discretisation, while \(u_h^+\) and \(z_h^+\) are their enriched counterparts.
 
-When a sufficiently accurate reference value for \(J(u)\) is available, the effectivity index is defined by
+If \(\mathcal A\) is affine and \(J\) is linear, the estimator can be reduced to
 \begin{equation}
-  I_{\mathrm{eff}}
-  =
-  \frac{\eta}{J(u)-J(u_h)}.
-  \label{eq:signed-effectivity}
+\eta_{\mathrm{global}}
+=
+\rho(u_h)(z_h^+-z_h).
+\label{eq:computable-dwr-two-solves}
+\end{equation}
+
+As a less expensive alternative, the implementation also permits the weight
+\begin{equation}
+z^\star=z_h^+-I_hz_h^+,
+\label{eq:computable-dwr-interpolated-weight}
+\end{equation}
+where \(I_hz_h^+\in V_h\) is an interpolation of the enriched adjoint. This avoids the additional low-order adjoint solve. 
+
+\textcolor{blue}{For the dual weight, my understanding is that both \(z_h^+-z_h \quad\text{and}\quad z_h^+-I_h z_h^+ \) are theoretically admissible. The first choice seems more natural,  but I'm not sure if it has any general accuracy advantage as an estimator}
+
+When an independently computed reference value for \(J(u)\) is available, the accuracy of the global estimator is measured by the \emph{global effectivity index}
+\begin{equation}
+I_{\mathrm{eff}}^{\mathrm{glob}}
+:=
+\frac{\eta}{J(u)-J(u_h)}.
+\label{eq:signed-effectivity}
 \end{equation}
 An effectivity index close to one indicates good agreement in the computed case \cite{Bangerth_Rannacher_2003}.
