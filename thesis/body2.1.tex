@@ -127,13 +127,13 @@ Set \(X=U\times V\), \(x=(u,z)\), \(\widetilde x=(\widetilde u,\widetilde z)\), 
   \label{eq:dwr-lagrangian}
 \end{equation}
 Along the segment \(x_s=\widetilde x+s(x-\widetilde x)\), the fundamental theorem of calculus and the trapezoidal identity give
-\begin{equation}
+\begin{align}
  \mathcal L(x)-\mathcal L(\widetilde x)
  ={}&\frac12\bigl[\mathcal L'(x)(x-\widetilde x)
        +\mathcal L'(\widetilde x)(x-\widetilde x)\bigr] +\frac12\int_0^1
    \mathcal L'''(x_s)(x-\widetilde x)^3s(s-1)\,\mathrm ds.
  \label{eq:dwr-trapezoidal-proof}
-\end{equation}
+\end{align}
 The exact primal and adjoint equations make \(x\) a stationary point of \(\mathcal L\), so \(\mathcal L'(x)=0\). Expanding \(\mathcal L'(\widetilde x)\) in its primal and dual directions produces the primal residual \(\rho\) and adjoint residual \(\rho^\ast\); substituting the definition of \(\mathcal L\) gives the Galerkin correction in \eqref{eq:nonlinear-dwr-identity}. Expanding the third derivative gives \eqref{eq:nonlinear-dwr-remainder}. Complete algebraic details are given in \cite{181,93,ENDTMAYER202419}.
 \end{proof}
 
@@ -183,7 +183,7 @@ The precise statement needed here is the enriched-space identity corresponding t
 \begin{theorem}[Enriched-space error representation]
 \label{thm:enriched-space-dwr}
 Suppose that restrictions \(\mathcal A^{(2)}\) and \(J_h\) are three-times continuously differentiable on the enriched spaces and agree there with \(\mathcal A\), \(\mathcal A'\), \(J\), and \(J'\); explicitly, for \(v,w\in U_h^{(2)}\) and \(\phi\in V_h^{(2)}\),
-\begin{align*}
+\begin{align}
  \mathcal A(v)(\phi)
  &=\mathcal A^{(2)}(v)(\phi),
  &
@@ -194,7 +194,7 @@ Suppose that restrictions \(\mathcal A^{(2)}\) and \(J_h\) are three-times conti
  &
  J'(v)(w)&=J_h'(v)(w).
  \label{eq:enriched-goal-agreement}
-\end{align*}
+\end{align}
 If \(u_h^{(2)}\) and \(z_h^{(2)}\) solve \eqref{eq:enriched-primal}--\eqref{eq:enriched-adjoint}, then for every fixed \((\widetilde u,\widetilde z)\in U_h^{(2)}\times V_h^{(2)}\),
 \begin{align}
  J(u)-J(\widetilde u)
@@ -246,6 +246,4 @@ When a sufficiently accurate reference value for \(J(u)\) is available, the effe
   \label{eq:signed-effectivity}
 \end{equation}
 An effectivity index close to one indicates good agreement in the computed case \cite{Bangerth_Rannacher_2003}.
-
-
 
