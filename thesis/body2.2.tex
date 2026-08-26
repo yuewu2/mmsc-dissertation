@@ -3,10 +3,7 @@
 
 Section~\ref{sec:introduction-localisation} motivated a decomposition of the global DWR estimator into computable local contributions. Elementwise integration by parts (IBP) gives strong cell residuals, flux jumps, and boundary residuals, but its derivation depends on the differential operator and boundary conditions. Partition-of-unity (PU) localisation inserts functions \(\{\chi_i\}_{i=1}^M\), with \(\sum_i\chi_i=1\), into the weak residual and associates the resulting terms with basis functions or patches \cite{Richter_Wick_2015}. This is effective for stationary and space--time adaptivity \cite{ThieleWick2024,R6,non-flow}, but a single patch contribution may combine several residual mechanisms.
 
-The present construction is indexed instead by geometric support. It separates cell-volume, spatial-facet, temporal-face, and, when present, mixed space--time ridge contributions. Polynomial densities on these entities are recovered directly from evaluations of the UFL weak residual in \texttt{Firedrake}, which does not require problem-specific strong residual or hand-derived flux-jump formula. This approach is motivated by the stationary bubble--cone construction of Rognes and Logg \cite{Rognes_Logg_2013}. We extend it below to discontinuous Galerkin discretisations in time.
-
-% 我的直觉是切蛋糕 直接切割 - mathematically 边界部分就不见了（粘在刀上所以要刮到cell上），thats why ibp 或者 recovery 有必要；投影的话，边界部分不会受影响。
-% 但是要怎么对比这个方法和投影呢？这个方法 more explainable？主要是感觉projection实在是快一些吗？
+The present construction pursues a more geometrically resolved decomposition. It probes the weak residual with polynomial functions supported on individual cells, spatial facets, temporal faces, and, when present, mixed space--time ridges. The resulting coefficients separate the residual mechanisms according to their geometric support, while still being recovered directly from UFL evaluations of the weak residual in \texttt{Firedrake}. Thus no problem-specific strong residual or hand-derived flux-jump formula is needed. This approach is motivated by the stationary bubble--cone construction of Rognes and Logg \cite{Rognes_Logg_2013}, and is extended below to discontinuous Galerkin discretisations in time.
 
 
 \subsection{Stationary Bubble and Cone Projection}
@@ -46,7 +43,7 @@ For a \(d\)-simplex \(K\) with vertices \(\{v_i\}_{i=1}^{d+1}\) and associated b
   \qquad b_K|_{\partial K}=0.
   \label{eq:recovery-cell-bubble}
 \end{equation}
-The bubble test eliminates all facet actions, so \(R_K^B\in\mathbb P^p(K)\) is recovered from
+The bubble test eliminates all facet actions, so \(R_K^B\in\mathbb P^p(K)\) can be recovered from
 \begin{equation}
   (R_K^B,b_K\phi)_K
   =\rho_K(b_K\phi)
@@ -61,12 +58,11 @@ For \(F\in\mathcal F(K)\), let
   \beta_{K,F}:=\prod_{i\in\mathcal I_F}\lambda_i^K.
   \label{eq:recovery-facet-cone}
 \end{equation}
-This cone is nonzero on the relative interior of \(F\), vanishes on every other facet, and remains nonzero inside \(K\). Let
-\begin{equation}
+This cone function is nonzero on the relative interior of \(F\), vanishes on every other facet, and remains nonzero inside \(K\). Let
+\(
   E_{K,F}:\mathbb P^q(F)\longrightarrow\mathbb P^q(K),
   \qquad (E_{K,F}\psi)|_F=\psi,
-  \label{eq:facet-polynomial-extension}
-\end{equation}
+\)
 and write \(\widetilde\psi=E_{K,F}\psi\). Once the cell density \(R_{K}^B\) is recovered, the facet resudual contribution \(R_{K,F}^B\in\mathbb P^q(F)\) is defined by
 \begin{equation}
   \bigl(R_{K,F}^B,(\beta_{K,F}|_F)\psi\bigr)_F
@@ -77,7 +73,7 @@ and write \(\widetilde\psi=E_{K,F}\psi\). Once the cell density \(R_{K}^B\) is r
   \label{eq:stationary-facet-projection}
 \end{equation}
 The subtraction removes the cell action seen by the cone. Under (A1)--(A3), these weighted mass problems uniquely recover \(R_K\) and \(R_{K,F}\) \cite{Rognes_Logg_2013}.
-Figure~\ref{fig:stationary-bubble-cone} illustrates the bubble and cone test functions used in the two stationary recovery problems.
+Figure~\ref{fig:stationary-bubble-cone} illustrates two representative bubble and cone test functions.
 \newcommand{\drawcoarsemeshdiagonals}{%
   \addplot3[gray!60, line width=0.25pt]
     coordinates {(0,0,0) (1,1,0)};
@@ -197,14 +193,13 @@ Figure~\ref{fig:stationary-bubble-cone} illustrates the bubble and cone test fun
   \label{fig:stationary-bubble-cone}
 \end{figure}
 
-The recovered densities are paired with the computable dual weight \(z^\star\). The stationary analysis is established in \cite{Rognes_Logg_2013}, while the space--time extension below is assessed numerically in Chapter~\ref{chap:experiments} through localisation gaps, effectivities, and adaptive behaviour. The essential new feature is the dG action at each temporal interface.
-
+The stationary analysis is established in \cite{Rognes_Logg_2013}, while the space--time extension below is assessed numerically in Chapter~\ref{chap:experiments} through localisation gaps, effectivities, and adaptive behaviour. The essential new feature is the dG action at each temporal interface.
 
 
 \subsection{Space--Time Extension of the Residual Recovery}
 \label{sec:space-time-residual-recovery}
 
-Let \(V\) be a spatial trial and test space. We consider an abstract evolution problem of the form
+Let \(V\) be a spatial trial and test space. We now consider an evolution problem of the form
 \begin{equation}
   m(\partial_tu(t),v)+a(u(t);v,t)=\ell(v;t)
   \qquad\forall v\in V,\quad t\in(0,T),
@@ -218,7 +213,7 @@ with \(u(0)=u_0\). Here \(m\) is the time-derivative pairing, \(a\) contains the
   \qquad \tau=\frac{t-t_{n-1}}{k_n}.
   \label{eq:space-time-cell}
 \end{equation}
-On \(I_n\), trial and test functions are time polynomials with values in a spatial finite-element space \(V_n\), and may be discontinuous at \(t_n\). Following the standard space--time dG notation \cite{Bangerth_Rannacher_2003}, define
+On \(I_n\), trial and test functions are time polynomials with values in a spatial finite-element space \(V_n\), and may be discontinuous at \(t_n\). Following the standard space--time dG notation \cite{Bangerth_Rannacher_2003}, we define
 \begin{equation}
   U^{n+}:=\lim_{t\downarrow t_n}U(t),
   \qquad
@@ -228,7 +223,7 @@ On \(I_n\), trial and test functions are time polynomials with values in a spati
   \label{eq:dg-time-traces}
 \end{equation}
 
-For matching spatial spaces, the global dG semilinear form is
+For matching spatial spaces, the global dG semilinear form can be written as
 \begin{align}
   \mathcal A(U)(V)
   :={}&
@@ -297,7 +292,7 @@ Note that if \(V_{n-1}\ne V_n\), the outgoing trace must first be transferred in
   \qquad n>1,
   \label{eq:transferred-dg-time-defect}
 \end{equation}
-where \(P_{n-1}:V_{n-1}\to V_n\). The transfer and its adjoint are discussed in Section~\ref{sec:slab-transfer-adjoint}.
+where \(P_{n-1}:V_{n-1}\to V_n\). The transfer and its adjoint are discussed in more details in Section~\ref{sec:slab-transfer-adjoint}.
 
   \item[(A2) Local decomposition.] On each space--time cell \(Q_{K,n}\), the residual admits a representation by contributions supported on the cell interior, spatial facets, temporal facets, and, when required by the chosen pairing, their intersections, as shown in Figure~\ref{fig:space-time-residual-entities}.
   \begin{equation}
@@ -329,7 +324,7 @@ where \(P_{n-1}:V_{n-1}\to V_n\). The transfer and its adjoint are discussed in 
     ridge/.style={blue!75!black,line width=1.55pt},
     hidden ridge/.style={blue!65!black,dashed,line width=1.3pt}
   ]
-    % The prism is viewed from its incoming temporal face.
+
     \coordinate (A)  at (2.55,0);
     \coordinate (B)  at (.35,1.15);
     \coordinate (C)  at (4.75,1.15);
@@ -341,59 +336,41 @@ where \(P_{n-1}:V_{n-1}\to V_n\). The transfer and its adjoint are discussed in 
     \fill[spatial] (A)--(B)--(Bt)--(At)--cycle;
     \fill[green!31] (A)--(C)--(Ct)--(At)--cycle;
 
-    % The incoming face is nearest to the reader and therefore overlays
-    % the projected lower portions of the spatial facets.
-    % \fill[temporal] (A)--(B)--(C)--cycle;
     % Outgoing temporal face K x {t_n}
     \fill[temporal] (At)--(Bt)--(Ct)--cycle;
 
-    % Ordinary space--time edges.  The central edge faces the reader.
     \draw[edge] (A)--(At);
     \draw[edge] (B)--(Bt);
     \draw[edge] (C)--(Ct);
 
-    % The three incoming mixed ridges are all visible.
     \draw[edge] (A)--(B);
     \draw[edge] (A)--(C);
     \draw[hidden edge] (B)--(C);
 
-    % Two outgoing ridges are visible; the rear ridge is hidden.
     \draw[ridge] (At)--(Bt);
     \draw[ridge] (At)--(Ct);
     \draw[ridge] (Bt)--(Ct);
 
-    % Time direction: from the near incoming face to the remote face.
+    % Time direction
     \draw[->,line width=.9pt] (-1.05,1.15)--(-1.05,4.30);
     \node[left=3pt] at (-1.05,1.15) {\(t_{n-1}\)};
     \node[left=3pt] at (-1.05,4.30) {\(t_n\)};
 
-    % \node[below=4pt,align=center] at (A)
-    %   {incoming temporal face\\[-1pt]\(K\times\{t_{n-1}\}\)};
-    % \node[above=4pt,align=center] at (2.55,4.30)
-    %   {outgoing temporal face\\[-1pt]\(K\times\{t_n\}\)};
-    % \node[rotate=18,align=center] at (1.35,2.25)
-    %   {spatial facet\\[-1pt]\(F_1\times I_n\)};
-    % \node[rotate=-18,align=center] at (3.75,2.25)
-    %   {spatial facet\\[-1pt]\(F_2\times I_n\)};
-
     \begin{scope}[xshift=6.05cm,yshift=3.25cm]
-      \fill[orange!38] (0,0) rectangle (.42,.28);
+      \fill[green!27] (0,0) rectangle (.42,.28);
       \draw[black,thin] (0,0) rectangle (.42,.28);
-      \node[anchor=west] at (.62,.14) {temporal face $K\,\times \{t_n\}$};
-      \fill[green!27] (0,-.62) rectangle (.42,-.34);
+      \node[anchor=west] at (.62,.14) {spatial facet $F\,\times I_n$};
+      \fill[orange!38] (0,-.62) rectangle (.42,-.34);
       \draw[black,thin] (0,-.62) rectangle (.42,-.34);
-      \node[anchor=west] at (.62,-.48) {spatial facet $F\,\times I_n$};
+      \node[anchor=west] at (.62,-.48) {temporal face $K\,\times \{t_n\}$};
       \draw[ridge] (0,-1.00)--(.42,-1.00);
       \node[anchor=west] at (.62,-1.00) {mixed ridge $F\,\times \{t_n\}$};
-      % \draw[hidden ridge] (0,-1.46)--(.42,-1.46);
-      % \node[anchor=west] at (.62,-1.46) {hidden mixed ridge};
     \end{scope}
   \end{tikzpicture}
   \caption{Space--time cell \(Q_{K,n}=K\times I_n\).}
   \label{fig:space-time-residual-entities}
 \end{figure}
 
-  
 \item[(A3) Polynomial representation.]
 The residual densities belong to the selected recovery spaces,
 \begin{align}
@@ -417,7 +394,7 @@ Assumption (A1) follows naturally when the weak form is assembled slab by slab f
 
 
 \paragraph{Volume recovery.}
-We define the temporal interior bubble and its tensor product with the spatial cell bubble from~\cref{eq:recovery-cell-bubble} by
+We first define the temporal interior bubble and its tensor product with the spatial cell bubble from~\cref{eq:recovery-cell-bubble} by
 \begin{equation}
   b_n^t(\tau):=4\tau(1-\tau),
   \qquad
@@ -504,67 +481,48 @@ which satisfies
   \label{eq:temporal-cone-traces}
 \end{equation*}
 
-For \(\chi\in\mathbb P^{r_x}(K)\), we define
+For \(\chi\in\mathbb P^{r_x}(K)\), define the temporal-face test function
 \begin{equation}
-  \mathcal E_{K,n}^{\mathrm{tf}}(\chi)
-  :=
-  b_K(1-\tau)\chi.
-  \label{eq:temporal-recovery-test}
+\mathcal E_{K,n}^{\mathrm{tf}}(\chi) :=
+b_K(1-\tau)\chi .
+\label{eq:temporal-recovery-test}
 \end{equation}
-Since \(b_K|_{\partial K}=0\), this test has no trace on any spatial facet. Applying to the decomposition of the local residual gives
+which vanishes on every spatial facet and the outgoing temporal face \(K\times\{t_n\}\) of \(Q_{K,n}\). Hence, the local residual decomposition reduces to
 \begin{equation}
-  \rho_{K,n}(U_h)
-  \bigl(\mathcal E_{K,n}^{\mathrm{tf}}(\chi)\bigr)
-  =
-  \Bigl(
-    R_{K,n}^{\mathrm{vol}},
-    \mathcal E_{K,n}^{\mathrm{tf}}(\chi)
-  \Bigr)_{Q_{K,n}}
-  +
-  \bigl(
-    R_{K,n-1}^{\mathrm{tf}},
-    b_K\chi
-  \bigr)_K.
-  \label{eq:temporal-cone-support-splitting}
+\rho_{K,n}(U_h)
+\bigl(\mathcal E_{K,n}^{\mathrm{tf}}(\chi)\bigr)
+=
+\Bigl(
+R_{K,n}^{\mathrm{vol}},
+\mathcal E_{K,n}^{\mathrm{tf}}(\chi)
+\Bigr)_{Q_{K,n}}
++
+\bigl(
+R_{K,n-1}^{\mathrm{tf}},
+b_K\chi
+\bigr)_K .
+\label{eq:temporal-cone-support-splitting}
 \end{equation}
-Thus the test exposes only the slab-volume residual and the incoming temporal-face residual. After recovering the volume density, we can determine \(R_{K,n-1}^{B,\mathrm{tf}}\in\mathbb P^{r_x}(K)\) from
+Once the recovered volume density \(R_{K,n}^{B,\mathrm{vol}}\) is available, define the recovered incoming temporal-face density \(R_{K,n-1}^{B,\mathrm{tf}}\in\mathbb P^{r_x}(K)\) by
 \begin{equation}
-  \begin{aligned}
-  \bigl(
-    R_{K,n-1}^{B,\mathrm{tf}},
-    b_K\chi
-  \bigr)_K
-  ={}&
-  \rho_{K,n}(U_h)
-  \bigl(\mathcal E_{K,n}^{\mathrm{tf}}(\chi)\bigr)
-  \\
-  &-
-  \Bigl(
-    R_{K,n}^{B,\mathrm{vol}},
-    \mathcal E_{K,n}^{\mathrm{tf}}(\chi)
-  \Bigr)_{Q_{K,n}},
-  \qquad
-  \forall\chi\in\mathbb P^{r_x}(K).
-  \end{aligned}
-  \label{eq:temporal-facet-projection}
+\begin{aligned}
+\bigl(
+R_{K,n-1}^{B,\mathrm{tf}},b_K\chi
+\bigr)_K
+={}&
+\rho_{K,n}(U_h)
+\bigl(\mathcal E_{K,n}^{\mathrm{tf}}(\chi)\bigr) \\
+&-
+\Bigl(
+R_{K,n}^{B,\mathrm{vol}},
+\mathcal E_{K,n}^{\mathrm{tf}}(\chi)
+\Bigr)_{Q_{K,n},
+}
+\qquad
+\forall\chi\in\mathbb P^{r_x}(K).
+\end{aligned}
+\label{eq:temporal-facet-projection}
 \end{equation}
-
-% Assuming exact volume recovery on the chosen test space, the temporal density is determined by
-% \begin{equation}
-%   \bigl(
-%     R_{K,n-1}^{B,\mathrm{tf}},
-%     b_K\chi
-%   \bigr)_K
-%   =
-%   -
-%   m_{n,K}\bigl(
-%     \delta_{n-1}(U_h),
-%     b_K\chi
-%   \bigr),
-%   \qquad
-%   \forall\chi\in\mathbb P^{r_x}(K).
-% \end{equation}
-% For the standard \(L^2(K)\) mass pairing, this is the \(b_K\)-weighted projection of \(-\delta_{n-1}(U_h)\).
 
 
 \paragraph{Possible mixed spatial--temporal ridge.}
@@ -583,7 +541,6 @@ For \(\psi\in\mathbb P^{s_x}(F)\), let \(\widetilde\psi=E_{K,F}\psi\) be the fix
   \end{aligned}
   \label{eq:mixed-ridge-test}
 \end{equation}
-% This test is nonzero in the slab interior, on the selected spatial facet, and on the left temporal face. 
 The mixed density \(R_{K,F,n-1}^{B,\mathrm{xt}}\in\mathbb P^{s_x}(F)\) is consequently defined by
 \begin{align}
   \bigl(
@@ -619,7 +576,7 @@ This subtraction leaves only the contribution supported on \(F\times\{t_{n-1}\}\
 \subsection{Localisation of the Nonlinear Adjoint-Residual Term}
 \label{sec:nonlinear-adjoint-residual-localisation}
 
-The construction above isolates the primal residual. For the nonlinear identity, the implemented estimator is
+For the nonlinear identity, the implemented estimator is
 \begin{equation}
  \eta
  =
@@ -628,25 +585,31 @@ The construction above isolates the primal residual. For the nonlinear identity,
  -\rho(u_h)(z_h),
  \label{eq:symmetric-nonlinear-dwr}
 \end{equation}
-with the unknown cubic remainder omitted. For the adjoint-residual term \(\rho^\ast(u_h,z_h)(u_h^+-u_h)\). Once \(u_h\) and \(z_h\) are fixed, \(\rho^\ast(u_h,z_h)\) is a linear functional of the primal variation. Consequently, the same bubble--cone principle can be applied to this term, but it requires a separate recovery of the linearised PDE and goal derivatives rather than reuse of the primal-residual densities.
+with the unknown cubic remainder omitted. The construction above recovers densities for the primal residual \(\rho(u_h)\), thus it can be used directly for both primal-residual contributions and the correction term. Once \(u_h\) and \(z_h\) are fixed, the adjoint-residual term \(\rho^\ast(u_h,z_h)(\cdot)\) is a linear functional of the primal variation. It can therefore be evaluated on the same test functions used above, but it requires a separate recovery of the linearised PDE and goal derivatives rather than reuse of the primal-residual densities.
 
-In the present implementation, this second hierarchical recovery is not performed. Instead, the adjoint-residual action is assembled directly against discontinuous cellwise-constant test functions. Since the DG0 cell characteristic functions sum to one, this produces an algebraically closing cellwise partition of the assembled weak action. 
-The resulting cell contributions are used together with the recovered primal-residual and Galerkin-correction terms in the nonlinear indicator. A complete bubble--cone recovery of \(\rho^\ast\) remains a possible extension when a separate entity-resolved interpretation of the adjoint-residual term is required.
+In the present implementation, we do not perform a second bubble--cone recovery for the adjoint residual. Instead, we evaluate the adjoint-residual functional using the cellwise-constant dG0 basis functions. As these functions form a partition of unity, summing these contributions recovers the assembled adjoint-residual term.
+These cellwise contributions are combined with the recovered primal-residual and Galerkin-correction contributions to form the nonlinear indicator. A complete bubble--cone recovery of \(\rho^\ast\) remains a possible extension when a separate entity-resolved interpretation of the adjoint-residual term is needed.
 
 
 
-\subsection{Localisation Diagnostics and Scope}
+\subsection{Localisation Effectivity}
 
 Let
 \begin{equation}
- \eta_{\mathrm{loc}}:=\sum_{n,K}\eta_{K,n},
- \qquad
- \delta_{\mathrm{loc}}
- :=\eta_{\mathrm{loc}}-\eta_{\mathrm{glob}}.
- \label{eq:localisation-gap}
+\eta_{\mathrm{loc}}
+:=
+\sum_{n,K}\eta_{K,n},
+\label{eq:localisation-gap}
 \end{equation}
-The code records the signed gap, its relative value \(|\delta_{\mathrm{loc}}|/\max(|\eta_{\mathrm{glob}}|,\epsilon_{\mathrm{mach}})\), 
-and the closure ratio \(\eta_{\mathrm{loc}}/\eta_{\mathrm{glob}}\). These quantities test whether the entity recovery reproduces the independently assembled weak estimator. They are distinct from effectivity, which compares an estimator with the true goal error and therefore also tests the enriched primal--dual approximation.
+To assess the quality of localisation, we define the localisation effectivity index
+\begin{equation}
+I_{\mathrm{eff}}^{\mathrm{loc}}
+:=
+\frac{\eta_{\mathrm{loc}}}{\eta_{\mathrm{glob}}},
+\label{eq:localisation-effectivity}
+\end{equation}
+whenever \(\eta_{\mathrm{glob}}\neq 0\). Exact localisation gives \(I_{\mathrm{eff}}^{\mathrm{loc}}=1\).
 
-The construction requires a local finite-order weak residual, inclusion of all physical and discretisation terms, and stable weighted mass systems. Conforming scalar \(H^1\) problems fit this description directly. Discontinuous, \(H(\mathrm{div})\), and \(H(\mathrm{curl})\) formulations require recovery spaces that respect their numerical fluxes and normal or tangential traces. Saddle-point systems, variational inequalities, nonlocal operators, shocks, and distributional sources may require additional problem-specific support entities.
+
+\textcolor{blue}{Should I mention the scope of this method?}
 
