@@ -6,8 +6,9 @@
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{remark}[theorem]{Remark}
-\usepackage[hidelinks]{hyperref}
+\usepackage{hyperref}
 \usepackage{booktabs}
+\usepackage{todonotes}
 
 % 中文，最后compile 改成pdf 
 \usepackage{fontspec}
@@ -25,6 +26,15 @@
 \usepackage{tikz}
 \usepackage{subcaption}
 \usepackage{graphicx}
+
+\newcommand{\pef}[1]{\todo[inline, color=blue!20]{Patrick: #1}}
+
+\hypersetup{
+    colorlinks,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
 
 \title{Automated Goal-Based Adaptivity for Time-Dependent \\Partial Differential Equations}
 \author{Yue Wu}
