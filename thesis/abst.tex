@@ -1,8 +1,11 @@
 \begin{abstract}
 
-Goal-oriented adaptive finite element methods refine a discretisation to reduce the error in a prescribed quantity of interest. For time-dependent partial differential equations, their automation requires a global dual-weighted residual (DWR) estimator to be localised in both space and time. This dissertation develops an automated localisation method that operates directly on the weak variational formulation. It extends hierarchical bubble--cone recovery to discontinuous-Galerkin time discretisations and separates the residual into cell-volume, spatial-facet, temporal-interface and, when necessary, mixed space--time ridge contributions. The resulting local indicators drive a complete solve--estimate--mark--refine cycle with slabwise spatial refinement and temporal bisection.
+Goal-oriented adaptive finite element methods aim to reduce the error in a prescribed quantity of interest by refining the discretisation where it matters most for that output. For time-dependent partial differential equations, this requires localising a global dual-weighted residual (DWR) error estimator in both space and time. This dissertation develops an automated localisation procedure that works directly with the weak variational formulation.
 
-The framework is implemented in \texttt{Firedrake} and tested on heat, advection--diffusion, Benjamin--Bona--Mahony, and parabolic \(p\)-Laplace problems. The adapted meshes agree with the expected propagation of goal sensitivity and concentrate resolution where it most affects the selected output. These experiments provide numerical evidence that the entity-wise residual recovery developed in this dissertation offers an effective route to automated goal-based space--time adaptivity.
+The method extends bubble--cone recovery to discontinuous-Galerkin time discretisations. It recovers separate contributions associated with space--time cell interiors, spatial facets, temporal interfaces, and, where required, mixed space--time ridges. These contributions form an automated solve--estimate--mark--refine workflow for space--time adaptation.
+
+The framework is implemented in \texttt{Firedrake} and assessed for the heat, advection--diffusion, Benjamin--Bona--Mahony, parabolic \(p\)-Laplace, and incompressible Navier--Stokes equations. The numerical experiments assess the observed goal error, the agreement of the reconstructed local estimator with the global DWR estimator, and the resulting adaptive refinement behaviour. The results demonstrate that the proposed workflow can support practical automated goal-oriented space--time adaptivity.
 
 
 \end{abstract}
+
