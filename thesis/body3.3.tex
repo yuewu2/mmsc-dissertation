@@ -177,14 +177,14 @@ The low-order and enriched spaces are, respectively,
 \end{equation*}
 We take the bulk marking fraction as $0.35$ and bisect a time slab when at least $10\%$ of its spatial cells are selected. We have initially $50$ spatial cells and $6$ time slabs. The terminal time is set to be $18$.
 
-To verify algebraic completeness as stated in the previous subsection~\ref{sec:bbm-mixed-ridge-specialisation}, each adaptive iterate is post-processed on the same primal solution, adjoint solution, and mesh in two ways: with all recovered entities and after deleting only the signed mixed-ridge
+To verify algebraic completeness as stated in \cref{sec:bbm-mixed-ridge-specialisation}, each adaptive iterate is post-processed on the same primal solution, adjoint solution, and mesh in two ways: with all recovered entities and after deleting only the signed mixed-ridge
 contribution. Define
 \begin{equation}
   \delta_{\mathrm{loc}}
   :=\sum_{n,K}\eta_{K,n}-\eta_{\mathrm{global}}.
   \label{eq:bbm-localisation-gap}
 \end{equation}
-With the mixed ridge included, $|\delta_{\mathrm{loc}}|$ stays at floating-point roundoff. This test in Table~\ref{tab:bbm-mixed-ridge-ablation} demonstrates that the mixed ridge term is required to reproduce the global DWR estimator for this BBM calculation.
+With the mixed ridge included, $|\delta_{\mathrm{loc}}|$ stays at floating-point roundoff. This test in \cref{tab:bbm-mixed-ridge-ablation} demonstrates that the mixed ridge term is required to reproduce the global DWR estimator for this BBM calculation.
 \begin{table}[h]
   \centering
   \begin{tabular}{rrrrr}
@@ -213,7 +213,7 @@ With the mixed ridge included, $|\delta_{\mathrm{loc}}|$ stays at floating-point
 %   \label{fig:bbm-mixed-ridge-ablation}
 % \end{figure}
 
-Figure~\ref{fig:bbm-mesh-evolution} displays the adapted meshes in the $(x,t)$ plane. The initial mesh is uniform. By iteration $8$, local spatial and temporal refinements form a recognisable diagonal corridor from the initial wave position towards the terminal sensor. At iteration $12$ this corridor is substantially denser, while cells far from it remain comparatively coarse. Its alignment with the exact space--time wave whose centre moves from $x=30$ at $t=0$ to $x=54$ at $T=18$.
+\Cref{fig:bbm-mesh-evolution} displays the adapted meshes in the $(x,t)$ plane. The initial mesh is uniform. By iteration $8$, local spatial and temporal refinements form a recognisable diagonal corridor from the initial wave position towards the terminal sensor. At iteration $12$ this corridor is substantially denser, while cells far from it remain comparatively coarse. Its alignment with the exact space--time wave whose centre moves from $x=30$ at $t=0$ to $x=54$ at $T=18$.
 \begin{figure}[!htbp]
   \centering
   % space--time axis

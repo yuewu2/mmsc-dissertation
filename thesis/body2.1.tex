@@ -5,7 +5,7 @@
 \section{Adaptive Finite Element Methods}
 \label{sec:background-afem}
 
-Let \(U\) and \(V\) be reflexive Banach spaces with dual spaces \(U^\ast\) and \(V^\ast\), respectively. Let \(\mathcal{A}:U\rightarrow V^\ast\) denote the weak residual operator associated with the problem. The continuous problem is written as
+Let \(U\) and \(V\) be reflexive Banach spaces with dual spaces \(U^\ast\) and \(V^\ast\), respectively. Let \(\mathcal{A}:U\rightarrow V^\ast\) denote the weak residual operator associated with the problem. \pef{Give a quick example with the Poisson equation to make sure they understand you.} The continuous problem is written as
 \begin{equation}
   \mathcal{A}(u)(v)=0
   \qquad\text{for all }v\in V.
@@ -27,7 +27,7 @@ To make an adaptive solver practically realisable, and to study the optimality o
   \item \textsc{Refine} the marked elements using a specified refinement strategy.
 \end{enumerate}
 
-The automated goal-oriented solver considered in this dissertation follows this AFEM framework. The dual-weighted residual method, introduced in the following section, provides the goal-oriented error estimator used in the \textsc{Estimate} step. Section~\ref{sec:background-localisation} describes how this global estimator is decomposed into local contributions, while the marking and refinement strategy is specified at the end of this chapter.
+The automated goal-oriented solver considered in this dissertation follows this AFEM framework. The dual-weighted residual method, introduced in the following section, provides the goal-oriented error estimator used in the \textsc{Estimate} step. The key contribution of this thesis, described in \cref{sec:background-localisation}, is an algorithm for decomposing this global estimator into local contributions for use in the \textsc{Mark} step, in combination with the standard D\"orfler strategy. The refinement strategy is also standard and is specified at the end of this chapter.
 
 
 
@@ -37,7 +37,7 @@ The automated goal-oriented solver considered in this dissertation follows this 
 \subsection{Quantities of Interest and Adjoint Problem}
 \label{sec:background-qoi}
 
-As introduced in \eqref{eq:intro-qoi-map}--\eqref{eq:intro-goal-error}, we seek to control the error in a prescribed quantity of interest $J$. We now make its role in the adjoint problem precise.
+As introduced in \eqref{eq:intro-qoi-map}--\eqref{eq:intro-goal-error}, we seek to control the error in a prescribed quantity of interest $J$. %The goal functional enters mathematically in the specification of the dual or adjoint problem.
 % For example, for a fission-reactor eigenvalue problem, let the state be \(u=(\phi,k_{\mathrm{eff}})\), where \(\phi\) is the neutron flux and \(k_{\mathrm{eff}}\) is the effective multiplication factor. A goal functional measuring the deviation from criticality can be
 % \begin{equation}
 %   J_{\mathrm{reactor}}(u)
@@ -55,7 +55,6 @@ As introduced in \eqref{eq:intro-qoi-map}--\eqref{eq:intro-goal-error}, we seek 
 %   \label{eq:background-drag-functional}
 % \end{equation}
 % where \(\boldsymbol{\sigma}\) is the Cauchy stress tensor and \(\boldsymbol{n}\) is the outward unit normal.
-
 The DWR method requires an adjoint problem determined by the chosen functional \(J\). With primes denoting Fr\'echet derivatives, the continuous adjoint is: find \(z\in V\) such that
 \begin{equation}
   \mathcal{A}'(u)(w,z)=J'(u)(w)
@@ -74,6 +73,8 @@ where \(u_h\) solves \eqref{eq:abstract-discrete-primal}.
 \subsection{An Error Identity}
 \label{subsec:nonlinear-dwr}
 
+The following theorem is the core of the DWR method.
+
 \begin{theorem}[Nonlinear DWR identity \cite{Becker_Rannacher_2001,ENDTMAYER202419}]
 \label{thm:becker-rannacher}
 Assume that \(\mathcal{A}\in C^3(U,V^\ast)\) and \(J\in C^3(U,\mathbb{R})\). For any approximation \(\widetilde{x}=(\widetilde{u},\widetilde{z})\in U\times V\),
@@ -91,7 +92,7 @@ Assume that \(\mathcal{A}\in C^3(U,V^\ast)\) and \(J\in C^3(U,\mathbb{R})\). For
   \mathcal{R}^{(3)},
   \label{eq:nonlinear-dwr-identity}
 \end{align}
-where 
+where the forward and adjoint residuals are
 \begin{align}
   \rho(\widetilde{u})(\cdot)
   &:=
@@ -105,7 +106,7 @@ where
   (\cdot,\widetilde{z}).
   \label{eq:nonlinear-adjoint-residual}
 \end{align}
-Moreover, with \(e=u-\widetilde u\) and \(e^\ast=z-\widetilde z\),
+Moreover, with \(e=u-\widetilde u\) and \(e^\ast=z-\widetilde z\), the remainder term in the error identity is cubic:
 \begin{equation}
  \begin{aligned}
  \mathcal R^{(3)}
@@ -118,6 +119,8 @@ Moreover, with \(e=u-\widetilde u\) and \(e^\ast=z-\widetilde z\),
  \label{eq:nonlinear-dwr-remainder}
 \end{equation}
 \end{theorem}
+
+This expresses the error in the goal functional as the average of the primal and adjoint residuals evaluated at the adjoint and primal errors respectively, up to $\rho(\widetilde{u})(\widetilde{z})$ (which is zero if the discrete problems are solved exactly, and otherwise measures errors from inexact algebraic solvers), and a cubic remainder term.
 
 \begin{proof}[Proof sketch]
 Set \(X=U\times V\), \(x=(u,z)\), \(\widetilde x=(\widetilde u,\widetilde z)\), and introduce the Lagrangian
@@ -137,7 +140,9 @@ Along the segment \(x_s=\widetilde x+s(x-\widetilde x)\), the fundamental theore
 The exact primal and adjoint equations make \(x\) a stationary point of \(\mathcal L\), so \(\mathcal L'(x)=0\). Expanding \(\mathcal L'(\widetilde x)\) in its primal and dual directions produces the primal residual \(\rho\) and adjoint residual \(\rho^\ast\); substituting the definition of \(\mathcal L\) gives the Galerkin correction in \eqref{eq:nonlinear-dwr-identity}. Expanding the third derivative gives \eqref{eq:nonlinear-dwr-remainder}. Complete algebraic details are given in, for example, \cite{181,93,ENDTMAYER202419}.
 \end{proof}
 
-The correction term \(-\rho(\widetilde u)(\widetilde z)\) vanishes when \(\widetilde u=u_h\) is solved to Galerkin accuracy and \(\widetilde z\in V_h\). If \(\mathcal A\) is affine and \(J\) is linear, then \(\mathcal R^{(3)}=0\), and the two half-residual terms coincide. To state the resulting linear identity explicitly, let \(a:U\times V\rightarrow\mathbb R\) be bilinear, \(\ell\in V^\ast\), and define
+As previously mentioned, the term \(-\rho(\widetilde u)(\widetilde z)\) vanishes by Galerkin orthogonality when the discrete problems are solved exactly. Otherwise it can be used to balance e.g.~discretisation and errors in iterative solvers (Newton and/or Krylov iterations). \pef{Add relevant citation}
+
+If \(\mathcal A\) is affine and \(J\) is linear, then \(\mathcal R^{(3)}=0\), and the two half-residual terms coincide. To state the resulting linear identity explicitly, let \(a:U\times V\rightarrow\mathbb R\) be bilinear, \(\ell\in V^\ast\), and define
 \begin{align}
  a(u,v)&=\ell(v) &&\forall v\in V,
  \label{eq:linear-primal}\\
@@ -168,9 +173,9 @@ The residual measures the defect of \(u_h\) in the continuous variational proble
 \subsection{Computable Estimators and Effectivity}
 \label{sec:background-effectivity}
 
-Both identities above involve the unknown exact primal and adjoint solutions. In practice these are replaced by solutions in enriched spaces, obtained, for example, by uniform \(h\)-refinement, \(p\)-enrichment, or a higher-order time approximation \cite{Becker_Rannacher_2001,ENDTMAYER202419}.
+Both identities above involve the unknown exact primal and adjoint solutions and are uncomputable. In practice these unknown solutions are replaced by approximations in enriched spaces, obtained, for example, by uniform \(h\)-refinement, \(p\)-enrichment, or a higher-order time approximation \cite{Becker_Rannacher_2001,ENDTMAYER202419}.
 
-Let \(U_h\subset U_h^{(2)}\subset U\) and \(V_h\subset V_h^{(2)}\subset V\). The enriched primal and adjoint problems are
+Let \(U_h\subset U_h^{(2)}\subset U\) and \(V_h\subset V_h^{(2)}\subset V\). \pef{I prefer the notation $U_h^+$ for enrichment, $^{(2)}$ gives the appearance that $U_h$ is degree 1, but it isn't necessarily} The enriched primal and adjoint problems are
 \begin{align}
   \mathcal{A}(u_h^{(2)})(v_h^{(2)})&=0
   &&\text{for all }v_h^{(2)}\in V_h^{(2)},\label{eq:enriched-primal}\\
@@ -178,7 +183,7 @@ Let \(U_h\subset U_h^{(2)}\subset U\) and \(V_h\subset V_h^{(2)}\subset V\). The
   &=J'(u_h^{(2)})(w_h^{(2)})
   &&\text{for all }w_h^{(2)}\in U_h^{(2)}.\label{eq:enriched-adjoint}
 \end{align}
-We use the following enriched-space error identity, corresponding to Theorem~2 of \cite{ENDTMAYER202419}.
+We use the following enriched-space error identity \cite[Theorem~2]{ENDTMAYER202419}.
 
 \begin{theorem}[Enriched-space error representation]
 \label{thm:enriched-space-dwr}
@@ -209,13 +214,14 @@ Here \(\mathcal R_h^{(3)}\) is \eqref{eq:nonlinear-dwr-remainder} with the exact
 \end{theorem}
 
 
-Equation~\eqref{eq:enriched-exact-splitting} shows that \(\eta^{(2)}\) differs from the goal error by the remaining error of the enriched primal solution \(J(u)-J(u_h^{(2)})\). Therefore, \(\eta^{(2)}\) can approximate the goal error only when this remaining term is sufficiently small. This is expressed by the saturation assumption
+Equation~\eqref{eq:enriched-exact-splitting} shows that \(\eta^{(2)}\) differs from the goal error by the remaining error of the enriched primal solution \(J(u)-J(u_h^{(2)})\). Therefore, \(\eta^{(2)}\) can approximate the goal error only when this remaining term is sufficiently small. This situation is captured by a \emph{saturation assumption}
 \begin{equation}
 |J(u)-J(u_h^{(2)})|
 \le b_h |J(u)-J(\widetilde u)|,
-\qquad 0<b_h<1.
+\qquad 0<b_h<1,
 \label{eq:goal-saturation}
 \end{equation}
+which in general is very difficult to prove.
 Combining \cref{eq:enriched-exact-splitting,eq:goal-saturation} with the triangle inequality yields
 \begin{equation}
 \frac{1}{1+b_h}|\eta^{(2)}|
@@ -225,7 +231,7 @@ Combining \cref{eq:enriched-exact-splitting,eq:goal-saturation} with the triangl
 \end{equation}
 Hence, under saturation, the computable estimator \(\eta^{(2)}\) bounds the unknown goal error from both sides. The upper bound gives reliability, since the estimator cannot substantially underestimate the error. The lower bound gives efficiency, since it cannot substantially overestimate it.
 
-In the computations, the cubic remainder in \cref{eq:enriched-nonlinear-dwr} will be omitted. This gives the practical nonlinear estimator
+In the computations, the cubic remainder in \eqref{eq:enriched-nonlinear-dwr} will be omitted. This gives the practical nonlinear estimator
 \begin{equation}
 \eta_{\mathrm{global}}
 :=

@@ -55,7 +55,7 @@ The complete procedure therefore consists of one global space--time bulk selecti
 
 \section{Automated Adaptive Algorithm}
 
-The complete solve--estimate--mark--refine cycle is summarised in Algorithm~\ref{alg:complete-adaptive-cycle}.
+The complete solve--estimate--mark--refine cycle is summarised in \cref{alg:complete-adaptive-cycle}.
 
 \begin{algorithm}[h]
 \caption{Goal-oriented slabwise space--time adaptive cycle}
@@ -122,7 +122,7 @@ Temporal integration is performed using Gauss--Legendre quadrature, while the sp
 \subsection{Transfer on Nonmatching Slab Meshes}
 \label{sec:slab-transfer-adjoint}
 
-Following the refinement strategy in Section~\ref{sec:marking-refinement}, consecutive time slabs may use different spatial meshes and finite-element spaces. The outgoing primal trace from \(I_{n-1}\) must therefore be transferred into \(V_n\). We denote the resulting linear interpolation operator by
+Following the refinement strategy in \cref{sec:marking-refinement}, consecutive time slabs may use different spatial meshes and finite-element spaces. The outgoing primal trace from \(I_{n-1}\) must therefore be transferred into \(V_n\). We denote the resulting linear interpolation operator by
 \begin{equation}
   P_{n-1}:V_{n-1}\longrightarrow V_n
   \label{eq:forward-slab-transfer}
@@ -157,4 +157,3 @@ In coefficient form,
 In the implementation, Firedrake assembles \(P_{n-1}\) as a cross-mesh finite-element interpolation operator. The forward trace is obtained by applying this matrix, while the reverse transfer is evaluated by a target mass action, a transpose matrix action, and a source mass solve as stated in ~\eqref{eq:mass-adjoint-transfer-matrix}.
 
 \textcolor{blue}{Again, using pyadjoint could make life easier..? as there will be no need to include $P_{n-1}^{\ast}$.}
-

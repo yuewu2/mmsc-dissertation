@@ -7,7 +7,7 @@
 
 This section shows the complete DWR adaptive workflow for a time-dependent two-dimensional heat equation. The example is a manufactured benchmark with a localised temperature peak that moves around the domain. It is therefore well suited to testing whether a space--time error indicator identifies both the spatial location of the peak and the time intervals in which an accurate representation is required.
 
-We compare with two goal-oriented adaptive strategies: one based on a manually derived residual localisation and one based on the automated bubble--cone recovery developed in Section~\ref{sec:space-time-residual-recovery}.
+We compare with two goal-oriented adaptive strategies: one based on a manually derived residual localisation and one based on the automated bubble--cone recovery developed in \cref{sec:space-time-residual-recovery}.
 
 
 \subsection{Manufactured Problem and Quantity of Interest}
@@ -240,7 +240,7 @@ The manufactured moving-hill problem was solved on $\Omega=(0,1)^2$ over $[0,1]$
 \end{table}
 
 % trend, I_eff, DoF
-Table~\ref{tab:moving-hill-selected-iterations} shows two distinct phases. From iteration $0$ to iteration $2$, both methods retain $N_t=8$ time slabs. The refinement is predominantly spatial. After temporal marking becomes active, the error decreases much more rapidly. For the strong-residual run, $N_t$ grows from $8$ at iteration $2$ to $43$ at iteration $6$, at which point the goal error is below $10^{-4}$. The bubble run increases from $8$ to $36$ slabs over the same iterations and reaches $1.005\times10^{-4}$. At the final reported iteration, the strong and bubble methods attain goal errors of $2.079\times10^{-5}$ and $2.541\times10^{-5}$, respectively.
+\Cref{tab:moving-hill-selected-iterations} shows two distinct phases. From iteration $0$ to iteration $2$, both methods retain $N_t=8$ time slabs. The refinement is predominantly spatial. After temporal marking becomes active, the error decreases much more rapidly. For the strong-residual run, $N_t$ grows from $8$ at iteration $2$ to $43$ at iteration $6$, at which point the goal error is below $10^{-4}$. The bubble run increases from $8$ to $36$ slabs over the same iterations and reaches $1.005\times10^{-4}$. At the final reported iteration, the strong and bubble methods attain goal errors of $2.079\times10^{-5}$ and $2.541\times10^{-5}$, respectively.
 
 Both effectivity indices are initially approximately $0.926$, and approach one monotonically after time refinement becomes active. The convergence of $I_{\rm eff}$ to one confirms that the DWR identity correctly estimates the quadratic goal error.
 

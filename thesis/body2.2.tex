@@ -1,7 +1,7 @@
 \section{Error Localisation Strategies}
 \label{sec:background-localisation}
 
-Section~\ref{sec:introduction-localisation} motivated a decomposition of the global DWR estimator into computable local contributions. Elementwise integration by parts (IBP) gives strong cell residuals, flux jumps, and boundary residuals, but its derivation depends on the differential operator and boundary conditions. Partition-of-unity (PU) localisation inserts functions \(\{\chi_i\}_{i=1}^M\), with \(\sum_i\chi_i=1\), into the weak residual and associates the resulting terms with basis functions or patches \cite{Richter_Wick_2015}. This is effective for stationary and space--time adaptivity \cite{ThieleWick2024,R6,non-flow}, but a single patch contribution may combine several residual mechanisms.
+\Cref{sec:introduction-localisation} motivated a decomposition of the global DWR estimator into computable local contributions. Elementwise integration by parts (IBP) gives strong cell residuals, flux jumps, and boundary residuals, but its derivation depends on the differential operator and boundary conditions. Partition-of-unity (PU) localisation inserts functions \(\{\chi_i\}_{i=1}^M\), with \(\sum_i\chi_i=1\), into the weak residual and associates the resulting terms with basis functions or patches \cite{Richter_Wick_2015}. This is effective for stationary and space--time adaptivity \cite{ThieleWick2024,R6,non-flow}, but a single patch contribution may combine several residual mechanisms.
 
 The present construction pursues a more geometrically resolved decomposition. It probes the weak residual with polynomial functions supported on individual cells, spatial facets, temporal faces, and, when present, mixed space--time ridges. The resulting coefficients separate the residual mechanisms according to their geometric support, while still being recovered directly from UFL evaluations of the weak residual in \texttt{Firedrake}. Thus no problem-specific strong residual or hand-derived flux-jump formula is needed. This approach is motivated by the stationary bubble--cone construction of Rognes and Logg \cite{Rognes_Logg_2013}, and is extended below to discontinuous Galerkin discretisations in time.
 
@@ -9,7 +9,7 @@ The present construction pursues a more geometrically resolved decomposition. It
 \subsection{Stationary Bubble and Cone Projection}
 \label{sec:stationary-residual-recovery}
 
-We first recall the stationary construction for the primal residual. The nonlinear adjoint-residual term is treated in Section~\ref{sec:nonlinear-adjoint-residual-localisation}. For each \(K\in\mathcal T_h\), let \(\mathcal F(K)\) denote its facets. Rognes and Logg formulate the following assumptinos \cite{Rognes_Logg_2013}:
+We first recall the stationary construction for the primal residual. The nonlinear adjoint-residual term is treated in \cref{sec:nonlinear-adjoint-residual-localisation}. For each \(K\in\mathcal T_h\), let \(\mathcal F(K)\) denote its facets. Rognes and Logg formulate the following assumptinos \cite{Rognes_Logg_2013}:
 \begin{description}
   \item[(A1) Global decomposition.] The global residual is a sum of cell-local functionals,
   \begin{equation}
@@ -73,7 +73,7 @@ and write \(\widetilde\psi=E_{K,F}\psi\). Once the cell density \(R_{K}^B\) is r
   \label{eq:stationary-facet-projection}
 \end{equation}
 The subtraction removes the cell action seen by the cone. Under (A1)--(A3), these weighted mass problems uniquely recover \(R_K\) and \(R_{K,F}\) \cite{Rognes_Logg_2013}.
-Figure~\ref{fig:stationary-bubble-cone} illustrates two representative bubble and cone test functions.
+\Cref{fig:stationary-bubble-cone} illustrates two representative bubble and cone test functions.
 \newcommand{\drawcoarsemeshdiagonals}{%
   \addplot3[gray!60, line width=0.25pt]
     coordinates {(0,0,0) (1,1,0)};
@@ -193,7 +193,7 @@ Figure~\ref{fig:stationary-bubble-cone} illustrates two representative bubble an
   \label{fig:stationary-bubble-cone}
 \end{figure}
 
-The stationary analysis is established in \cite{Rognes_Logg_2013}, while the space--time extension below is assessed numerically in Chapter~\ref{chap:experiments} through localisation gaps, effectivities, and adaptive behaviour. The essential new feature is the dG action at each temporal interface.
+The stationary analysis is established in \cite{Rognes_Logg_2013}, while the space--time extension below is assessed numerically in \cref{chap:experiments} through localisation gaps, effectivities, and adaptive behaviour. The essential new feature is the dG action at each temporal interface.
 
 
 \subsection{Space--Time Extension of the Residual Recovery}
@@ -292,9 +292,9 @@ Note that if \(V_{n-1}\ne V_n\), the outgoing trace must first be transferred in
   \qquad n>1,
   \label{eq:transferred-dg-time-defect}
 \end{equation}
-where \(P_{n-1}:V_{n-1}\to V_n\). The transfer and its adjoint are discussed in more details in Section~\ref{sec:slab-transfer-adjoint}.
+where \(P_{n-1}:V_{n-1}\to V_n\). The transfer and its adjoint are discussed in more details in \cref{sec:slab-transfer-adjoint}.
 
-  \item[(A2) Local decomposition.] On each space--time cell \(Q_{K,n}\), the residual admits a representation by contributions supported on the cell interior, spatial facets, temporal facets, and, when required by the chosen pairing, their intersections, as shown in Figure~\ref{fig:space-time-residual-entities}.
+  \item[(A2) Local decomposition.] On each space--time cell \(Q_{K,n}\), the residual admits a representation by contributions supported on the cell interior, spatial facets, temporal facets, and, when required by the chosen pairing, their intersections, as shown in \cref{fig:space-time-residual-entities}.
   \begin{equation}
     \begin{aligned}
     \rho_{K,n}(U_h)(V)
@@ -526,7 +526,7 @@ R_{K,n}^{B,\mathrm{vol}},
 
 
 \paragraph{Possible mixed spatial--temporal ridge.}
-A separate mixed recovery is required only if the complete residual contains a nonzero functional supported on \(F\times\{t_{n-1}\}\). Such a contribution does not normally arise from an \(L^2\) time-mass pairing, but it can occur when the pairing contains spatial derivatives, as discussed for the BBM problem in Section~\ref{sec:bbm-mixed-ridge-specialisation}.
+A separate mixed recovery is required only if the complete residual contains a nonzero functional supported on \(F\times\{t_{n-1}\}\). Such a contribution does not normally arise from an \(L^2\) time-mass pairing, but it can occur when the pairing contains spatial derivatives, as discussed for the BBM problem in \cref{sec:bbm-mixed-ridge-specialisation}.
 
 For \(\psi\in\mathbb P^{s_x}(F)\), let \(\widetilde\psi=E_{K,F}\psi\) be the fixed extension used in the stationary facet recovery and define
 \begin{equation}
@@ -613,4 +613,3 @@ whenever \(\eta_{\mathrm{glob}}\neq 0\). Exact localisation gives \(I_{\mathrm{e
 
 
 \textcolor{blue}{Should I mention the scope of this method?}
-
