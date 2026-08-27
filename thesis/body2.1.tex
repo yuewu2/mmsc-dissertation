@@ -214,7 +214,7 @@ Here \(\mathcal R_h^{(3)}\) is \eqref{eq:nonlinear-dwr-remainder} with the exact
 \end{theorem}
 
 
-Equation~\eqref{eq:enriched-exact-splitting} shows that \(\eta^{(2)}\) differs from the goal error by the remaining error of the enriched primal solution \(J(u)-J(u_h^{(2)})\). Therefore, \(\eta^{(2)}\) can approximate the goal error only when this remaining term is sufficiently small. This situation is captured by a \emph{saturation assumption}
+Equation~\eqref{eq:enriched-exact-splitting} shows that \(\eta^{(2)}\) differs from the goal error by the remaining error of the enriched primal solution \(J(u)-J(u_h^{(2)})\). Therefore, \(\eta^{(2)}\) can approximate the goal error only when this remaining term is sufficiently small. This situation is captured by a \emph{saturation assumption} \cite{saturation}
 \begin{equation}
 |J(u)-J(u_h^{(2)})|
 \le b_h |J(u)-J(\widetilde u)|,
@@ -229,7 +229,7 @@ Combining \eqref{eq:enriched-exact-splitting} and \eqref{eq:goal-saturation} wit
 \le \frac{1}{1-b_h}|\eta^{(2)}|.
 \label{eq:enriched-reliability-efficiency}
 \end{equation}
-Hence, under saturation, the computable estimator \(\eta^{(2)}\) bounds the unknown goal error from both sides. The upper bound gives reliability, since the estimator cannot substantially underestimate the error. The lower bound gives efficiency, since it cannot substantially overestimate it.
+Hence, under saturation, the computable estimator \(\eta^{(2)}\) bounds the unknown goal error from both sides. The upper bound gives reliability, since the estimator cannot substantially underestimate the error. The lower bound gives efficiency, since it cannot substantially overestimate it. \cite{reli_eff}
 
 In the computations, the cubic remainder in \eqref{eq:enriched-nonlinear-dwr} will be omitted. This gives the practical nonlinear estimator
 \begin{equation}
