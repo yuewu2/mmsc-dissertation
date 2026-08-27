@@ -2,27 +2,27 @@
 \label{sec:marking-refinement}
 \pef{This section is missing a key piece. As you know, D\"orfler marking as given in the literature would tell us to refine some space--time cells. But we want to retain the tensor product structure of our space--time mesh, as it's much more efficient than a fully unstructured mesh in time. So we have to adapt D\"orfler marking. Explain this first, then state your algorithm. I'll move on to the next section on the assumption this will be rewritten.}
 
-Let \(\eta_{K,n}\) denote the signed indicator associated with the spatial cell \(K\in\mathcal T_n\) on the time slab \(I_n\). Each pair \((K,n)\) is treated as one space--time marking entity. We now describe how this information is used to decide how to refine the discretisation.
+The localised DWR contributions defined in \cref{sec:space-time-local-indicator-construction} are associated with space--time cells \(Q_{K,n}=K\times I_n\). We aim to retain the tensor product structure of our space–time mesh, while allowing the spatial mesh to vary from slab to slab. A standard D\"orfler marking strategy, which would select a collection of individual space--time cells for refinement \cite{Dorfler1996}, is not directly compatible with the purpose. 
 
-We denote the absolute values of the localised error estimates by
+We therefore apply D\"orfler marking to the space--time entities \((K,n)\), while separating the resulting refinement decisions into spatial and temporal components. For \(\eta_{K,n}\) denoting the signed local DWR contribution associated with \(Q_{K,n}\), we define
 \begin{equation}
-  s_{K,n}\coloneqq|\eta_{K,n}|,
+  s_{K,n}\coloneqq |\eta_{K,n}|,
   \qquad
-  S\coloneqq\sum_{n=1}^{N}\sum_{K\in\mathcal T_n}s_{K,n}.
+  S\coloneqq
+  \sum_{n=1}^{N}\sum_{K\in\mathcal T_n}s_{K,n}.
   \label{eq:marking-activity}
 \end{equation}
-We employ a standard strategy, known as D\"orfler marking \cite{Dorfler1996}.
-The set $\{s_{K_n}\}$ is sorted in non-increasing order. D\"orfler marking identifies which ones to refine by choosing the smallest
-subset whose cumulative total reaches a specified fraction $\theta$ of $S$:
+
+For a prescribed bulk parameter \(\theta\in(0,1]\), the global space--time marking set \(\mathcal M_{\mathrm{st}}\) is chosen as the smallest set of pairs \((K,n)\) satisfying
 \begin{equation}
   \sum_{(K,n)\in\mathcal M_{\mathrm{st}}}s_{K,n}
-  \ge
-  \theta S.
+  \ge \theta S.
   \label{eq:space-time-dorfler}
 \end{equation}
-The global marking set is then restricted to each time slab:
+
+For each time slab \(I_n\), we collect the marked space--time cells whose second index is \(n\). This gives the set of spatial cells \(\mathcal M_n\) to be refined on that slab:
 \begin{equation}
-  M_n
+  \mathcal M_n
   \coloneqq
   \left\{
     K\in\mathcal T_n:
@@ -30,29 +30,23 @@ The global marking set is then restricted to each time slab:
   \right\}.
   \label{eq:slabwise-marked-cells}
 \end{equation}
-Under the default independent-slab policy, only the cells in \(M_n\) are refined on \(I_n\):
+The spatial mesh associated with \(I_n\) is then refined only in these marked cells:
 \begin{equation}
   \mathcal T_n^{\mathrm{new}}
   \coloneqq
-  \operatorname{refine}(\mathcal T_n,M_n).
+  \operatorname{refine}(\mathcal T_n,\mathcal M_n).
   \label{eq:slabwise-spatial-refinement}
 \end{equation}
 
-Temporal refinement is then controlled by a separate concentration trigger. A slab containing at least one marked cell is bisected when
+The temporal refinement decision is made independently at slab level. A slab is bisected when the marked cells occupy at least a prescribed fraction \(\varphi_t\) of its spatial mesh:
 \begin{equation}
-  \frac{|M_n|}{|\mathcal T_n|}
-  \ge
-  \varphi_t.
-  % \qquad
-  % \varphi_t=0.05
-  % \quad\text{by default}.
+  \frac{|\mathcal M_n|}{|\mathcal T_n|}
+  \ge \varphi_t.
   \label{eq:within-slab-time-trigger}
 \end{equation}
-When \(I_n\) is bisected, both temporal children inherit \(\mathcal T_n^{\mathrm{new}}\).
+If \(I_n\) is bisected, both temporal children inherit the refined spatial mesh \(\mathcal T_n^{\mathrm{new}}\). 
 
 The complete procedure therefore consists of one global space--time bulk selection, followed by slab-local spatial refinement and a separate slabwise decision on temporal bisection.
-
-\textcolor{blue}{more common way in space--time adaptivity is \cite{Bangerth_Rannacher_2003}. spatial or temporal indicator: dual weight on different directions... (future work)}
 
 
 
@@ -64,32 +58,26 @@ The complete solve--estimate--mark--refine cycle is summarised in \cref{alg:comp
 \caption{Goal-oriented slabwise space--time adaptive cycle}
 \label{alg:complete-adaptive-cycle}
 \begin{algorithmic}[1]
-\Require PDE, initial slab meshes, tolerance \(\mathrm{TOL}\), goal functional \(J\)
-% \Ensure Adapted space--time discretisation and DWR estimate
+\Require PDE, initial slab meshes, tolerance \(\mathrm{TOL}\), goal functional \(J\), bulk parameter \(\theta\), temporal threshold \(\varphi_t\)
 
 \While{the stopping criterion is not satisfied}
-  \State Build \(V_n\), the enriched spaces, \(P_n\), and \(P_n^\ast\) on the current slab meshes.
-  \State Solve the primal problem forward and retain every dG slab polynomial.
-  \If{\eqref{eq:practical-nonlinear-estimator} is used}
-    \State Solve the enriched primal problem.
-  \EndIf
-  \pef{When would \eqref{eq:practical-nonlinear-estimator} not be used?}
-  \State Solve the low-order and enriched adjoints backward, differentiating the PDE and the actual terminal/running goal functional, and applying \(P_n^\ast\) at mesh changes.
-  \State Form \(z^\star=z_h^+-z_h\), or optionally \(z^\star=z_h^+-I_hz_h^+\).
-  \pef{I suggest only solving the enriched adjoint, if it is possible to do so}
-  \State Assemble the independent global DWR estimator.
-  \pef{Give eqrefs in the algorithm where you can}
-  \State Recover volume, spatial-facet, temporal-face, and, when nonzero, mixed-ridge residuals in hierarchical order.
-  \State Weight the recovered entities, assemble indicators \(\eta_{K,n}\), and record \(\eta_{\mathrm{loc}}\).
-  \If{\(|\eta_{\mathrm{glob}}|\le\mathrm{TOL}\)}
+  \State Construct spatial spaces \(V_n\), enriched spaces, transfer operators \(P_{n}\) and \(P_{n}^{\ast}\).
+  \State Solve the primal problem using the dG-in-time formulation \eqref{eq:global-dg-semilinear-form}. Solve the enriched primal problem if required by \eqref{eq:localised-symmetric-nonlinear-dwr}.
+  \State Solve the enriched adjoint problems defined by \eqref{eq:discrete-nonlinear-adjoint}. Solve the adjoint problem if required by \eqref{eq:localised-symmetric-nonlinear-dwr}.
+  \State Form the adjoint difference \(e_z=z_h^+-z_h\) and the primal difference \(e_u=u_h^+-u_h\). Or form \(z^\star=z_h^+-I_hz_h^+\) if the linear identity is used.
+  \State Assemble \(\eta_{\mathrm{global}}\) from \eqref{eq:localised-symmetric-nonlinear-dwr} or \eqref{eq:computable-dwr-interpolated-weight}.
+  \State Recover the local residual densities using \eqref{eq:space-time-volume-projection}--\eqref{eq:mixed-ridge-recovery}.
+  \State Assemble the entity contributions from \eqref{eq:complete-nonlinear-entity-indicator} and the cell indicators \(\eta_{K,n}\) from \eqref{eq:complete-nonlinear-cell-indicator}.
+  \If{\(|\eta_{\mathrm{global}}|\le\mathrm{TOL}\)}
     \State \Return the current discretisation and estimators.
   \EndIf
-  \State Apply the marking criteria \eqref{eq:space-time-dorfler} and \eqref{eq:within-slab-time-trigger}.
-  \State Refine the selected slab meshes, bisect selected time intervals, and rebuild the transfer operators.
+  \State Apply the space--time marking criterion \eqref{eq:space-time-dorfler} and the temporal criterion \eqref{eq:within-slab-time-trigger}.
+  \State Refine the selected spatial meshes and bisect the selected
+  temporal slabs.
 \EndWhile
-
 \end{algorithmic}
 \end{algorithm}
+
 
 
 \section{Code Implementation}
@@ -100,10 +88,10 @@ The complete solve--estimate--mark--refine cycle is summarised in \cref{alg:comp
 
 The time-dependent problems are supplied as semidiscrete UFL residuals using Firedrake and Irksome. Firedrake provides the spatial finite-element spaces and variational solvers, while Irksome's \texttt{TimeStepper} makes the fully-discrete variational problems by applying the chosen discontinuous Galerkin time discretisation \cite{andrews2026automatedgalerkintimestepping}.
 
-\textcolor{blue}{Using pyadjoint and discard the current ufl-generated adjoint solver would be a better idea for automation. Should I rerun the experiments and so only pyadjoint would be included here? or maybe I'll list this as a future work that will be carried out soon}
+% \textcolor{blue}{Using pyadjoint and discard the current ufl-generated adjoint solver would be a better idea for automation. Should I rerun the experiments and so only pyadjoint would be included here? or maybe I'll list this as a future work that will be carried out soon}
 \pef{Ideally all the adjoint calculations would be automated}
 
-Most of the experiments use an explicit UFL-generated adjoint implementation. In compact form, the discrete adjoint satisfies
+The present implementation constructs the discrete adjoint explicitly from the UFL representation. In compact form, the discrete adjoint satisfies
 \[
   \mathcal F_h'(U_h)^*Z_h=J_h'(U_h).
 \]
@@ -111,9 +99,9 @@ UFL \texttt{derivative} constructs the linearisation of the primal residual, \te
 
 Terminal and running contributions to the goal functional are handled separately because they enter the reverse-time problem differently. The derivative of a terminal goal determines the final adjoint state, whose sensitivity is subsequently propagated through all preceding slabs. The derivative of a running goal instead acts as a source throughout the backward solve. Both derivatives are generated symbolically from the user-supplied UFL goal forms.
 
-A fully automated alternative is provided by \texttt{firedrake-adjoint}, following the high-level discrete-adjoint methodology of \cite{Farrell_Ham_Funke_Rognes_2013} and implemented using Pyadjoint \cite{Mitusch2019}. It records the forward operations on a tape and traverses them in reverse to generate the corresponding discrete adjoint. This removes the need to write an explicit reverse-time solver.
+A more fully automated alternative is provided by \texttt{firedrake-adjoint}, following the high-level discrete-adjoint methodology of \cite{Farrell_Ham_Funke_Rognes_2013} and implemented using Pyadjoint \cite{Mitusch2019}. It records the forward operations on a tape and traverses them in reverse to generate the corresponding discrete adjoint. This removes the need to write an explicit reverse-time solver.
 
-The current implementation retains the complete forward trajectory in memory. For longer simulations, Firedrake's automated adjoint derivation supports checkpointing, which stores only selected forward states and recomputes intermediate states during the reverse traversal. This reduces memory consumption at the cost of additional forward computation.
+The current implementation retains the complete forward trajectory in memory. For longer simulations, Firedrake's automated adjoint derivation supports checkpointing, which stores only selected forward states and recomputes intermediate states during the reverse traversal. This reduces memory consumption at the cost of additional forward computation.\cite{checkpointing}
 \pef{Cite Griewank \& Walther doi:10.1145/347837.347846}
 
 % https://www.firedrakeproject.org/checkpointing.html#using-checkpointing-in-adjoint-simulations
@@ -145,11 +133,11 @@ and define the transferred dG interface defect by
   \label{eq:transferred-interface-defect-full}
 \end{equation}
 
-The reverse propagation is determined by the same discrete forward operator. Let \(P_{n-1}^{\ast}:V_n\rightarrow V_{n-1}\) denote its adjoint with respect to the time-mass pairings:
+The reverse propagation is determined by the same discrete forward operator. Let \(m_n(\cdot,\cdot)\) denote the discrete mass pairing on \(V_n\), and let \( \mathbf{M_n}\) be its matrix representation. The adjoint transfer \(P_{n-1}^{\ast}:V_n\to V_{n-1}\) is defined by
 \begin{equation}
-  \bigl(P_{n-1}w,z_n\bigr)_{M_n}
+  m_n(P_{n-1}w,z_n)
   =
-  \bigl(w,P_{n-1}^{\ast}z_n\bigr)_{M_{n-1}}
+  m_{n-1}(w,P_{n-1}^{\ast}z_n)
   \qquad
   \forall w\in V_{n-1},\quad z_n\in V_n.
   \label{eq:mass-adjoint-transfer-definition}
@@ -157,12 +145,11 @@ The reverse propagation is determined by the same discrete forward operator. Let
 \pef{I think the notation $M_n$ is new? Before it was $m$}
 In coefficient form,
 \begin{equation}
-  P_{n-1}^{\ast}
-  =
-  M_{n-1}^{-1}P_{n-1}^{T}M_n.
+  \mathbf P_{n-1}^{\ast} = \mathbf M_{n-1}^{-1} \mathbf P_{n-1}^{T} \mathbf M_n.
   \label{eq:mass-adjoint-transfer-matrix}
 \end{equation}
 
 In the implementation, Firedrake assembles \(P_{n-1}\) as a cross-mesh finite-element interpolation operator. The forward trace is obtained by applying this matrix, while the reverse transfer is evaluated by a target mass action, a transpose matrix action, and a source mass solve as stated in ~\eqref{eq:mass-adjoint-transfer-matrix}.
 
-\textcolor{blue}{Again, using pyadjoint could make life easier..? as there will be no need to include $P_{n-1}^{\ast}$. More to discuss after we include NS example}
+The construction above is formulated at the nodal interpolation and does not impose physical constraints. For applications involving conserved, or divergence-free quantities, however, the transfer \(P_{n-1}\) must be carefully chosen to preserve the relevant physical properties, see, e.g., \cite{non-flow}.
+

@@ -203,7 +203,7 @@ abstract = { A mathematical theory is developed for a class of a-posteriors erro
 }
 
 
-@article{181,
+@article{Rannacher_2013,
 title = {Adaptive finite element analysis of nonlinear problems: balancing of discretization and iteration errors},
 author = {R. Rannacher and J. Vihharev},
 pages = {23--62},
@@ -391,3 +391,23 @@ publisher = "deGruyter",
 number = "2",
 }
 
+
+@article{checkpointing,
+author = {Griewank, Andreas and Walther, Andrea},
+title = {Algorithm 799: revolve: an implementation of checkpointing for the reverse or adjoint mode of computational differentiation},
+year = {2000},
+issue_date = {March 2000},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {26},
+number = {1},
+issn = {0098-3500},
+url = {https://doi.org/10.1145/347837.347846},
+doi = {10.1145/347837.347846},
+abstract = {In its basic form, the reverse mode of computational differentiation yields the gradient of a scalar-valued function at a cost that is a small multiple of the computational work needed to evaluate the function itself. However, the corresponding memory requirement is proportional to the run-time of the evaluation program. Therefore, the practical applicability of the reverse mode in its original formulation is limited despite the availability of ever larger memory systems. This observation leads to the development of checkpointing schedules to reduce the storage requirements. This article presents the function revolve, which generates checkpointing schedules that are provably optimal with regard to a primary and a secondary criterion. This routine is intended to be used as an explicit  “controller” for running a time-dependent applications program.},
+journal = {ACM Trans. Math. Softw.},
+month = mar,
+pages = {19–45},
+numpages = {27},
+keywords = {adjoint mode, checkpointing, computational differentiation, reverse mode}
+}

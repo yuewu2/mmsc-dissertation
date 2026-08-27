@@ -1,7 +1,10 @@
 \section{Error Localisation Strategies}
 \label{sec:background-localisation}
 
-\Cref{sec:introduction-localisation} motivated a decomposition of the global DWR estimator into computable local contributions. Elementwise integration by parts (IBP) gives strong cell residuals, flux jumps, and boundary residuals, but its derivation depends on the differential operator and boundary conditions. Partition-of-unity (PU) localisation inserts functions \(\{\chi_i\}_{i=1}^M\), with \(\sum_i\chi_i=1\), into the weak residual and associates the resulting terms with basis functions or patches \cite{Richter_Wick_2015}. This is effective for stationary and space--time adaptivity \cite{ThieleWick2024,R6,non-flow}, but a single patch contribution may combine several residual mechanisms. \pef{Maybe continue: This means it is difficult to use the information extracted to decide which parts of the spacetime mesh to refine. ?}
+\Cref{sec:introduction-localisation} motivated a decomposition of the global DWR estimator into computable local contributions. Elementwise integration by parts (IBP) gives strong cell residuals, flux jumps, and boundary residuals, but its derivation depends on the differential operator and boundary conditions. 
+% Partition-of-unity (PU) localisation inserts functions \(\{\chi_i\}_{i=1}^M\), with \(\sum_i\chi_i=1\), into the weak residual and associates the resulting terms with basis functions or patches \cite{Richter_Wick_2015}. This is effective for stationary and space--time adaptivity \cite{ThieleWick2024,R6,non-flow}, but a single patch contribution may combine several residual mechanisms.
+Partition-of-unity localisation distributes the global DWR estimator through locally supported functions \(\{\chi_i\}_{i=1}^{M}\) satisfying \(\sum_i\chi_i=1\). For example, in the constructions considered in \cite{Richter_Wick_2015,ThieleWick2024,R6}, the resulting quantities are naturally associated with nodes, degrees of freedom, or temporal elements. These PU contributions have a valid variational interpretation, but they are not generally tied to a geometric residual mechanism. In particular, since a single PU function may overlap several spatial elements and temporal interfaces, its contribution may combine different components of the residual. An additional redistribution or marking rule is therefore needed to convert the PU contributions into indicators for specific space--time mesh entities.
+\pef{Maybe continue: This means it is difficult to use the information extracted to decide which parts of the spacetime mesh to refine. ?}
 
 The present construction pursues a more geometrically resolved decomposition. It probes the weak residual with polynomial functions supported on individual cells, spatial facets, temporal faces, and, when present, mixed space--time ridges. The resulting coefficients separate the residual mechanisms according to their geometric support, while still being recovered directly from UFL evaluations of the weak residual in \texttt{Firedrake}. Thus no problem-specific strong residual or hand-derived flux-jump formula is needed. This approach is motivated by the stationary bubble--cone construction of Rognes and Logg \cite{Rognes_Logg_2013}; our contribution is its extension below to discontinuous Galerkin discretisations in time.
 
@@ -37,7 +40,7 @@ We first recall the stationary construction for the primal residual. The nonline
 \end{description}
 Assumptions (A1) and (A2) identify the residual-supporting entities, while (A3) determines whether the recovery is exact or a weighted projection.
 
-For a \(d\)-simplex \(K\) with vertices \(\{v_i\}_{i=1}^{d+1}\) and associated barycentric coordinates \(\{\lambda_i^K\}_{i=1}^{d+1}\), the cell bubble is defined by 
+For a \(d\)-simplex \(K\) with vertices \(\{x_i\}_{i=1}^{d+1}\) and associated barycentric coordinates \(\{\lambda_i^K\}_{i=1}^{d+1}\), the cell bubble is defined by 
 \begin{equation}
   b_K\coloneqq\prod_{i=1}^{d+1}\lambda_i^K,
   \label{eq:recovery-cell-bubble}
@@ -53,17 +56,20 @@ This means that \(R_K^B\in\mathbb P^p(K)\) can be recovered from solving the var
 
 For \(F\in\mathcal F(K)\), let
 \begin{equation}
-  \mathcal I_F\coloneqq\{i:v_i\in F\},
+  \mathcal I_F\coloneqq\{i:x_i\in F\},
   \qquad
   \beta_{K,F}\coloneqq\prod_{i\in\mathcal I_F}\lambda_i^K.
   \label{eq:recovery-facet-cone}
 \end{equation}
-This cone function is the analogue of the bubble function on a facet. It is nonzero on the relative interior of \(F\), vanishes on every other facet, and remains nonzero inside \(K\). Let
-\(
-  E_{K,F}:\mathbb P^q(F)\longrightarrow\mathbb P^q(K),
-  \quad (E_{K,F}\psi)|_F=\psi,
-\)
-and write \(\widetilde\psi=E_{K,F}\psi\). \pef{You need to introduce this operator, give it a name and say what it does.} Once the cell density \(R_{K}^B\) is recovered, the facet residual contribution \(R_{K,F}^B\in\mathbb P^q(F)\) is defined by solving the variational problem
+This cone function is the analogue of the bubble function on a facet. It is nonzero on the relative interior of \(F\), vanishes on every other facet, and remains nonzero inside \(K\).
+To test the facet residual using functions defined on the cell, we introduce the polynomial extension operator
+\[
+E_{K,F}:\mathbb P^q(F)\longrightarrow\mathbb P^q(K),
+\qquad
+(E_{K,F}\psi)|_F=\psi.
+\]
+Thus, \(E_{K,F}\) maps a polynomial defined on the facet \(F\) to a polynomial on \(K\) with the same trace on \(F\). We write \(\widetilde\psi:=E_{K,F}\psi.\)
+\pef{You need to introduce this operator, give it a name and say what it does.} Once the cell density \(R_{K}^B\) is recovered, the facet residual contribution \(R_{K,F}^B\in\mathbb P^q(F)\) is defined by solving the variational problem
 \begin{equation}
   \bigl(R_{K,F}^B,(\beta_{K,F}|_F)\psi\bigr)_F
   =
@@ -200,11 +206,11 @@ The subtraction removes the cell action seen by the cone. Under (A1)--(A3), thes
 We now consider the extension of this approach to time-dependent problems.
 Let \(V\) be a spatial trial and test space. We now consider an evolution problem of the form
 \begin{equation}
-  m(\partial_tu(t),v)+a(u(t);v,t)=\ell(v;t)
+  m(\partial_tu(t),v)+\mathfrak a(u(t);v,t)=\ell(v;t)
   \qquad\forall v\in V,\quad t\in(0,T),
   \label{eq:abstract-evolution-problem}
 \end{equation}
-with \(u(0)=u_0\). Here \(m\) is the time-derivative pairing, \(a\) contains the remaining spatial and possibly nonlinear terms \pef{This is a change of notation, before $a$ was linear, maybe use a different letter? I don't feel strongly}, and \(\ell\) is the load functional. Denote
+with \(u(0)=u_0\). Here \(m\) is the time-derivative pairing, \(\mathfrak a\) contains the remaining spatial and possibly nonlinear terms \pef{This is a change of notation, before $a$ was linear, maybe use a different letter? I don't feel strongly}, and \(\ell\) is the load functional. Denote
 \begin{equation}
   I_n=(t_{n-1},t_n],
   \qquad k_n=t_n-t_{n-1},
@@ -212,32 +218,33 @@ with \(u(0)=u_0\). Here \(m\) is the time-derivative pairing, \(a\) contains the
   \qquad \tau=\frac{t-t_{n-1}}{k_n}.
   \label{eq:space-time-cell}
 \end{equation}
-On \(I_n\), trial and test functions are time polynomials with values in a spatial finite-element space \(V_n\), and may be discontinuous at \(t_n\). Following the standard space--time dG notation \cite{Bangerth_Rannacher_2003}, we define
+On \(I_n\), trial and test functions are time polynomials with values in a spatial finite-element space \(X_n\), and may be discontinuous at \(t_n\). Following the standard space--time dG notation \cite{Bangerth_Rannacher_2003}, we define
 \begin{equation}
   U^{n+}\coloneqq\lim_{t\downarrow t_n}U(t),
   \qquad
   U^{n-}\coloneqq\lim_{t\uparrow t_n}U(t),
   \qquad
-  [U]^n\coloneqq U^{n+}-U^{n-}.
+  \llbracket U \rrbracket^n\coloneqq U^{n+}-U^{n-}.
   \label{eq:dg-time-traces}
 \end{equation}
 \pef{I prefer $\llbracket U \rrbracket$ for dG jump notation, but I don't feel strongly}
 
 For matching spatial spaces, the global dG semilinear form can be written as
 \begin{align}
-  \mathcal A(U)(V)
+  \mathcal A(U)(W)
   \coloneqq{}&
   \sum_{n=1}^{N}\int_{I_n}
-  \bigl[m(\partial_tU,V)+a(U;V,t)-\ell(V;t)\bigr],\mathrm dt
+  \bigl[m(\partial_tU,W)+\mathfrak a(U;W,t)-\ell(W;t)\bigr],\mathrm dt
   \notag\\
-  &+\sum_{n=2}^{N}m([U]^{n-1},V^{(n-1)+})
-  +m(U^{0+}-u_0,V^{0+}).
+  &+\sum_{n=2}^{N}m(\llbracket U \rrbracket^{n-1},W^{(n-1)+})
+  +m(U^{0+}-u_0,W^{0+}).
   \label{eq:global-dg-semilinear-form}
 \end{align}
 \pef{$V$ was previously used as the spatial space, so this notation clashes.}
-The discrete problem is \(\mathcal A(U_h)(V_h)=0\) for all discrete tests. Throughout this chapter we use the convention
+\yue{$V$ is retained for space, this one is replaced by W}
+The discrete problem is \(\mathcal A(U_h)(W_h)=0\) for all discrete tests. Throughout this chapter we use the convention
 \begin{equation}
-  \rho(U)(V)\coloneqq-\mathcal A(U)(V).
+  \rho(U)(W)\coloneqq-\mathcal A(U)(W).
   \label{eq:dg-residual-sign-convention}
 \end{equation}
 
@@ -246,11 +253,11 @@ The extension of the stationary recovery is based on the following assumptions.
 \begin{description}
   \item[(A1) Global decomposition.] The global residual is the sum of local space--time functionals,
   \begin{equation}
-    \rho(U_h)(V)
+    \rho(U_h)(W)
     =
     \sum_{n=1}^{N}
     \sum_{K\in\mathcal T_n}
-    \rho_{K,n}(U_h)(V).
+    \rho_{K,n}(U_h)(W).
     \label{eq:space-time-residual-decomposition}
   \end{equation}
 
@@ -259,28 +266,28 @@ To be more specific, we can define the incoming defect by
   \delta_{n-1}(U_h)\coloneqq
   \begin{cases}
     U_h^{0+}-u_0, & n=1,\\[0.3em]
-    [U_h]^{n-1}, & n>1.
+    \llbracket U_h \rrbracket^{n-1}, & n>1.
   \end{cases}
   \label{eq:dg-incoming-defect}
 \end{equation}
 Thus
 \begin{equation}
   \begin{aligned}
-  \rho_{K,n}(U_h)(V)
+  \rho_{K,n}(U_h)(W)
   \coloneqq{}&
   \int_{I_n}
   \Big[
-    \ell_{K,n}(V;t)
+    \ell_{K,n}(W;t)
     -
-    m_{n,K}(\partial_tU_h,V)
+    m_{n,K}(\partial_tU_h,W)
     -
-    a_{K,n}(U_h;V,t)
+    \mathfrak a_{K,n}(U_h;W,t)
   \Big]\,\mathrm dt
   \\
   &-
   m_{n,K}\Big(
     \delta_{n-1}(U_h),
-    V(t_{n-1}^{+})
+    W(t_{n-1}^{+})
   \Big).
   \end{aligned}
   \label{eq:complete-local-slab-residual}
@@ -298,18 +305,18 @@ where \(P_{n-1}:V_{n-1}\to V_n\). The transfer and its adjoint are discussed in 
   \item[(A2) Local decomposition.] On each space--time cell \(Q_{K,n}\), the residual admits a representation by contributions supported on the cell interior, spatial facets, temporal facets, and, when required by $m$, their intersections, as shown in \cref{fig:space-time-residual-entities}.
   \begin{equation}
     \begin{aligned}
-    \rho_{K,n}(U_h)(V)
+    \rho_{K,n}(U_h)(W)
     ={}&
-    (R_{K,n}^{B,\mathrm{vol}},V)_{Q_{K,n}}
+    (R_{K,n}^{B,\mathrm{vol}},W)_{Q_{K,n}}
     +
     \sum_{F\subset\partial K}
-    (R_{K,F,n}^{B,\mathrm{sf}},V)_{F\times I_n}
+    (R_{K,F,n}^{B,\mathrm{sf}},W)_{F\times I_n}
     \\
     &+
-    (R_{K,n-1}^{B,\mathrm{tf}},V(t_{n-1}^{+}))_{K} +
+    (R_{K,n-1}^{B,\mathrm{tf}},W(t_{n-1}^{+}))_{K} +
     \sum_{F\subset\partial K}
     (R_{F,n-1}^{B,\mathrm{xt}},
-      V(t_{n-1}^{+}))_{F}.
+      W(t_{n-1}^{+}))_{F}.
     \end{aligned}
     \label{eq:space-time-entity-representation}
   \end{equation}
@@ -574,32 +581,168 @@ The mixed density \(R_{K,F,n-1}^{B,\mathrm{xt}}\in\mathbb P^{s_x}(F)\) is conseq
 This subtraction leaves only the contribution supported on \(F\times\{t_{n-1}\}\).
 
 
-\subsection{Localisation of the Nonlinear Adjoint-Residual Term}
+\subsection{Recovery of the Nonlinear Adjoint-Residual Functional}
 \label{sec:nonlinear-adjoint-residual-localisation}
 
-Recall that we wish to localise the global DWR estimate~\eqref{eq:practical-nonlinear-estimator}.
-% \begin{equation}
-%  \eta
-%  =
-%  \frac12\rho(u_h)(z_h^+-z_h)
-%  +\frac12\rho^\ast(u_h,z_h)(u_h^+-u_h)
-%  -\rho(u_h)(z_h),
-%  \label{eq:symmetric-nonlinear-dwr}
-% \end{equation}
-% with the unknown cubic remainder omitted.
-The construction above recovers localised densities for the primal residual \(\rho(u_h)\). It can be used directly for both primal-residual contributions and the Galerkin orthogonality term. Once \(u_h\) and \(z_h\) are fixed, the adjoint-residual term \(\rho^\ast(u_h,z_h)(\cdot)\) is a linear functional of the primal variation. It can therefore be evaluated on the same test functions used above, but it requires a separate recovery of the linearised PDE and goal derivatives rather than reuse of the primal-residual densities.
+% Recall that we wish to localise the global DWR estimate~\eqref{eq:practical-nonlinear-estimator}. 
+% The construction above recovers localised densities for the primal residual \(\rho(u_h)\). It can be used directly for both primal-residual contributions and the Galerkin orthogonality term. Once \(u_h\) and \(z_h\) are fixed, the adjoint-residual term \(\rho^\ast(u_h,z_h)(\cdot)\) is a linear functional of the primal variation. It can therefore be evaluated on the same test functions used above, but it requires a separate recovery of the linearised PDE and goal derivatives rather than reuse of the primal-residual densities.
+Let
+\begin{equation}
+  e_u\coloneqq u_h^+-u_h,
+  \qquad
+  e_z\coloneqq z_h^+-z_h,
+  \label{eq:nonlinear-dwr-discrete-errors}
+\end{equation}
+where $(u_h,z_h)$ are the low-order primal and adjoint approximations and $(u_h^+,z_h^+)$ are their enriched counterparts. Recall that we wish to localise the global DWR estimate
+\begin{equation}
+  \eta_{\mathrm{global}}
+  =\frac12\rho(u_h)(e_z)
+   +\frac12\rho^\ast(u_h,z_h)(e_u)
+   -\rho(u_h)(z_h).
+  \label{eq:localised-symmetric-nonlinear-dwr}
+\end{equation}
 
-In the present implementation, we do not perform a second bubble--cone recovery for the adjoint residual. Instead, we evaluate the adjoint-residual functional using the cellwise-constant dG0 basis functions. As these functions form a partition of unity, summing these contributions recovers the assembled adjoint-residual term.
-These cellwise contributions are combined with the recovered primal-residual and Galerkin-correction contributions to form the nonlinear indicator. A complete bubble--cone recovery of \(\rho^\ast\) remains a possible extension when a separate entity-resolved interpretation of the adjoint-residual term is needed.
+Once $u_h$ and $z_h$ are fixed, introduce the two linear residual functionals
+\begin{equation}
+  \mathscr R^{\mathrm p}(v)
+  \coloneqq\rho(u_h)(v),
+  \qquad
+  \mathscr R^{\mathrm a}(\varphi)
+  \coloneqq\rho^\ast(u_h,z_h)(\varphi),
+  \label{eq:two-recovered-residual-functionals}
+\end{equation}
+where, by the adjoint-residual definition in~\eqref{eq:nonlinear-adjoint-residual},
+\begin{equation}
+  \rho^\ast(u_h,z_h)(\varphi)
+  =J'(u_h)(\varphi)
+   -\mathcal A'(u_h)(\varphi,z_h).
+  \label{eq:general-adjoint-residual-functional}
+\end{equation}
+Both maps in \eqref{eq:two-recovered-residual-functionals} are linear in their displayed arguments. We can therefore apply the bubble recovery developed above twice, once to \(\mathscr R^{\mathrm p}\) and once to \(\mathscr R^{\mathrm a}\). In the present implementation, the two reconstructions use the same entity-wise recovery spaces introduced in assumption~(A3) and the same local test families, but solve two independent problems for two different weak functionals. Note that the two recovery spaces could be enriched independently if necessary.
 
+In the implementation, let \(\psi\) denote a local bubble or cone test function. Time needs to be treated separately through the reference-slab coordinate
+\[
+  \tau=\frac{t-t_{n-1}}{k_n}.
+\]
+The code must supply the physical time derivative explicitly:
+\[
+  \partial_t\psi=\frac{1}{k_n}\partial_\tau\psi.
+\]
+Once \(\psi\) and \(\partial_t\psi\) have been supplied, all spatial derivatives appearing in the weak functional are handled automatically by UFL.
 \pef{I don't understand this. Why don't you just apply the same machinery to the adjoint residual? You need both for the localised error estimate?}
 
 
-\subsection{Localisation}
 
-\pef{I think at this point we need to explicitly define how we compute the cellwise indicators $eta_{K,n}$? We've discussed extensively how to compute local approximations to the residuals, but not how we stitch them together for an actual error estimate? I'll assume this section is unwritten and move on to section 2.4.}
+\subsection{Construction of the Space--Time Error Indicators}
+\label{sec:space-time-local-indicator-construction}
+\pef{I think at this point we need to explicitly define how we compute the cellwise indicators $\eta_{K,n}$? We've discussed extensively how to compute local approximations to the residuals, but not how we stitch them together for an actual error estimate? I'll assume this section is unwritten and move on to section 2.4.}
 
-Let
+We now combine the recovered densities with the DWR weights. For each entity
+\begin{equation*}
+  E\in\{\mathrm{vol},\mathrm{sf},\mathrm{tf},\mathrm{xt}\},
+\end{equation*}
+the recovered primal- and adjoint-residual densities are paired with \(e_z\) and \(e_u\), respectively, to define \(\eta_{K,n}^{\mathrm p,E}\) and \(\eta_{K,n}^{\mathrm a,E}\). The correction contribution \(\eta_{K,n}^{\mathrm c,E}\) pairs the recovered primal-residual density with \(z_h\).
+
+For example, the volume terms are
+\begin{align}
+  \eta_{K,n}^{\mathrm p,vol}
+  &\coloneqq
+  \bigl(R_{K,n}^{\mathrm p,vol},e_z\bigr)_{Q_{K,n}},
+  \notag\\
+  \eta_{K,n}^{\mathrm a,vol}
+  &\coloneqq
+  \bigl(R_{K,n}^{\mathrm a,vol},e_u\bigr)_{Q_{K,n}},
+  \notag\\
+  \eta_{K,n}^{\mathrm c,vol}
+  &\coloneqq
+  \bigl(R_{K,n}^{\mathrm p,vol},z_h\bigr)_{Q_{K,n}}.
+  \label{eq:nonlinear-dwr-volume-components}
+\end{align}
+The spatial-facet terms are
+\begin{align}
+  \eta_{K,n}^{\mathrm p,sf}
+  &\coloneqq
+  \sum_{F\subset\partial K}
+  \bigl(R_{K,F,n}^{\mathrm p,sf},e_z\bigr)_{F\times I_n},
+  \notag\\
+  \eta_{K,n}^{\mathrm a,sf}
+  &\coloneqq
+  \sum_{F\subset\partial K}
+  \bigl(R_{K,F,n}^{\mathrm a,sf},e_u\bigr)_{F\times I_n},
+  \notag\\
+  \eta_{K,n}^{\mathrm c,sf}
+  &\coloneqq
+  \sum_{F\subset\partial K}
+  \bigl(R_{K,F,n}^{\mathrm p,sf},z_h\bigr)_{F\times I_n}.
+  \label{eq:nonlinear-dwr-spatial-components}
+\end{align}
+At a dG temporal interface, the adjoint residual depends on the primal variation through its jump. Evaluating this residual at the primal error \(e_u\) gives the error jump
+\begin{equation}
+  \delta_{n-1}(e_u)
+  =
+  e_u(t_{n-1}^{+})
+  -
+  P_{n-1}e_u(t_{n-1}^{-}).
+  \label{eq:primal-error-incoming-defect}
+\end{equation}
+Thus,
+\begin{align}
+  \eta_{K,n}^{\mathrm p,tf}
+  &\coloneqq
+  \bigl(R_{K,n-1}^{\mathrm p,tf},e_z(t_{n-1}^+)\bigr)_K,
+  \notag\\
+  \eta_{K,n}^{\mathrm a,tf}
+  &\coloneqq
+  \bigl(R_{K,n-1}^{\mathrm a,tf},
+        \delta_{n-1}(e_u)\bigr)_K,
+  \notag\\
+  \eta_{K,n}^{\mathrm c,tf}
+  &\coloneqq
+  \bigl(R_{K,n-1}^{\mathrm p,tf},z_h(t_{n-1}^+)\bigr)_K.
+  \label{eq:nonlinear-dwr-temporal-components}
+\end{align}
+Finally, when the mixed entity is present, the analogous terms are
+\begin{align}
+  \eta_{K,n}^{\mathrm p,xt}
+  &\coloneqq
+  \sum_{F\subset\partial K}
+  \bigl(R_{K,F,n-1}^{\mathrm p,xt},
+        e_z(t_{n-1}^+)\bigr)_F,
+  \notag\\
+  \eta_{K,n}^{\mathrm a,xt}
+  &\coloneqq
+  \sum_{F\subset\partial K}
+  \bigl(R_{K,F,n-1}^{\mathrm a,xt},
+        \delta_{n-1}(e_u)\bigr)_F,
+  \notag\\
+  \eta_{K,n}^{\mathrm c,xt}
+  &\coloneqq
+  \sum_{F\subset\partial K}
+  \bigl(R_{K,F,n-1}^{\mathrm p,xt},
+        z_h(t_{n-1}^+)\bigr)_F.
+  \label{eq:nonlinear-dwr-mixed-components}
+\end{align}
+
+For each entity, the nonlinear contribution is
+\begin{equation}
+  \eta_{K,n}^{E}
+  =\frac12\eta_{K,n}^{\mathrm p,E}
+   +\frac12\eta_{K,n}^{\mathrm a,E}
+   -\eta_{K,n}^{\mathrm c,E}.
+  \label{eq:complete-nonlinear-entity-indicator}
+\end{equation}
+The space--time cell indicator is therefore
+\begin{equation}
+  \eta_{K,n}
+  =\eta_{K,n}^{\mathrm{vol}}
+   +\eta_{K,n}^{\mathrm{sf}}
+   +\eta_{K,n}^{\mathrm{tf}}
+   +\eta_{K,n}^{\mathrm{xt}}.
+  \label{eq:complete-nonlinear-cell-indicator}
+\end{equation}
+For a linear DWR estimator using only $\rho(u_h)(z^\star)$, this definition reduces to the sum of the primal components without the factors one half and without the adjoint and correction parts.
+
+Since the recovery matches each residual functional only on the selected finite-dimensional bubble--cone test space, exact global-local equality is not generally assumed. We therefore define
 \begin{equation}
 \eta_{\mathrm{loc}}
   \coloneqq
@@ -614,6 +757,3 @@ I_{\mathrm{eff}}^{\mathrm{loc}}
 \label{eq:localisation-effectivity}
 \end{equation}
 whenever \(\eta_{\mathrm{glob}}\neq 0\). Exact localisation gives \(I_{\mathrm{eff}}^{\mathrm{loc}}=1\).
-
-
-\yue{Should I mention the scope of this method?}
