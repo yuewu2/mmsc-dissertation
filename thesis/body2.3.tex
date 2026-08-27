@@ -1,22 +1,25 @@
 \section{Marking and Refinement}
 \label{sec:marking-refinement}
+\pef{This section is missing a key piece. As you know, D\"orfler marking as given in the literature would tell us to refine some space--time cells. But we want to retain the tensor product structure of our space--time mesh, as it's much more efficient than a fully unstructured mesh in time. So we have to adapt D\"orfler marking. Explain this first, then state your algorithm. I'll move on to the next section on the assumption this will be rewritten.}
 
-Let \(\eta_{K,n}\) denote the signed indicator associated with the spatial cell \(K\in\mathcal T_n\) on the time slab \(I_n\). Each pair \((K,n)\) is treated as one space--time marking entity. Under the default marking score, its non-negative activity is defined by
+Let \(\eta_{K,n}\) denote the signed indicator associated with the spatial cell \(K\in\mathcal T_n\) on the time slab \(I_n\). Each pair \((K,n)\) is treated as one space--time marking entity. We now describe how this information is used to decide how to refine the discretisation.
+
+We denote the absolute values of the localised error estimates by
 \begin{equation}
   s_{K,n}:=|\eta_{K,n}|,
   \qquad
   S:=\sum_{n=1}^{N}\sum_{K\in\mathcal T_n}s_{K,n}.
   \label{eq:marking-activity}
 \end{equation}
-
-A single global D\"orfler-type bulk marking operation \cite{Dorfler1996} is applied to all space--time cell--slab pairs. The activities from all slabs are concatenated and sorted in non-increasing order. The marking set \(\mathcal M_{\mathrm{st}}\) is the smallest descending prefix whose cumulative activity reaches the prescribed fraction \(\theta\):
+We employ a standard strategy, known as D\"orfler marking \cite{Dorfler1996}.
+The set $\{s_{K_n}\}$ is sorted in non-increasing order. D\"orfler marking identifies which ones to refine by choosing the smallest
+subset whose cumulative total reaches a specified fraction $\theta$ of $S$:
 \begin{equation}
   \sum_{(K,n)\in\mathcal M_{\mathrm{st}}}s_{K,n}
   \ge
   \theta S.
   \label{eq:space-time-dorfler}
 \end{equation}
-
 The global marking set is then restricted to each time slab:
 \begin{equation}
   M_n
@@ -70,9 +73,12 @@ The complete solve--estimate--mark--refine cycle is summarised in \cref{alg:comp
   \If{\eqref{eq:practical-nonlinear-estimator} is used}
     \State Solve the enriched primal problem.
   \EndIf
+  \pef{When would \eqref{eq:practical-nonlinear-estimator} not be used?}
   \State Solve the low-order and enriched adjoints backward, differentiating the PDE and the actual terminal/running goal functional, and applying \(P_n^\ast\) at mesh changes.
   \State Form \(z^\star=z_h^+-z_h\), or optionally \(z^\star=z_h^+-I_hz_h^+\).
+  \pef{I suggest only solving the enriched adjoint, if it is possible to do so}
   \State Assemble the independent global DWR estimator.
+  \pef{Give eqrefs in the algorithm where you can}
   \State Recover volume, spatial-facet, temporal-face, and, when nonzero, mixed-ridge residuals in hierarchical order.
   \State Weight the recovered entities, assemble indicators \(\eta_{K,n}\), and record \(\eta_{\mathrm{loc}}\).
   \If{\(|\eta_{\mathrm{glob}}|\le\mathrm{TOL}\)}

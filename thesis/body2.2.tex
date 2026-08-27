@@ -360,12 +360,12 @@ where \(P_{n-1}:V_{n-1}\to V_n\). The transfer and its adjoint are discussed in 
     \begin{scope}[xshift=6.05cm,yshift=3.25cm]
       \fill[green!27] (0,0) rectangle (.42,.28);
       \draw[black,thin] (0,0) rectangle (.42,.28);
-      \node[anchor=west] at (.62,.14) {spatial facet $F\,\times I_n$};
+      \node[anchor=west] at (.62,.14) {\makebox[6.3em][l]{spatial facet}$F\,\times I_n$};
       \fill[orange!38] (0,-.62) rectangle (.42,-.34);
       \draw[black,thin] (0,-.62) rectangle (.42,-.34);
-      \node[anchor=west] at (.62,-.48) {temporal face $K\,\times \{t_n\}$};
+      \node[anchor=west] at (.62,-.48) {\makebox[6.3em][l]{temporal face}$K\,\times \{t_n\}$};
       \draw[ridge] (0,-1.00)--(.42,-1.00);
-      \node[anchor=west] at (.62,-1.00) {mixed ridge $F\,\times \{t_n\}$};
+      \node[anchor=west] at (.62,-1.00) {\makebox[6.3em][l]{mixed ridge}$F\,\times \{t_n\}$};
     \end{scope}
   \end{tikzpicture}
   \caption{Space--time cell \(Q_{K,n}=K\times I_n\).}
@@ -412,7 +412,7 @@ The function \(B_{K,n}\) vanishes on every codimension-one face of \(Q_{K,n}\). 
 \]
 so the temporal-interface term in \eqref{eq:complete-local-slab-residual} vanishes under this test.
 
-The recovered volume density \(R_{K,n}^{B,\mathrm{vol}}\in Q_{K,n}^{p_x,p_t}\) is defined by
+The recovered volume density \(R_{K,n}^{B,\mathrm{vol}}\in Q_{K,n}^{p_x,p_t}\) is computed by solving
 \begin{equation}
   \bigl(
     R_{K,n}^{B,\mathrm{vol}},
@@ -424,7 +424,7 @@ The recovered volume density \(R_{K,n}^{B,\mathrm{vol}}\in Q_{K,n}^{p_x,p_t}\) i
   \forall\Phi\in Q_{K,n}^{p_x,p_t}.
   \label{eq:space-time-volume-projection}
 \end{equation}
-All spatial-facet and temporal-endpoint contributions vanish under this test.
+All spatial-facet and temporal-endpoint contributions vanish under these test functions.
 
 \paragraph{Spatial-facet recovery.}
 For \(F\subset\partial K\), define
@@ -442,7 +442,7 @@ Let
   \longrightarrow
   Q_{K,n}^{q_x,q_t}
 \)
-be a fixed polynomial extension and write \(\widetilde\Psi:=E_{K,F,n}\Psi\). After the volume density has been recovered, we can define \(R_{K,F,n}^{B,\mathrm{sf}}\in Q_{F,n}^{q_x,q_t}\) by
+be a fixed polynomial extension and write \(\widetilde\Psi:=E_{K,F,n}\Psi\). After the volume density has been recovered, we can compute \(R_{K,F,n}^{B,\mathrm{sf}}\in Q_{F,n}^{q_x,q_t}\) by solving
 \begin{align}
   &\Bigl(
     R_{K,F,n}^{B,\mathrm{sf}},
@@ -485,7 +485,7 @@ which satisfies
 For \(\chi\in\mathbb P^{r_x}(K)\), define the temporal-face test function
 \begin{equation}
 \mathcal E_{K,n}^{\mathrm{tf}}(\chi) :=
-b_K(1-\tau)\chi .
+b_K(1-\tau)\chi,
 \label{eq:temporal-recovery-test}
 \end{equation}
 which vanishes on every spatial facet and the outgoing temporal face \(K\times\{t_n\}\) of \(Q_{K,n}\). Hence, the local residual decomposition reduces to
@@ -504,7 +504,7 @@ b_K\chi
 \bigr)_K .
 \label{eq:temporal-cone-support-splitting}
 \end{equation}
-Once the recovered volume density \(R_{K,n}^{B,\mathrm{vol}}\) is available, define the recovered incoming temporal-face density \(R_{K,n-1}^{B,\mathrm{tf}}\in\mathbb P^{r_x}(K)\) by
+Once the recovered volume density \(R_{K,n}^{B,\mathrm{vol}}\) is available, we compute the recovered incoming temporal-face density \(R_{K,n-1}^{B,\mathrm{tf}}\in\mathbb P^{r_x}(K)\) by solving
 \begin{equation}
 \begin{aligned}
 \bigl(
@@ -527,7 +527,7 @@ R_{K,n}^{B,\mathrm{vol}},
 
 
 \paragraph{Possible mixed spatial--temporal ridge.}
-A separate mixed recovery is required only if the complete residual contains a nonzero functional supported on \(F\times\{t_{n-1}\}\). Such a contribution does not normally arise from an \(L^2\) time-mass pairing, but it can occur when the pairing contains spatial derivatives, as discussed for the BBM problem in \cref{sec:bbm-mixed-ridge-specialisation}.
+A separate mixed recovery is required only if the complete residual contains a nonzero functional supported on \(F\times\{t_{n-1}\}\). Such a contribution does not normally arise if $m$ is the \(L^2\) inner product, but it can occur when $m$ contains spatial derivatives, as arises in the Benjamin--Bona--Mahony problem in \cref{sec:bbm-mixed-ridge-specialisation} below.
 
 For \(\psi\in\mathbb P^{s_x}(F)\), let \(\widetilde\psi=E_{K,F}\psi\) be the fixed extension used in the stationary facet recovery and define
 \begin{equation}
@@ -542,7 +542,7 @@ For \(\psi\in\mathbb P^{s_x}(F)\), let \(\widetilde\psi=E_{K,F}\psi\) be the fix
   \end{aligned}
   \label{eq:mixed-ridge-test}
 \end{equation}
-The mixed density \(R_{K,F,n-1}^{B,\mathrm{xt}}\in\mathbb P^{s_x}(F)\) is consequently defined by
+The mixed density \(R_{K,F,n-1}^{B,\mathrm{xt}}\in\mathbb P^{s_x}(F)\) is consequently computed by solving
 \begin{align}
   \bigl(
     R_{K,F,n-1}^{B,\mathrm{xt}},
@@ -577,7 +577,7 @@ This subtraction leaves only the contribution supported on \(F\times\{t_{n-1}\}\
 \subsection{Localisation of the Nonlinear Adjoint-Residual Term}
 \label{sec:nonlinear-adjoint-residual-localisation}
 
-For the nonlinear identity, the implemented estimator is stated in~\eqref{eq:practical-nonlinear-estimator}.
+Recall that we wish to localise the global DWR estimate~\eqref{eq:practical-nonlinear-estimator}.
 % \begin{equation}
 %  \eta
 %  =
@@ -587,14 +587,17 @@ For the nonlinear identity, the implemented estimator is stated in~\eqref{eq:pra
 %  \label{eq:symmetric-nonlinear-dwr}
 % \end{equation}
 % with the unknown cubic remainder omitted.
-The construction above recovers densities for the primal residual \(\rho(u_h)\), thus it can be used directly for both primal-residual contributions and the correction term. Once \(u_h\) and \(z_h\) are fixed, the adjoint-residual term \(\rho^\ast(u_h,z_h)(\cdot)\) is a linear functional of the primal variation. It can therefore be evaluated on the same test functions used above, but it requires a separate recovery of the linearised PDE and goal derivatives rather than reuse of the primal-residual densities.
+The construction above recovers localised densities for the primal residual \(\rho(u_h)\). It can be used directly for both primal-residual contributions and the Galerkin orthogonality term. Once \(u_h\) and \(z_h\) are fixed, the adjoint-residual term \(\rho^\ast(u_h,z_h)(\cdot)\) is a linear functional of the primal variation. It can therefore be evaluated on the same test functions used above, but it requires a separate recovery of the linearised PDE and goal derivatives rather than reuse of the primal-residual densities.
 
 In the present implementation, we do not perform a second bubble--cone recovery for the adjoint residual. Instead, we evaluate the adjoint-residual functional using the cellwise-constant dG0 basis functions. As these functions form a partition of unity, summing these contributions recovers the assembled adjoint-residual term.
 These cellwise contributions are combined with the recovered primal-residual and Galerkin-correction contributions to form the nonlinear indicator. A complete bubble--cone recovery of \(\rho^\ast\) remains a possible extension when a separate entity-resolved interpretation of the adjoint-residual term is needed.
 
+\pef{I don't understand this. Why don't you just apply the same machinery to the adjoint residual? You need both for the localised error estimate?}
 
 
-\subsection{Localisation Effectivity}
+\subsection{Localisation}
+
+\pef{I think at this point we need to explicitly define how we compute the cellwise indicators $eta_{K,n}$? We've discussed extensively how to compute local approximations to the residuals, but not how we stitch them together for an actual error estimate? I'll assume this section is unwritten and move on to section 2.4.}
 
 Let
 \begin{equation}
@@ -613,4 +616,4 @@ I_{\mathrm{eff}}^{\mathrm{loc}}
 whenever \(\eta_{\mathrm{glob}}\neq 0\). Exact localisation gives \(I_{\mathrm{eff}}^{\mathrm{loc}}=1\).
 
 
-\textcolor{blue}{Should I mention the scope of this method?}
+\yue{Should I mention the scope of this method?}
