@@ -10,7 +10,7 @@ The comparison is intended to assess whether the automated localisation leads to
 
 
 \subsection{Manufactured Problem and Quantity of Interest}
-Let $\Omega=(0,1)^2$, $T=1$, and write $Q:=\Omega\times(0,T)$. We consider the heat equation
+Let $\Omega=(0,1)^2$, $T=1$, and write $Q\coloneqq\Omega\times(0,T)$. We consider the heat equation
 \begin{equation}
   \partial_t u-\Delta u=f
   \quad\text{in }Q,
@@ -44,10 +44,10 @@ where $\alpha=50$ and
 \end{equation}
 Thus, $u_{\mathrm{ex}}$ is a smooth, localised hill whose centre travels around a circle of radius $1/4$ about the centre of the unit square. Although the solution remains smooth, its strongest spatial variation is concentrated near the moving peak.
 
-The reference rotating-hill benchmark uses the space--time $L^2$ error to measure how well the local behaviour of the solution is captured \cite{ThieleWick2024}. Here we use its squared, differentiable counterpart. More precisely, we define the manufactured-error or space--time tracking functional
+We choose as goal functional the space--time $L^2$ error to measure how well the local behaviour of the solution is captured:
 \begin{equation}
   J(v)
-  :=
+  \coloneqq
   \frac12\int_0^T\!\int_\Omega
   \bigl(v-u_{\mathrm{ex}}\bigr)^2
   \,\mathrm{d}x\,\mathrm{d}t.
@@ -72,7 +72,7 @@ Since
   \,\mathrm{d}x\,\mathrm{d}t.
   \label{eq:mh-goal-derivative}
 \end{equation}
-Accordingly, the continuous adjoint used for verification is
+Accordingly, the continuous adjoint equation is
 \begin{equation}
   -\partial_t z-\Delta z
   =
@@ -93,17 +93,17 @@ Accordingly, the continuous adjoint used for verification is
 % The uniform run provides a non-adaptive reference sequence. At each iteration, every spatial cell on every time slab is refined and every time slab is bisected. For the triangular meshes used here, one spatial cell therefore produces four children, while bisection of the time partition produces two child slabs. Consequently, the number of space--time cells increases by approximately a factor of eight at each uniform refinement step.
 
 \paragraph{Strong-residual marking score.}
-For comparison, we construct a classical non-negative marking score from a manually derived strong-residual representation of the heat equation \cite{Bangerth_Rannacher_2003,Becker_Rannacher_2001}. On a space--time cell \(Q_{K,n}=K\times I_n\), the cell residual is
+For comparison, we derive a classical non-negative marking score from a manually derived strong-residual representation of the heat equation \cite{Bangerth_Rannacher_2003,Becker_Rannacher_2001}. After integrating by parts, on a space--time cell \(Q_{K,n}=K\times I_n\), the cell residual is
 \begin{equation}
-R_{K,n}
-:=
+  R_{K,n}
+\coloneqq
 f+\Delta u_h-\partial_tu_h.
 \label{eq:mh-strong-cell-residual}
 \end{equation}
 For an interior spatial facet \(F\subset\partial K\), define
 \begin{equation}
-r_{K,F,n}
-:=
+  r_{K,F,n}
+\coloneqq
 \frac12\llbracket\nabla u_h\cdot n\rrbracket.
 \label{eq:mh-strong-facet-residual}
 \end{equation}
@@ -119,11 +119,11 @@ The factor \(1/2\) assigns half of the flux jump to each of the two adjacent cel
 \end{align}
 where the final term is the jump of the dG solution across the incoming temporal interface.
 
-We apply this action to the dual weight \(z^\star=z_h^+-z_h\). Cauchy--Schwarz inequality bounds each volume, spatial facet, and temporal-interface. To combine the terms supported on different-dimensional entities, the facet contributions are scaled by \(h_K^{-1/2}\) and \(h_K^{1/2}\), respectively, while the temporal jump contribution is scaled by \(k_n^{-1/2}\) and \(k_n^{1/2}\). Define
+We apply this action to the dual weight \(z^\star=z_h^+-z_h\). The Cauchy--Schwarz inequality bounds each volume, spatial facet, and temporal-interface. To combine the terms supported on different-dimensional entities, the facet contributions are scaled by \(h_K^{-1/2}\) and \(h_K^{1/2}\), respectively, while the temporal jump contribution is scaled by \(k_n^{-1/2}\) and \(k_n^{1/2}\). \pef{Explain why these scalings, it sounds like you are choosing them, but you don't really have a choice?} Define
 \begin{subequations}
 \begin{align}
 \rho_{K,n}^{\mathrm{s}}
-:={}&
+\coloneqq{}&
 \lVert R_{K,n}\rVert_{K\times I_n}
 +
 h_K^{-1/2}
@@ -133,7 +133,7 @@ h_K^{-1/2}
 \right)^{1/2},
 \label{eq:mh-strong-rho-one}\\
 \zeta_{K,n}^{\mathrm{s}}
-:={}&
+\coloneqq{}&
 \lVert z^\star\rVert_{K\times I_n}
 +
 h_K^{1/2}
@@ -143,25 +143,25 @@ h_K^{1/2}
 \right)^{1/2},
 \label{eq:mh-strong-zeta-one}\\
 \rho_{K,n}^{\mathrm{t}}
-:={}&
+\coloneqq{}&
 k_n^{-1/2}\lVert [u_h]_{n-1}\rVert_K,
 \qquad
-\zeta_{K,n}^{\mathrm{t}}
-:=
+  \zeta_{K,n}^{\mathrm{t}}
+  \coloneqq
 k_n^{1/2}\lVert z^\star(t_{n-1}^{+})\rVert_K.
 \label{eq:mh-strong-rho-zeta-two}
 \end{align}
 \end{subequations}
-The strong-residual marking score is then
+The localised error estimate is then
 \begin{equation}
 m_{K,n}^{\mathrm{str}}
-:=
+\coloneqq
 \rho_{K,n}^{\mathrm{s}}\zeta_{K,n}^{\mathrm{s}}
 +
 \rho_{K,n}^{\mathrm{t}}\zeta_{K,n}^{\mathrm{t}}.
 \label{eq:mh-strong-score}
 \end{equation}
-It provides a non-negative measure of the residual on each space--time cell, weighted by its influence on the selected quantity of interest. It discards sign cancellations between residual contributions.
+It provides a non-negative measure of the goal error associated to each space--time cell. Note that it discards sign cancellations between error contributions, so the localised error estimate will exceed the global one, which does permit cancellations.
 
 
 \paragraph{Automated localisation.}
@@ -179,7 +179,7 @@ The automated method instead reconstructs the weak residual directly from its ac
 The quantity used for marking is
 \begin{equation}
   m_{K,n}^{\mathrm{aut}}
-  :=
+  \coloneqq
   |\eta_{K,n}|.
   \label{eq:mh-bubble-marker}
 \end{equation}
@@ -189,7 +189,8 @@ As stated in \cref{sec:nonlinear-adjoint-residual-localisation}, the entity-wise
 
 \subsection{Results and Interpretation}
 
-The manufactured moving-hill problem was solved on $\Omega=(0,1)^2$ over $[0,1]$, with initial mesh parameter $n_x=n_y=8$, $N_t=8$ initial time slabs, and $\mathrm{CG}(1)\mathrm{dG}(0)$ primal and $\mathrm{CG}(2)\mathrm{dG}(1)$ enriched spaces. All estimators used the same quadrature rule (seven time quadrature points) and the nonlinear DWR identity for the quadratic running goal~\eqref{eq:mh-goal}. The strong-residual bound and the automated localisation both used global bulk marking with $\theta=0.4$, the within-slab trigger $10\%$, and independent slabwise mesh refinement. Both adaptive sequences have nine reported levels. 
+The manufactured moving-hill problem was solved on $\Omega=(0,1)^2$ over time interval $[0,1]$, starting from an $n_x \times n_y = 8 \times 8$ mesh in space and $N_t=8$ initial time slabs, and $\mathrm{CG}(1)\mathrm{dG}(0)$ primal and $\mathrm{CG}(2)\mathrm{dG}(1)$ enriched spaces. All estimators used the same quadrature rule (seven time quadrature points) and the nonlinear DWR identity for the quadratic running goal~\eqref{eq:mh-goal}. The D\"orfler marking fraction was set to $\theta=0.4$, the within-slab trigger $10\%$, and independent slabwise mesh refinement. Both adaptive sequences have nine reported levels.
+\pef{It feels inconsistent to use CG for continuous Galerkin but dG for discontinuous Galerkin. I suggest writing $\mathrm{cG}(1) \otimes \mathrm{dG}(0)$ etc}
 
 \begin{table}[h]
   \centering
@@ -215,12 +216,13 @@ The manufactured moving-hill problem was solved on $\Omega=(0,1)^2$ over $[0,1]$
   \label{tab:moving-hill-selected-iterations}
 \end{table}
 \textcolor{blue}{or use a figure instead}
+\pef{In the table, maybe call strong manual, and bubble automated?}
 
 % trend, I_eff, DoF
-Table~\ref{tab:moving-hill-selected-iterations} shows two distinct routes. From iteration $0$ to iteration $2$, both methods retain $N_t=8$ time slabs and the refinement is predominantly spatial. After temporal marking becomes active, the error decreases much more rapidly. For the strong-residual run, $N_t$ grows from $8$ at iteration $2$ to $43$ at iteration $6$, at which point the goal error is below $10^{-4}$. The automated run increases from $8$ to $36$ slabs over the same iterations and reaches $1.005\times10^{-4}$. 
+Table~\ref{tab:moving-hill-selected-iterations} shows the results for both residual localisations. From iteration $0$ to iteration $2$, both methods retain $N_t=8$ time slabs and the refinement is predominantly spatial. After temporal marking becomes active, the error decreases much more rapidly. For the strong-residual run, $N_t$ grows from $8$ at iteration $2$ to $43$ at iteration $6$, at which point the goal error is below $10^{-4}$. The automated run increases from $8$ to $36$ slabs over the same iterations and reaches $1.005\times10^{-4}$. 
 % At the final reported iteration, the strong and automated methods attain goal errors of $2.079\times10^{-5}$ and $2.541\times10^{-5}$, respectively.
 
-Both effectivity indices approach one monotonically after time refinement becomes active. The convergence of $I_{\rm eff}$ to one confirms that the DWR identity correctly estimates the quadratic goal error.
+Both effectivity indices approach one monotonically after time refinement becomes active. The convergence of $I_{\rm eff}$ to one confirms that the DWR identity correctly estimates the goal error.
 
 At iteration $8$, the strong-residual run uses 90 time slabs and $2.96\times10^5$ slabwise primal DoFs, whereas the bubble run uses 72 time slabs and $4.02\times10^5$ slabwise primal DoFs. Hence, for the present parameters, the strong-residual strategy attains a slightly smaller goal error with fewer slabwise unknowns. These counts also indicate a different allocation of the refinement budget. The strong-residual method performs more temporal refinement, but retains fewer spatial unknowns per slab on average, suggesting that its spatial refinement is concentrated in smaller regions. This interpretation is consistent with the mesh snapshots below, in which the strong-residual meshes exhibit compact refined patches around the rotating hill, whereas the automated meshes show a more spatially distributed refinement pattern.
 
@@ -294,10 +296,10 @@ For both localisation methods, refinement follows the trajectory of the moving h
 
 By contrast, the automated indicator is formed by summing signed recovered contributions. Cancellations between these terms can reduce the indicator value of a cell. In addition, a recovered spatial-facet contribution is assigned to its neighbouring cells, spreading part of the indicator across the local mesh. The automated indicator is therefore more spatially distributed in this example, which produces the broader refined patches visible around the moving-hill trajectory.
 
-It is not surprising that the strong-residual method performs slightly better than the automated method in this example. However, the resutls motivate a componentwise marking alternative:
+It is not surprising that the strong-residual method performs slightly better than the automated method in this example. However, the results motivate a componentwise marking alternative:
 \[
 m_{K,n}^{\mathrm{comp}}
-:=
+\coloneqq
 |\eta_{\mathrm{vol}}|
 +
 |\eta_{\mathrm{spatial}}|
@@ -305,4 +307,4 @@ m_{K,n}^{\mathrm{comp}}
 |\eta_{\mathrm{temporal}}|.
 \]
 This modification prevents large entity contributions from being hidden by local sign cancellation and may therefore provide a more robust refinement indicator in cases where the recovered components have competing signs. However, it may also mark unexpected regions and increase computational cost, so its benefit must be assessed experimentally rather than assumed.
-
+\pef{I'd suggest cutting this last bit from `It is not surprising \dots'}

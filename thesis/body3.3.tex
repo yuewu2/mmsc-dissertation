@@ -9,7 +9,7 @@ In this section, we turn to a one-dimensional nonlinear BBM experiment. It tests
 
 Let $\Omega=(0,L)$ and impose periodic boundary conditions by identifying $x=0$ with $x=L$. The spatial domain is the one-dimensional torus
 \[
-  \Omega = \mathbb T_L:=\mathbb R/(L\mathbb Z).
+  \Omega = \mathbb T_L\coloneqq\mathbb R/(L\mathbb Z).
   \label{eq:bbm-periodic-domain}
 \]
 The torus notation records that the two endpoints are the same physical point: there is no exterior spatial boundary, and the periodic seam is treated as an interior facet. The unforced BBM equation is
@@ -27,7 +27,7 @@ or, equivalently,
 The spatial bilinear form associated with the time derivative is
 \begin{equation}
   m_{\mathrm{BBM}}(w,v)
-  :=(w,v)_\Omega+(\partial_xw,\partial_xv)_\Omega,
+  \coloneqq(w,v)_\Omega+(\partial_xw,\partial_xv)_\Omega,
   \label{eq:bbm-h1-mass}
 \end{equation}
 which is an $H^1$-type spatial mass pairing. 
@@ -56,6 +56,7 @@ We take $L=100$, $c=0.5$, and $x_0=30$. The amplitude is one and the propagation
   \label{eq:bbm-wave-speed}
 \]
 Thus the wave centre moves from $x_0=30$ to $x_0+sT=54$ at $T=18$. Throughout this interval the wave remains far from the periodic seam. 
+\pef{Does that matter?}
 % Its exponentially small tails therefore make the long periodic computation a close approximation to the solitary wave on the real line.
 
 
@@ -63,7 +64,7 @@ Thus the wave centre moves from $x_0=30$ to $x_0+sT=54$ at $T=18$. Throughout th
 
 We take the terminal quantity of interest
 \begin{align}
-  J(u)&=(\psi,u(T))_\Omega,
+  J(u)&=(\psi,u(T))_\Omega, \text{ where}
   \label{eq:bbm-qoi}\\
   \psi(x)&=\exp\!\left[-\left(\frac{x-x_s}{r_s}\right)^2\right],
   \qquad x_s=54,\qquad r_s=1.
@@ -176,35 +177,36 @@ The low-order and enriched spaces are, respectively,
   V_h^+=\mathrm{CG}(2)_x\otimes\mathrm{DG}(1)_t.
   \label{eq:bbm-discrete-spaces}
 \end{equation*}
-We take the bulk marking fraction as $0.35$ and bisect a time slab when at least $10\%$ of its spatial cells are selected. We have initially $50$ spatial cells and $6$ time slabs. The terminal time is set to be $18$.
+We take the D\"orfler marking fraction as $0.35$ and bisect a time slab when at least $10\%$ of its spatial cells are selected. We have initially $50$ spatial cells and $6$ time slabs. The terminal time is set to be $T = 18$.
 
 To verify algebraic completeness as stated in \cref{sec:bbm-mixed-ridge-specialisation}, each adaptive iterate is post-processed on the same primal solution, adjoint solution, and mesh in two ways: with all recovered entities and after deleting only the signed mixed-ridge
 contribution. Define
 \begin{equation}
   \delta_{\mathrm{loc}}
-  :=\sum_{n,K}\eta_{K,n}-\eta_{\mathrm{global}}.
+  \coloneqq\sum_{n,K}\eta_{K,n}-\eta_{\mathrm{global}}.
   \label{eq:bbm-localisation-gap}
 \end{equation}
-With the mixed ridge included, $|\delta_{\mathrm{loc}}|$ stays at floating-point roundoff. This test in \cref{tab:bbm-mixed-ridge-ablation} demonstrates that the mixed ridge term is required to reproduce the global DWR estimator for this BBM calculation.
-\begin{table}[h]
-  \centering
-  \begin{tabular}{rrrrr}
-    \toprule
-    Iteration
-    & Space--time cells
-    & \(\left|\delta_{\mathrm{loc}}\right|\)
-    & \(\left|\delta_{\mathrm{loc}}^{\mathrm{no\,mix}}\right|\)
-    & \(\frac{ \left|\delta_{\mathrm{loc}}^{\mathrm{no\,mix}}\right|}{\left|\eta_{\mathrm{global}}\right|}\)\\
-    \midrule
-     0 &  300 & \(4.44\times10^{-16}\) & \(2.85\times10^{-2}\) & \(3.33\%\) \\
-     4 &  350 & \(5.55\times10^{-16}\) & \(3.07\times10^{-2}\) & \(3.56\%\) \\
-     8 &  856 & \(9.99\times10^{-16}\) & \(5.11\times10^{-2}\) & \(5.65\%\) \\
-    12 & 2816 & \(2.11\times10^{-15}\) & \(6.47\times10^{-2}\) & \(8.78\%\) \\
-    \bottomrule
-  \end{tabular}
-  \caption{Mixed-ridge ablation performed on identical discrete primal and adjoint solutions.}
-  \label{tab:bbm-mixed-ridge-ablation}
-\end{table}
+With the mixed ridge included, $|\delta_{\mathrm{loc}}|$ stays at floating-point roundoff, but without it it does not. 
+%This test in \cref{tab:bbm-mixed-ridge-ablation} demonstrates that the mixed ridge term is required to reproduce the global DWR estimator for this BBM calculation.
+%\begin{table}[h]
+%  \centering
+%  \begin{tabular}{rrrrr}
+%    \toprule
+%    Iteration
+%    & Space--time cells
+%    & \(\left|\delta_{\mathrm{loc}}\right|\)
+%    & \(\left|\delta_{\mathrm{loc}}^{\mathrm{no\,mix}}\right|\)
+%    & \(\frac{ \left|\delta_{\mathrm{loc}}^{\mathrm{no\,mix}}\right|}{\left|\eta_{\mathrm{global}}\right|}\)\\
+%    \midrule
+%     0 &  300 & \(4.44\times10^{-16}\) & \(2.85\times10^{-2}\) & \(3.33\%\) \\
+%     4 &  350 & \(5.55\times10^{-16}\) & \(3.07\times10^{-2}\) & \(3.56\%\) \\
+%     8 &  856 & \(9.99\times10^{-16}\) & \(5.11\times10^{-2}\) & \(5.65\%\) \\
+%    12 & 2816 & \(2.11\times10^{-15}\) & \(6.47\times10^{-2}\) & \(8.78\%\) \\
+%    \bottomrule
+%  \end{tabular}
+%  \caption{Mixed-ridge ablation performed on identical discrete primal and adjoint solutions.}
+%  \label{tab:bbm-mixed-ridge-ablation}
+%\end{table}
 
 % \begin{figure}[h]
 %   \centering
@@ -270,6 +272,7 @@ Finally, selected iterations are listed in \cref{tab:bbm-results}. The goal erro
   \caption{Selected iterations of the periodic BBM adaptive calculation.}
   \label{tab:bbm-results}
 \end{table}
+\pef{Can we do more adaptive iterations? These computations should be fairly cheap, I think?}
 
 % \begin{figure}[htbp]
 %   \centering

@@ -95,11 +95,11 @@ Assume that \(\mathcal{A}\in C^3(U,V^\ast)\) and \(J\in C^3(U,\mathbb{R})\). For
 where the forward and adjoint residuals are
 \begin{align}
   \rho(\widetilde{u})(\cdot)
-  &:=
+  &\coloneqq
   -\mathcal{A}(\widetilde{u})(\cdot),
   \label{eq:nonlinear-primal-residual}\\
   \rho^\ast(\widetilde{u},\widetilde{z})(\cdot)
-  &:=
+  &\coloneqq
   J'(\widetilde{u})(\cdot)
   -
   \mathcal{A}'(\widetilde{u})
@@ -126,7 +126,7 @@ This expresses the error in the goal functional as the average of the primal and
 Set \(X=U\times V\), \(x=(u,z)\), \(\widetilde x=(\widetilde u,\widetilde z)\), and introduce the Lagrangian
 \begin{equation}
   \mathcal L(\widehat u,\widehat z)
-  :=J(\widehat u)-\mathcal A(\widehat u)(\widehat z).
+  \coloneqq J(\widehat u)-\mathcal A(\widehat u)(\widehat z).
   \label{eq:dwr-lagrangian}
 \end{equation}
 Along the segment \(x_s=\widetilde x+s(x-\widetilde x)\), the fundamental theorem of calculus and the trapezoidal identity give
@@ -150,7 +150,7 @@ If \(\mathcal A\) is affine and \(J\) is linear, then \(\mathcal R^{(3)}=0\), an
  \label{eq:linear-discrete-primal}\\
  a(w,z)&=J(w) &&\forall w\in U,
  \label{eq:linear-adjoint}\\
- \rho(u_h)(v)&:=\ell(v)-a(u_h,v).
+ \rho(u_h)(v)&\coloneqq\ell(v)-a(u_h,v).
  \label{eq:linear-residual}
 \end{align}
 
@@ -205,7 +205,7 @@ If \(u_h^{(2)}\) and \(z_h^{(2)}\) solve \eqref{eq:enriched-primal}--\eqref{eq:e
  ={}&J(u)-J(u_h^{(2)})+\eta^{(2)},
  \label{eq:enriched-exact-splitting}\\
  \eta^{(2)}
- :={}&\tfrac12\rho(\widetilde u)(z_h^{(2)}-\widetilde z)
+ \coloneqq{}&\tfrac12\rho(\widetilde u)(z_h^{(2)}-\widetilde z)
  +\tfrac12\rho^\ast(\widetilde u,\widetilde z)
   (u_h^{(2)}-\widetilde u)-\rho(\widetilde u)(\widetilde z)+\mathcal R_h^{(3)}.
  \label{eq:enriched-nonlinear-dwr}
@@ -234,7 +234,7 @@ Hence, under saturation, the computable estimator \(\eta^{(2)}\) bounds the unkn
 In the computations, the cubic remainder in \eqref{eq:enriched-nonlinear-dwr} will be omitted. This gives the practical nonlinear estimator
 \begin{equation}
 \eta_{\mathrm{global}}
-:=
+\coloneqq
 \frac12\rho(u_h)(z_h^+-z_h)
 +
 \frac12\rho^\ast(u_h,z_h)(u_h^+-u_h)
@@ -265,7 +265,7 @@ where \(I_hz_h^+\in V_h\) is an interpolation of the enriched adjoint. This avoi
 When an independently computed reference value for \(J(u)\) is available, the accuracy of the global estimator is measured by the \emph{global effectivity index}
 \begin{equation}
 I_{\mathrm{eff}}^{\mathrm{glob}}
-:=
+\coloneqq
 \frac{\eta}{J(u)-J(u_h)}.
 \label{eq:signed-effectivity}
 \end{equation}

@@ -39,7 +39,7 @@ Assumptions (A1) and (A2) identify the residual-supporting entities, while (A3) 
 
 For a \(d\)-simplex \(K\) with vertices \(\{v_i\}_{i=1}^{d+1}\) and associated barycentric coordinates \(\{\lambda_i^K\}_{i=1}^{d+1}\), the cell bubble is defined by 
 \begin{equation}
-  b_K:=\prod_{i=1}^{d+1}\lambda_i^K,
+  b_K\coloneqq\prod_{i=1}^{d+1}\lambda_i^K,
   \label{eq:recovery-cell-bubble}
 \end{equation}
 and satisfies $b_K|_{\partial K}=0$ by construction.
@@ -53,9 +53,9 @@ This means that \(R_K^B\in\mathbb P^p(K)\) can be recovered from solving the var
 
 For \(F\in\mathcal F(K)\), let
 \begin{equation}
-  \mathcal I_F:=\{i:v_i\in F\},
+  \mathcal I_F\coloneqq\{i:v_i\in F\},
   \qquad
-  \beta_{K,F}:=\prod_{i\in\mathcal I_F}\lambda_i^K.
+  \beta_{K,F}\coloneqq\prod_{i\in\mathcal I_F}\lambda_i^K.
   \label{eq:recovery-facet-cone}
 \end{equation}
 This cone function is the analogue of the bubble function on a facet. It is nonzero on the relative interior of \(F\), vanishes on every other facet, and remains nonzero inside \(K\). Let
@@ -214,11 +214,11 @@ with \(u(0)=u_0\). Here \(m\) is the time-derivative pairing, \(a\) contains the
 \end{equation}
 On \(I_n\), trial and test functions are time polynomials with values in a spatial finite-element space \(V_n\), and may be discontinuous at \(t_n\). Following the standard space--time dG notation \cite{Bangerth_Rannacher_2003}, we define
 \begin{equation}
-  U^{n+}:=\lim_{t\downarrow t_n}U(t),
+  U^{n+}\coloneqq\lim_{t\downarrow t_n}U(t),
   \qquad
-  U^{n-}:=\lim_{t\uparrow t_n}U(t),
+  U^{n-}\coloneqq\lim_{t\uparrow t_n}U(t),
   \qquad
-  [U]^n:=U^{n+}-U^{n-}.
+  [U]^n\coloneqq U^{n+}-U^{n-}.
   \label{eq:dg-time-traces}
 \end{equation}
 \pef{I prefer $\llbracket U \rrbracket$ for dG jump notation, but I don't feel strongly}
@@ -226,7 +226,7 @@ On \(I_n\), trial and test functions are time polynomials with values in a spati
 For matching spatial spaces, the global dG semilinear form can be written as
 \begin{align}
   \mathcal A(U)(V)
-  :={}&
+  \coloneqq{}&
   \sum_{n=1}^{N}\int_{I_n}
   \bigl[m(\partial_tU,V)+a(U;V,t)-\ell(V;t)\bigr],\mathrm dt
   \notag\\
@@ -237,7 +237,7 @@ For matching spatial spaces, the global dG semilinear form can be written as
 \pef{$V$ was previously used as the spatial space, so this notation clashes.}
 The discrete problem is \(\mathcal A(U_h)(V_h)=0\) for all discrete tests. Throughout this chapter we use the convention
 \begin{equation}
-  \rho(U)(V):=-\mathcal A(U)(V).
+  \rho(U)(V)\coloneqq-\mathcal A(U)(V).
   \label{eq:dg-residual-sign-convention}
 \end{equation}
 
@@ -256,7 +256,7 @@ The extension of the stationary recovery is based on the following assumptions.
 
 To be more specific, we can define the incoming defect by
 \begin{equation}
-  \delta_{n-1}(U_h):=
+  \delta_{n-1}(U_h)\coloneqq
   \begin{cases}
     U_h^{0+}-u_0, & n=1,\\[0.3em]
     [U_h]^{n-1}, & n>1.
@@ -267,7 +267,7 @@ Thus
 \begin{equation}
   \begin{aligned}
   \rho_{K,n}(U_h)(V)
-  :={}&
+  \coloneqq{}&
   \int_{I_n}
   \Big[
     \ell_{K,n}(V;t)
@@ -397,9 +397,9 @@ Assumption (A1) follows naturally when the weak form is assembled slab by slab f
 \paragraph{Volume recovery.}
 We first define the temporal interior bubble and its tensor product with the spatial cell bubble from~\eqref{eq:recovery-cell-bubble} by
 \begin{equation}
-  b_n^t(\tau):=4\tau(1-\tau),
+  b_n^t(\tau)\coloneqq 4\tau(1-\tau),
   \qquad
-  B_{K,n}:=b_Kb_n^t.
+  B_{K,n}\coloneqq b_Kb_n^t.
   \label{eq:space-time-volume-bubble}
 \end{equation}
 The function \(B_{K,n}\) vanishes on every codimension-one face of \(Q_{K,n}\). In particular,
@@ -430,7 +430,7 @@ All spatial-facet and temporal-endpoint contributions vanish under these test fu
 For \(F\subset\partial K\), define
 \begin{equation}
   C_{K,F,n}^{\mathrm{sf}}
-  :=
+  \coloneqq
   \beta_{K,F}b_n^t.
   \label{eq:space-time-spatial-cone}
 \end{equation}
@@ -442,7 +442,7 @@ Let
   \longrightarrow
   Q_{K,n}^{q_x,q_t}
 \)
-be a fixed polynomial extension and write \(\widetilde\Psi:=E_{K,F,n}\Psi\). After the volume density has been recovered, we can compute \(R_{K,F,n}^{B,\mathrm{sf}}\in Q_{F,n}^{q_x,q_t}\) by solving
+be a fixed polynomial extension and write \(\widetilde\Psi\coloneqq E_{K,F,n}\Psi\). After the volume density has been recovered, we can compute \(R_{K,F,n}^{B,\mathrm{sf}}\in Q_{F,n}^{q_x,q_t}\) by solving
 \begin{align}
   &\Bigl(
     R_{K,F,n}^{B,\mathrm{sf}},
@@ -468,7 +468,7 @@ be a fixed polynomial extension and write \(\widetilde\Psi:=E_{K,F,n}\Psi\). Aft
 To isolate the incoming dG interface contribution, we define
 \begin{equation}
   C_{K,n}^{\mathrm{tf},-}
-  :=
+  \coloneqq
   b_K(1-\tau),
   \label{eq:temporal-trace-cone}
 \end{equation}
@@ -484,7 +484,7 @@ which satisfies
 
 For \(\chi\in\mathbb P^{r_x}(K)\), define the temporal-face test function
 \begin{equation}
-\mathcal E_{K,n}^{\mathrm{tf}}(\chi) :=
+\mathcal E_{K,n}^{\mathrm{tf}}(\chi) \coloneqq
 b_K(1-\tau)\chi,
 \label{eq:temporal-recovery-test}
 \end{equation}
@@ -533,11 +533,11 @@ For \(\psi\in\mathbb P^{s_x}(F)\), let \(\widetilde\psi=E_{K,F}\psi\) be the fix
 \begin{equation}
   \begin{aligned}
   C_{K,F,n}^{\mathrm{xt},-}
-  &:=
+  &\coloneqq
   \beta_{K,F}(1-\tau),
   \\
   \mathcal{E}_{K,F,n}^{\mathrm{xt}}(\psi)
-  &:=
+  &\coloneqq
   C_{K,F,n}^{\mathrm{xt},-}\widetilde\psi.
   \end{aligned}
   \label{eq:mixed-ridge-test}
@@ -602,14 +602,14 @@ These cellwise contributions are combined with the recovered primal-residual and
 Let
 \begin{equation}
 \eta_{\mathrm{loc}}
-:=
+  \coloneqq
 \sum_{n,K}\eta_{K,n},
 \label{eq:localisation-gap}
 \end{equation}
 To assess the quality of localisation, we define the \emph{localisation effectivity index}
 \begin{equation}
 I_{\mathrm{eff}}^{\mathrm{loc}}
-:=
+  \coloneqq
 \frac{\eta_{\mathrm{loc}}}{\eta_{\mathrm{glob}}},
 \label{eq:localisation-effectivity}
 \end{equation}

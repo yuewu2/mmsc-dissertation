@@ -6,9 +6,9 @@ Let \(\eta_{K,n}\) denote the signed indicator associated with the spatial cell 
 
 We denote the absolute values of the localised error estimates by
 \begin{equation}
-  s_{K,n}:=|\eta_{K,n}|,
+  s_{K,n}\coloneqq|\eta_{K,n}|,
   \qquad
-  S:=\sum_{n=1}^{N}\sum_{K\in\mathcal T_n}s_{K,n}.
+  S\coloneqq\sum_{n=1}^{N}\sum_{K\in\mathcal T_n}s_{K,n}.
   \label{eq:marking-activity}
 \end{equation}
 We employ a standard strategy, known as D\"orfler marking \cite{Dorfler1996}.
@@ -23,7 +23,7 @@ subset whose cumulative total reaches a specified fraction $\theta$ of $S$:
 The global marking set is then restricted to each time slab:
 \begin{equation}
   M_n
-  :=
+  \coloneqq
   \left\{
     K\in\mathcal T_n:
     (K,n)\in\mathcal M_{\mathrm{st}}
@@ -33,7 +33,7 @@ The global marking set is then restricted to each time slab:
 Under the default independent-slab policy, only the cells in \(M_n\) are refined on \(I_n\):
 \begin{equation}
   \mathcal T_n^{\mathrm{new}}
-  :=
+  \coloneqq
   \operatorname{refine}(\mathcal T_n,M_n).
   \label{eq:slabwise-spatial-refinement}
 \end{equation}

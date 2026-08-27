@@ -11,7 +11,7 @@ In many partial differential equation (PDE) problems, the numerical solution is 
 \end{equation}
 that encodes why the simulation is being run in the first place, where $U$ is the state space. If $u\in U$ is the exact solution and $u_h$ is a finite element approximation, the error relevant to the stated purpose of the computation is
 \begin{equation}
-  e_J:=J(u)-J(u_h).
+  e_J\coloneqq J(u)-J(u_h).
   \label{eq:intro-goal-error}
 \end{equation}
 For an evolution problem, $J$ may describe a terminal observation, an accumulated response over time, or a combination of the two, and it may be linear or nonlinear in the state.
