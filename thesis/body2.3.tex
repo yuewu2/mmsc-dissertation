@@ -98,9 +98,10 @@ The complete solve--estimate--mark--refine cycle is summarised in \cref{alg:comp
 \subsection{Primal, Goal, and Adjoint Solves}
 \label{sec:primal-goal-adjoint-solves}
 
-The time-dependent problems are supplied as semidiscrete UFL residuals. Firedrake provides the spatial finite-element spaces and variational solvers, while Irksome's \texttt{TimeStepper} uses these residuals to construct and solve the coupled stage systems associated with the chosen discontinuous Galerkin time discretisation \cite{andrews2026automatedgalerkintimestepping}.
+The time-dependent problems are supplied as semidiscrete UFL residuals using Firedrake and Irksome. Firedrake provides the spatial finite-element spaces and variational solvers, while Irksome's \texttt{TimeStepper} makes the fully-discrete variational problems by applying the chosen discontinuous Galerkin time discretisation \cite{andrews2026automatedgalerkintimestepping}.
 
 \textcolor{blue}{Using pyadjoint and discard the current ufl-generated adjoint solver would be a better idea for automation. Should I rerun the experiments and so only pyadjoint would be included here? or maybe I'll list this as a future work that will be carried out soon}
+\pef{Ideally all the adjoint calculations would be automated}
 
 Most of the experiments use an explicit UFL-generated adjoint implementation. In compact form, the discrete adjoint satisfies
 \[
@@ -112,7 +113,8 @@ Terminal and running contributions to the goal functional are handled separately
 
 A fully automated alternative is provided by \texttt{firedrake-adjoint}, following the high-level discrete-adjoint methodology of \cite{Farrell_Ham_Funke_Rognes_2013} and implemented using Pyadjoint \cite{Mitusch2019}. It records the forward operations on a tape and traverses them in reverse to generate the corresponding discrete adjoint. This removes the need to write an explicit reverse-time solver.
 
-The current implementation retains the complete forward trajectory in memory. For longer simulations, checkpointing could store only selected forward states and recompute intermediate states during the reverse traversal, reducing memory consumption at the cost of additional forward computation.
+The current implementation retains the complete forward trajectory in memory. For longer simulations, Firedrake's automated adjoint derivation supports checkpointing, which stores only selected forward states and recomputes intermediate states during the reverse traversal. This reduces memory consumption at the cost of additional forward computation.
+\pef{Cite Griewank \& Walther doi:10.1145/347837.347846}
 
 % https://www.firedrakeproject.org/checkpointing.html#using-checkpointing-in-adjoint-simulations
 
@@ -152,6 +154,7 @@ The reverse propagation is determined by the same discrete forward operator. Let
   \forall w\in V_{n-1},\quad z_n\in V_n.
   \label{eq:mass-adjoint-transfer-definition}
 \end{equation}
+\pef{I think the notation $M_n$ is new? Before it was $m$}
 In coefficient form,
 \begin{equation}
   P_{n-1}^{\ast}
