@@ -1,10 +1,9 @@
 \section{Marking and Refinement}
 \label{sec:marking-refinement}
-\pef{This section is missing a key piece. As you know, D\"orfler marking as given in the literature would tell us to refine some space--time cells. But we want to retain the tensor product structure of our space--time mesh, as it's much more efficient than a fully unstructured mesh in time. So we have to adapt D\"orfler marking. Explain this first, then state your algorithm. I'll move on to the next section on the assumption this will be rewritten.}
 
-The localised DWR contributions defined in \cref{sec:space-time-local-indicator-construction} are associated with space--time cells \(Q_{K,n}=K\times I_n\). We aim to retain the tensor product structure of our space–time mesh, while allowing the spatial mesh to vary from slab to slab. A standard D\"orfler marking strategy, which would select a collection of individual space--time cells for refinement \cite{Dorfler1996}, is not directly compatible with the purpose. 
+The localised DWR contributions defined in \cref{sec:space-time-local-indicator-construction} are associated with space--time cells \(Q_{K,n}=K\times I_n\). Applying a standard marking strategy like D\"orfler marking \cite{Dorfler1996} would lead to an unstructured mesh in space-time. However, we aim to retain the tensor product structure of our space–time mesh, while allowing the spatial mesh to vary from slab to slab, as this allows for standard timestepping. We therefore need to devise a specialised marking strategy. 
 
-We therefore apply D\"orfler marking to the space--time entities \((K,n)\), while separating the resulting refinement decisions into spatial and temporal components. For \(\eta_{K,n}\) denoting the signed local DWR contribution associated with \(Q_{K,n}\), we define
+We separate the our refinement decisions into spatial and temporal components. With \(\eta_{K,n}\) denoting the signed local DWR contribution associated with \(Q_{K,n}\), we denote their absolute values
 \begin{equation}
   s_{K,n}\coloneqq |\eta_{K,n}|,
   \qquad
@@ -13,7 +12,7 @@ We therefore apply D\"orfler marking to the space--time entities \((K,n)\), whil
   \label{eq:marking-activity}
 \end{equation}
 
-For a prescribed bulk parameter \(\theta\in(0,1]\), the global space--time marking set \(\mathcal M_{\mathrm{st}}\) is chosen as the smallest set of pairs \((K,n)\) satisfying
+We prescribe the D\"orfler marking parameter \(\theta\in(0,1]\), denoting the fraction of the total sum that should be reached by the refinement. The global space--time marking set \(\mathcal M_{\mathrm{st}}\) is then chosen as the smallest set of pairs \((K,n)\) satisfying
 \begin{equation}
   \sum_{(K,n)\in\mathcal M_{\mathrm{st}}}s_{K,n}
   \ge \theta S.
@@ -89,8 +88,6 @@ The complete solve--estimate--mark--refine cycle is summarised in \cref{alg:comp
 The time-dependent problems are supplied as semidiscrete UFL residuals using Firedrake and Irksome. Firedrake provides the spatial finite-element spaces and variational solvers, while Irksome's \texttt{TimeStepper} makes the fully-discrete variational problems by applying the chosen discontinuous Galerkin time discretisation \cite{andrews2026automatedgalerkintimestepping}.
 
 % \textcolor{blue}{Using pyadjoint and discard the current ufl-generated adjoint solver would be a better idea for automation. Should I rerun the experiments and so only pyadjoint would be included here? or maybe I'll list this as a future work that will be carried out soon}
-\pef{Ideally all the adjoint calculations would be automated}
-
 The present implementation constructs the discrete adjoint explicitly from the UFL representation. In compact form, the discrete adjoint satisfies
 \[
   \mathcal F_h'(U_h)^*Z_h=J_h'(U_h).
@@ -99,10 +96,9 @@ UFL \texttt{derivative} constructs the linearisation of the primal residual, \te
 
 Terminal and running contributions to the goal functional are handled separately because they enter the reverse-time problem differently. The derivative of a terminal goal determines the final adjoint state, whose sensitivity is subsequently propagated through all preceding slabs. The derivative of a running goal instead acts as a source throughout the backward solve. Both derivatives are generated symbolically from the user-supplied UFL goal forms.
 
-A more fully automated alternative is provided by \texttt{firedrake-adjoint}, following the high-level discrete-adjoint methodology of \cite{Farrell_Ham_Funke_Rognes_2013} and implemented using Pyadjoint \cite{Mitusch2019}. It records the forward operations on a tape and traverses them in reverse to generate the corresponding discrete adjoint. This removes the need to write an explicit reverse-time solver.
+%A more fully automated alternative is provided by \texttt{firedrake-adjoint}, following the high-level discrete-adjoint methodology of \cite{Farrell_Ham_Funke_Rognes_2013} and implemented using Pyadjoint \cite{Mitusch2019}. It records the forward operations on a tape and traverses them in reverse to generate the corresponding discrete adjoint. This removes the need to write an explicit reverse-time solver.
 
-The current implementation retains the complete forward trajectory in memory. For longer simulations, Firedrake's automated adjoint derivation supports checkpointing, which stores only selected forward states and recomputes intermediate states during the reverse traversal. This reduces memory consumption at the cost of additional forward computation.\cite{checkpointing}
-\pef{Cite Griewank \& Walther doi:10.1145/347837.347846}
+The current implementation retains the complete forward trajectory in memory. For longer simulations, Firedrake's automated adjoint derivation supports checkpointing, which stores only selected forward states and recomputes intermediate states during the reverse traversal. This reduces memory consumption at the cost of additional forward computation. \cite{checkpointing}
 
 % https://www.firedrakeproject.org/checkpointing.html#using-checkpointing-in-adjoint-simulations
 

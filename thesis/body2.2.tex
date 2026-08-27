@@ -4,7 +4,6 @@
 \Cref{sec:introduction-localisation} motivated a decomposition of the global DWR estimator into computable local contributions. Elementwise integration by parts (IBP) gives strong cell residuals, flux jumps, and boundary residuals, but its derivation depends on the differential operator and boundary conditions. 
 % Partition-of-unity (PU) localisation inserts functions \(\{\chi_i\}_{i=1}^M\), with \(\sum_i\chi_i=1\), into the weak residual and associates the resulting terms with basis functions or patches \cite{Richter_Wick_2015}. This is effective for stationary and space--time adaptivity \cite{ThieleWick2024,R6,non-flow}, but a single patch contribution may combine several residual mechanisms.
 Partition-of-unity localisation distributes the global DWR estimator through locally supported functions \(\{\chi_i\}_{i=1}^{M}\) satisfying \(\sum_i\chi_i=1\). For example, in the constructions considered in \cite{Richter_Wick_2015,ThieleWick2024,R6}, the resulting quantities are naturally associated with nodes, degrees of freedom, or temporal elements. These PU contributions have a valid variational interpretation, but they are not generally tied to a geometric residual mechanism. In particular, since a single PU function may overlap several spatial elements and temporal interfaces, its contribution may combine different components of the residual. An additional redistribution or marking rule is therefore needed to convert the PU contributions into indicators for specific space--time mesh entities.
-\pef{Maybe continue: This means it is difficult to use the information extracted to decide which parts of the spacetime mesh to refine. ?}
 
 The present construction pursues a more geometrically resolved decomposition. It probes the weak residual with polynomial functions supported on individual cells, spatial facets, temporal faces, and, when present, mixed space--time ridges. The resulting coefficients separate the residual mechanisms according to their geometric support, while still being recovered directly from UFL evaluations of the weak residual in \texttt{Firedrake}. Thus no problem-specific strong residual or hand-derived flux-jump formula is needed. This approach is motivated by the stationary bubble--cone construction of Rognes and Logg \cite{Rognes_Logg_2013}; our contribution is its extension below to discontinuous Galerkin discretisations in time.
 
@@ -210,7 +209,7 @@ Let \(V\) be a spatial trial and test space. We now consider an evolution proble
   \qquad\forall v\in V,\quad t\in(0,T),
   \label{eq:abstract-evolution-problem}
 \end{equation}
-with \(u(0)=u_0\). Here \(m\) is the time-derivative pairing, \(\mathfrak a\) contains the remaining spatial and possibly nonlinear terms \pef{This is a change of notation, before $a$ was linear, maybe use a different letter? I don't feel strongly}, and \(\ell\) is the load functional. Denote
+with \(u(0)=u_0\). Here \(m\) is the time-derivative pairing, \(\mathfrak a\) contains the remaining spatial and possibly nonlinear terms, and \(\ell\) is the load functional. Denote
 \begin{equation}
   I_n=(t_{n-1},t_n],
   \qquad k_n=t_n-t_{n-1},
@@ -227,8 +226,6 @@ On \(I_n\), trial and test functions are time polynomials with values in a spati
   \llbracket U \rrbracket^n\coloneqq U^{n+}-U^{n-}.
   \label{eq:dg-time-traces}
 \end{equation}
-\pef{I prefer $\llbracket U \rrbracket$ for dG jump notation, but I don't feel strongly}
-
 For matching spatial spaces, the global dG semilinear form can be written as
 \begin{align}
   \mathcal A(U)(W)
@@ -240,8 +237,6 @@ For matching spatial spaces, the global dG semilinear form can be written as
   +m(U^{0+}-u_0,W^{0+}).
   \label{eq:global-dg-semilinear-form}
 \end{align}
-\pef{$V$ was previously used as the spatial space, so this notation clashes.}
-\yue{$V$ is retained for space, this one is replaced by W}
 The discrete problem is \(\mathcal A(U_h)(W_h)=0\) for all discrete tests. Throughout this chapter we use the convention
 \begin{equation}
   \rho(U)(W)\coloneqq-\mathcal A(U)(W).
@@ -618,7 +613,7 @@ where, by the adjoint-residual definition in~\eqref{eq:nonlinear-adjoint-residua
    -\mathcal A'(u_h)(\varphi,z_h).
   \label{eq:general-adjoint-residual-functional}
 \end{equation}
-Both maps in \eqref{eq:two-recovered-residual-functionals} are linear in their displayed arguments. We can therefore apply the bubble recovery developed above twice, once to \(\mathscr R^{\mathrm p}\) and once to \(\mathscr R^{\mathrm a}\). In the present implementation, the two reconstructions use the same entity-wise recovery spaces introduced in assumption~(A3) and the same local test families, but solve two independent problems for two different weak functionals. Note that the two recovery spaces could be enriched independently if necessary.
+Both maps in \eqref{eq:two-recovered-residual-functionals} are linear in their displayed arguments. We can therefore apply the bubble recovery developed above twice, once to \(\mathscr R^{\mathrm p}\) and once to \(\mathscr R^{\mathrm a}\). In the present implementation, the two reconstructions use the same entity-wise recovery spaces introduced in assumption~(A3) and the same local test families, but solve two independent problems for two different residuals. Note that the two recovery spaces could be enriched independently if necessary.
 
 In the implementation, let \(\psi\) denote a local bubble or cone test function. Time needs to be treated separately through the reference-slab coordinate
 \[
@@ -629,18 +624,17 @@ The code must supply the physical time derivative explicitly:
   \partial_t\psi=\frac{1}{k_n}\partial_\tau\psi.
 \]
 Once \(\psi\) and \(\partial_t\psi\) have been supplied, all spatial derivatives appearing in the weak functional are handled automatically by UFL.
-\pef{I don't understand this. Why don't you just apply the same machinery to the adjoint residual? You need both for the localised error estimate?}
-
+\pef{Why does the code need to supply the physical time derivative explicitly?}
 
 
 \subsection{Construction of the Space--Time Error Indicators}
 \label{sec:space-time-local-indicator-construction}
-\pef{I think at this point we need to explicitly define how we compute the cellwise indicators $\eta_{K,n}$? We've discussed extensively how to compute local approximations to the residuals, but not how we stitch them together for an actual error estimate? I'll assume this section is unwritten and move on to section 2.4.}
 
 We now combine the recovered densities with the DWR weights. For each entity
 \begin{equation*}
   E\in\{\mathrm{vol},\mathrm{sf},\mathrm{tf},\mathrm{xt}\},
 \end{equation*}
+\pef{say what these abbreviations mean.}
 the recovered primal- and adjoint-residual densities are paired with \(e_z\) and \(e_u\), respectively, to define \(\eta_{K,n}^{\mathrm p,E}\) and \(\eta_{K,n}^{\mathrm a,E}\). The correction contribution \(\eta_{K,n}^{\mathrm c,E}\) pairs the recovered primal-residual density with \(z_h\).
 
 For example, the volume terms are
