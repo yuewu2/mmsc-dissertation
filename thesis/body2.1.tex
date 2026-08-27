@@ -222,7 +222,7 @@ Equation~\eqref{eq:enriched-exact-splitting} shows that \(\eta^{(2)}\) differs f
 \label{eq:goal-saturation}
 \end{equation}
 which in general is very difficult to prove.
-Combining \cref{eq:enriched-exact-splitting,eq:goal-saturation} with the triangle inequality yields
+Combining \eqref{eq:enriched-exact-splitting} and \eqref{eq:goal-saturation} with the triangle inequality yields
 \begin{equation}
 \frac{1}{1+b_h}|\eta^{(2)}|
 \le |J(u)-J(\widetilde u)|
@@ -259,7 +259,8 @@ z^\star=z_h^+-I_hz_h^+,
 \end{equation}
 where \(I_hz_h^+\in V_h\) is an interpolation of the enriched adjoint. This avoids the additional low-order adjoint solve. 
 
-\textcolor{blue}{For the dual weight, my understanding is that both \(z_h^+-z_h \quad\text{and}\quad z_h^+-I_h z_h^+ \) are theoretically admissible. The first choice seems more natural,  but I'm not sure if it has any general accuracy advantage as an estimator}
+\yue{For the dual weight, my understanding is that both \(z_h^+-z_h \quad\text{and}\quad z_h^+-I_h z_h^+ \) are theoretically admissible. The first choice seems more natural,  but I'm not sure if it has any general accuracy advantage as an estimator}
+\pef{Maggie did some experiments and they both behave similarly, even when localised. I would use $z_h^+-I_h z_h^+$, there does not appear to be any gain to solving a low-order adjoint problem}
 
 When an independently computed reference value for \(J(u)\) is available, the accuracy of the global estimator is measured by the \emph{global effectivity index}
 \begin{equation}
@@ -268,4 +269,4 @@ I_{\mathrm{eff}}^{\mathrm{glob}}
 \frac{\eta}{J(u)-J(u_h)}.
 \label{eq:signed-effectivity}
 \end{equation}
-An effectivity index close to one indicates good agreement in the computed case \cite{Bangerth_Rannacher_2003}.
+An effectivity index close to one indicates good agreement. Extensive numerical experience with DWR indicates that when the enriched space is constructed by polynomial degree refinement the effectivity indices are typically very close to one.

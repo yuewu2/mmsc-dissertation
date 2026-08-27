@@ -67,7 +67,7 @@ The complete solve--estimate--mark--refine cycle is summarised in \cref{alg:comp
 \While{the stopping criterion is not satisfied}
   \State Build \(V_n\), the enriched spaces, \(P_n\), and \(P_n^\ast\) on the current slab meshes.
   \State Solve the primal problem forward and retain every dG slab polynomial.
-  \If{\cref{eq:practical-nonlinear-estimator} is used}
+  \If{\eqref{eq:practical-nonlinear-estimator} is used}
     \State Solve the enriched primal problem.
   \EndIf
   \State Solve the low-order and enriched adjoints backward, differentiating the PDE and the actual terminal/running goal functional, and applying \(P_n^\ast\) at mesh changes.
