@@ -5,7 +5,7 @@
 \section{Adaptive Finite Element Methods}
 \label{sec:background-afem}
 
-Let \(U\) and \(V\) be reflexive Banach spaces with dual spaces \(U^\ast\) and \(V^\ast\), respectively. Let \(\mathcal{A}:U\rightarrow V^\ast\) denote the weak residual operator associated with the problem. \pef{Give a quick example with the Poisson equation to make sure they understand you.} 
+Let \(U\) and \(V\) be reflexive Banach spaces with dual spaces \(U^\ast\) and \(V^\ast\), respectively. Let \(\mathcal{A}:U\rightarrow V^\ast\) denote the weak residual operator associated with the problem.
 For example, consider the Poisson problem
 \[
 -\Delta u=f \quad \text{in }\Omega,
@@ -160,8 +160,7 @@ Along the segment \(x_s=\widetilde x+s(x-\widetilde x)\), the fundamental theore
 The exact primal and adjoint equations make \(x\) a stationary point of \(\mathcal L\), so \(\mathcal L'(x)=0\). Expanding \(\mathcal L'(\widetilde x)\) in its primal and dual directions produces the primal residual \(\rho\) and adjoint residual \(\rho^\ast\); substituting the definition of \(\mathcal L\) gives the Galerkin correction in \eqref{eq:nonlinear-dwr-identity}. Expanding the third derivative gives \eqref{eq:nonlinear-dwr-remainder}. Complete algebraic details are given in, for example, \cite{Rannacher_2013,93,ENDTMAYER202419}.
 \end{proof}
 
-As previously mentioned, the term \(-\rho(\widetilde u)(\widetilde z)\) vanishes by Galerkin orthogonality when the discrete problems are solved exactly. Otherwise it can be used to balance e.g.~discretisation and errors in iterative solvers (Newton and/or Krylov iterations)\cite{Rannacher_2013}. \pef{Add relevant citation}
-\yue{citation added, but I have not find a specific statement referring to Newton or Krylov iterations}
+As previously mentioned, the term \(-\rho(\widetilde u)(\widetilde z)\) vanishes by Galerkin orthogonality when the discrete problems are solved exactly. Otherwise it can be used to balance e.g.~discretisation and errors in iterative solvers (Newton and/or Krylov iterations) \cite{Rannacher_2013}.
 
 If \(\mathcal A\) is affine and \(J\) is linear, then \(\mathcal R^{(3)}=0\), and the two half-residual terms coincide. To state the resulting linear identity explicitly, let \(a:U\times V\rightarrow\mathbb R\) be bilinear, \(\ell\in V^\ast\), and define
 \begin{align}
@@ -196,7 +195,6 @@ The residual measures the defect of \(u_h\) in the continuous variational proble
 
 Both identities above involve the unknown exact primal and adjoint solutions and are uncomputable. In practice these unknown solutions are replaced by approximations in enriched spaces, obtained, for example, by uniform \(h\)-refinement, \(p\)-enrichment, or a higher-order time approximation \cite{Becker_Rannacher_2001,ENDTMAYER202419}.
 
-\pef{I prefer the notation $U_h^+$ for enrichment, $^{(2)}$ gives the appearance that $U_h$ is degree 1, but it isn't necessarily} 
 Let \(U_h\subset U_h^+\subset U\) and \(V_h\subset V_h^+\subset V\), where \(U_h^+\) and \(V_h^+\) denote enriched approximation spaces. The enriched primal and adjoint problems are
 \begin{align}
   \mathcal{A}(u_h^+)(v_h^+)&=0
@@ -281,7 +279,7 @@ where we use the dual weight
 z^\star=z_h^+-I_hz_h^+
 \label{eq:computable-dwr-interpolated-weight}
 \end{equation}
-as a less expensive alternative. Here, \(z_h^+\in V_h^+\) is the enriched adjoint solution, and \(I_hz_h^+\in V_h\) denotes its interpolation into the current discrete space. The weight \(z^\star\) avoids the additional low-order adjoint solve. 
+as a less expensive alternative. Here, \(z_h^+\in V_h^+\) is the enriched adjoint solution, and \(I_hz_h^+\in V_h\) denotes its interpolation into the current discrete space. The weight \(z^\star\) avoids an additional low-order adjoint solve. 
 
 \yue{For the dual weight, my understanding is that both \(z_h^+-z_h \quad\text{and}\quad z_h^+-I_h z_h^+ \) are theoretically admissible. The first choice seems more natural,  but I'm not sure if it has any general accuracy advantage as an estimator}
 \pef{Maggie did some experiments and they both behave similarly, even when localised. I would use $z_h^+-I_h z_h^+$, there does not appear to be any gain to solving a low-order adjoint problem}
