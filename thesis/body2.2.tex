@@ -61,14 +61,15 @@ For \(F\in\mathcal F(K)\), let
   \label{eq:recovery-facet-cone}
 \end{equation}
 This cone function is the analogue of the bubble function on a facet. It is nonzero on the relative interior of \(F\), vanishes on every other facet, and remains nonzero inside \(K\).
-To test the facet residual using functions defined on the cell, we introduce the polynomial extension operator
+To test the facet residual using functions defined on the cell, we introduce a facet-to-cell lifting
 \[
 E_{K,F}:\mathbb P^q(F)\longrightarrow\mathbb P^q(K),
 \qquad
 (E_{K,F}\psi)|_F=\psi.
 \]
 Thus, \(E_{K,F}\) maps a polynomial defined on the facet \(F\) to a polynomial on \(K\) with the same trace on \(F\). We write \(\widetilde\psi:=E_{K,F}\psi.\)
-\pef{You need to introduce this operator, give it a name and say what it does.} Once the cell density \(R_{K}^B\) is recovered, the facet residual contribution \(R_{K,F}^B\in\mathbb P^q(F)\) is defined by solving the variational problem
+\pef{You need to introduce this operator, give it a name and say what it does.}
+\yue{is this an appropriate name?}Once the cell density \(R_{K}^B\) is recovered, the facet residual contribution \(R_{K,F}^B\in\mathbb P^q(F)\) is defined by solving the variational problem
 \begin{equation}
   \bigl(R_{K,F}^B,(\beta_{K,F}|_F)\psi\bigr)_F
   =
@@ -596,6 +597,7 @@ where $(u_h,z_h)$ are the low-order primal and adjoint approximations and $(u_h^
    -\rho(u_h)(z_h).
   \label{eq:localised-symmetric-nonlinear-dwr}
 \end{equation}
+\yue{Since we are neglecting the term $-\rho(u_h)(z_h)$ now, should we still have it included here and in the following constructions e.g., \cref{eq:complete-nonlinear-entity-indicator}?}
 
 Once $u_h$ and $z_h$ are fixed, introduce the two linear residual functionals
 \begin{equation}

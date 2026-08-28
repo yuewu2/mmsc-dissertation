@@ -119,9 +119,11 @@ The factor \(1/2\) assigns half of the flux jump to each of the two adjacent cel
 \end{align}
 where the final term is the jump of the dG solution across the incoming temporal interface.
 
-We apply this action to the dual weight \(z^\star=z_h^+-z_h\). The Cauchy--Schwarz inequality bounds each volume, spatial facet, and temporal-interface. To combine the terms supported on different-dimensional entities, \pef{Explain why these scalings, it sounds like you are choosing them, but you don't really have a choice?} 
+We apply this action to the dual weight \(z^\star=z_h^+-z_h\). The Cauchy--Schwarz inequality bounds the volume, spatial-facet, and temporal-interface terms separately. 
+% \pef{Explain why these scalings, it sounds like you are choosing them, but you don't really have a choice?} 
 \pef{Update: I think you should argue that these scalings make sure everything has the same units.}
-we use mesh-dependent residual and weight norms. For a spatial cell \(K\), the factor \(h_K\) compensates for the difference between the measures of \(K\) and its facets \(F\). Similarly, the factor \(k_n\) provides the corresponding scaling for a temporal interface. Hence, the dual-weight terms are multiplied by \(h_K^{1/2}\) and \(k_n^{1/2}\), while the residual terms carry the reciprocal factors \(h_K^{-1/2}\) and \(k_n^{-1/2}\). Define
+\yue{updated}
+Their norms are supported on sets of different dimensions and therefore cannot be added homogeneously without the corresponding mesh scales. Since \(|K|\simeq h_K|F|\), multiplying a facet weight norm by \(h_K^{1/2}\) gives the same measure scaling as a cell norm. The reciprocal factor \(h_K^{-1/2}\) on the facet residual preserves their product. Likewise, \(k_n^{1/2}\) converts a temporal-trace weight to the scaling of a space--time volume weight, while \(k_n^{-1/2}\) supplies the reciprocal residual scaling. Define
 \begin{subequations}
 \begin{align}
 \rho_{K,n}^{\mathrm{s}}
@@ -192,7 +194,7 @@ As stated in \cref{sec:nonlinear-adjoint-residual-localisation}, the entity-wise
 \subsection{Results and Interpretation}
 
 The manufactured moving-hill problem was solved on $\Omega=(0,1)^2$ over time interval $[0,1]$, starting from an $n_x \times n_y = 8 \times 8$ mesh in space and $N_t=8$ initial time slabs, and $\mathrm{cG}(1) \otimes \mathrm{dG}(0)$ primal and $\mathrm{cG}(2) \otimes \mathrm{dG}(1)$ enriched spaces. All estimators used the same quadrature rule (seven time quadrature points) and the nonlinear DWR identity for the quadratic running goal~\eqref{eq:mh-goal}. The D\"orfler marking fraction was set to $\theta=0.4$, the within-slab trigger $10\%$, and independent slabwise mesh refinement. Both adaptive sequences have nine reported levels.
-\pef{It feels inconsistent to use CG for continuous Galerkin but dG for discontinuous Galerkin. I suggest writing $\mathrm{cG}(1) \otimes \mathrm{dG}(0)$ etc}
+% \pef{It feels inconsistent to use CG for continuous Galerkin but dG for discontinuous Galerkin. I suggest writing $\mathrm{cG}(1) \otimes \mathrm{dG}(0)$ etc}
 
 \begin{table}[h]
 \centering
@@ -220,7 +222,7 @@ bubble automated & 8 & 841,127 & 75 & $-2.460\times 10^{-5}$ & $-2.455\times 10^
 \caption{Selected adaptive iterations for the manual strong-residual bound and the automated bubble--cone recovery.}
 \label{tab:moving-hill-selected-iterations}
 \end{table}
-\pef{In the table, maybe call strong manual, and bubble automated?}
+% \pef{In the table, maybe call strong manual, and bubble automated?}
 
 % trend, I_eff, DoF
 Table~\ref{tab:moving-hill-selected-iterations} shows the results for both residual localisations. From iteration $0$ to iteration $2$, both methods retain $N_t=8$ time slabs and the refinement is predominantly spatial. After temporal marking becomes active, the error decreases much more rapidly. For the strong-residual run, $N_t$ grows from $8$ at iteration $2$ to $43$ at iteration $6$, at which point the goal error is below $10^{-4}$. The automated run increases from $8$ to $37$ slabs over the same iterations and reaches below $10^{-4}$ as well. 

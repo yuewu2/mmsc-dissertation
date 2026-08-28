@@ -1,8 +1,9 @@
 \section{Incompressible Navier–Stokes Equations}
 \label{sec:cylinder-nonlinear-dwr}
 
-This final experiment extends the automated space--time framework to a nonlinear mixed problem: incompressible Navier--Stokes flow past a cylinder. It follows the tensor-product treatment of Roth et al.~\cite{non-flow}, while retaining the automated bubble recovery localisation developed in this thesis. 
+This final experiment extends the automated space--time framework to a nonlinear mixed problem: incompressible Navier--Stokes flow past a cylinder. 
 \pef{What specifically is borrowed from Roth?}
+The benchmark geometry is taken from \cite{benchmark,reference_value}, while the tensor-product space--time discretisation follows Roth et al.~\cite{non-flow}. More specifically, we use discontinuous Galerkin discretisation in time, Taylor--Hood finite elements \cite{TaylorHood} for the velocity--pressure pair, and a divergence-free projection \cite{projection} to transfer the velocity between successive spatial meshes. The automated bubble-recovery localisation and the resulting local error indicators are those developed in this thesis.
 
 
 \subsection{Problem and Quantity of Interest}
@@ -61,8 +62,9 @@ The quantity of interest is the time-mean drag on the cylinder,
  \boldsymbol n_C\bigr)\,\mathrm ds,
  \label{eq:cylinder-goal}
 \end{equation}
-where \(\boldsymbol n_C\) points from the cylinder into the fluid. We use the reference value \(J_{\mathrm{ref}}=1.6031368\).
+where \(\boldsymbol n_C\) points from the cylinder into the fluid. We use the reference value \(J_{\mathrm{ref}}=1.6031368\), which is reported in \cite{reference_value}.
 \pef{From Roth?}
+\yue{reference updated}
 
 
 \subsection{Implementation}
@@ -89,69 +91,65 @@ and the primal uses \(\mathrm{dG}(1)\) in time. Velocity and pressure are solved
 \end{equation}
 but not exactly incompressible.
 
-The enriched spaces used for the high-order adjoint are the continuous-Galerkin pair \(\mathrm{cG}4\otimes\mathrm{cG}2\),
-\pef{The natural enrichment would be to increase both polynomial degrees (for velocity and pressure) by one. The important point is that a differential operator applied to velocity maps you to a pressure, so their difference being one is the important thing, not the ratio between them.}
+The enriched spaces used for the high-order adjoint are the continuous-Galerkin pair \(\mathrm{cG}3\otimes\mathrm{cG}2\),
+% \pef{The natural enrichment would be to increase both polynomial degrees (for velocity and pressure) by one. The important point is that a differential operator applied to velocity maps you to a pressure, so their difference being one is the important thing, not the ratio between them.}
 \begin{equation}
- V^+_{h,n}=[\mathrm{cG}(4;\mathcal T_n)]^2,
+ V^+_{h,n}=[\mathrm{cG}(3;\mathcal T_n)]^2,
  \qquad Q^+_{h,n}=\mathrm{cG}(2;\mathcal T_n)\cap L^2_0(\Omega),
  \qquad \mathrm{dG}(2)\text{ in time}.
  \label{eq:cylinder-enriched-space}
 \end{equation}
 
-From our slabwise refinement strategy, spatial meshes may change from one slab to the next. A direct nodal interpolation of the outgoing velocity generally does not preserve the discretely divergence-free subspace associated with the receiving Taylor--Hood pair. Following the divergence-free transfer strategy considered by Roth et al.~\cite{non-flow}, the implemented forward transfer consists of two steps. First, the outgoing velocity trace is interpolated to the receiving velocity space,
-\begin{equation}
-  \boldsymbol{s}_n
-  :=
-  I_n\boldsymbol{u}^-,
-  \qquad
-  I_n:V_{h,n-1}\longrightarrow V_{h,n}.
-  \label{eq:cylinder-cross-mesh-interpolation}
-\end{equation}
-Second, \(\boldsymbol{s}_n\) is projected onto the discretely divergence-free subspace of the target Taylor--Hood pair.
-
-Let
-\begin{equation}
-  V_{h,n,0}
-  :=
-  \left\{
-    \boldsymbol{v}_h\in V_{h,n}:
-    \boldsymbol{v}_h=\boldsymbol{0}
-    \text{ on }\Gamma_D
-  \right\},
-\end{equation}
-and let \(V_{h,n,g}\) denote the corresponding affine velocity space satisfying the prescribed physical Dirichlet data \(g\). The transferred velocity and the auxiliary multiplier
+From our slabwise refinement strategy, spatial meshes may change from one slab to the next. A direct nodal interpolation of the outgoing velocity generally does not preserve the discretely divergence-free subspace associated with the receiving Taylor--Hood pair. Following the divergence-free transfer strategy described in \cite{projection} and its implementation in \cite{non-flow}, we define the transfer between consecutive time slabs as follows. Let
 \[
-  \bigl(P_n\boldsymbol{u}^-,\lambda_n\bigr)
-  \in V_{h,n,g}\times Q_{h,n}
+V_{h,n,0}
+:=
+\left\{
+\boldsymbol v_h\in V_{h,n}:
+\boldsymbol v_h=\boldsymbol 0
+\text{ on }\Gamma_D
+\right\},
 \]
-are obtained from
+and let \(V_{h,n,g}\) denote the affine velocity space satisfying the prescribed Dirichlet data \(g\). We first transfer the outgoing velocity trace to the new mesh by defining
+\[
+\boldsymbol{s}_n:=I_n\boldsymbol{u}^-,
+\qquad
+I_n:V_{h,n-1}\to V_{h,n}.
+\]
+The interpolated velocity \(\boldsymbol{s}_n\) is then projected onto the discretely divergence-free subset of \(V_{h,n,g}\). Specifically, we find
+\[
+\bigl(P_n\boldsymbol{u}^-,\lambda_n\bigr)
+\in V_{h,n,g}\times Q_{h,n}
+\]
+such that
 \begin{subequations}
-\label{eq:cylinder-stokes-projection}
-\begin{align}
-  \bigl(P_n\boldsymbol{u}^-,\boldsymbol{v}_n\bigr)_\Omega
-  -
-  \bigl(\lambda_n,\nabla\!\cdot\boldsymbol{v}_n\bigr)_\Omega
-  &=
-  \bigl(I_n\boldsymbol{u}^-,\boldsymbol{v}_n\bigr)_\Omega
-  &&
-  \forall\boldsymbol{v}_n\in V_{h,n,0},
-  \label{eq:cylinder-stokes-projection-a}
-  \\
-  \bigl(\nabla\!\cdot P_n\boldsymbol{u}^-,q_n\bigr)_\Omega
-  &=0
-  &&
-  \forall q_n\in Q_{h,n}.
-  \label{eq:cylinder-stokes-projection-b}
-\end{align}
+\begin{aligned}
+\bigl(P_n\boldsymbol{u}^-,\boldsymbol v_n\bigr)_\Omega
+-
+\bigl(\lambda_n,\nabla\cdot\boldsymbol v_n\bigr)_\Omega
+&=
+\bigl(\boldsymbol{s}_n,\boldsymbol v_n\bigr)_\Omega
+&&
+\forall \boldsymbol v_n\in V_{h,n,0},\\
+\bigl(\nabla\cdot P_n\boldsymbol{u}^-,q_n\bigr)_\Omega
+&=0
+&&
+\forall q_n\in Q_{h,n}.
+\end{aligned}
 \end{subequations}
-Thus, the implemented transfer operator is
+Here, \(\lambda_n\) is the Lagrange multiplier associated with the
+discrete divergence constraint. Let \(Q_{n,\mathrm{df}}^{L^2}\) denote the constrained \(L^2\)-projection onto the discretely divergence-free target set. When this projection is activated, the complete transfer is defined by
 \begin{equation}
-  P_n=Q_n^{L^2}I_n,
+P_n\boldsymbol{u}^-
+:=
+Q_{n,\mathrm{df}}^{L^2}
+\bigl(I_n\boldsymbol{u}^-\bigr).
 \end{equation}
-where \(Q_n^{L^2}\) denotes the constrained \(L^2\) projection on the target mesh. The multiplier \(\lambda_n\) is an auxiliary variable of the transfer problem and is not propagated as the physical pressure into the next slab.
+% Equivalently, at the operator level,
+% \[
+% P_n
+% =
+% Q_{n,\mathrm{df}}^{L^2}\circ I_n.
+% \]
 
-
-
-\subsection{Adaptive Results}
-\label{subsec:cylinder-nonlinear-results}
 

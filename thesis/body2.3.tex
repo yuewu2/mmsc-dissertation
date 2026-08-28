@@ -103,10 +103,13 @@ The current implementation retains the complete forward trajectory in memory. Fo
 % https://www.firedrakeproject.org/checkpointing.html#using-checkpointing-in-adjoint-simulations
 
 
-\subsection{Residual Localisation}
+\subsection{Residual Localisation and Refinement}
 
 The primal residual is localised using a hierarchical bubble--cone recovery. Firedrake's scalar Bubble (\texttt{B}) and FacetBubble (\texttt{FB}) element families provide the auxiliary cell-interior and facet-supported test functions, respectively \cite{Firedrake}.
 Temporal integration is performed using Gauss--Legendre quadrature, while the spatial forms are assembled by Firedrake using an explicitly selected quadrature degree.
+
+In the two-dimensional examples, the initial geometry-conforming meshes and the marked-cell spatial refinements are generated using \texttt{Netgen}.
+\yue{Add Netgen}
 
 % https://www.firedrakeproject.org/variational-problems.html
 
@@ -139,6 +142,7 @@ The reverse propagation is determined by the same discrete forward operator. Let
   \label{eq:mass-adjoint-transfer-definition}
 \end{equation}
 \pef{I think the notation $M_n$ is new? Before it was $m$}
+\yue{change to $m_n$}
 In coefficient form,
 \begin{equation}
   \mathbf P_{n-1}^{\ast} = \mathbf M_{n-1}^{-1} \mathbf P_{n-1}^{T} \mathbf M_n.

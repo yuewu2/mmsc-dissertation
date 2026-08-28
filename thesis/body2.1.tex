@@ -254,15 +254,16 @@ Combining \eqref{eq:enriched-exact-splitting} and \eqref{eq:goal-saturation} wit
 \end{equation}
 Hence, under saturation, the computable estimator \(\eta^+\) bounds the unknown goal error from both sides. The upper bound gives reliability, since the estimator cannot substantially underestimate the error. The lower bound gives efficiency, since it cannot substantially overestimate it. \cite{reli_eff}
 
-In the computations, the cubic remainder in \eqref{eq:enriched-nonlinear-dwr} will be omitted. This gives the practical nonlinear estimator
+\yue{omit the iteration term now}
+In the computations, both the cubic remainder and the negligible algebraic correction in \cref{eq:enriched-nonlinear-dwr} are omitted. This gives the practical symmetric nonlinear estimator
 \begin{equation}
 \eta_{\mathrm{global}}
 \coloneqq
 \frac12\rho(u_h)(z_h^+-z_h)
 +
-\frac12\rho^\ast(u_h,z_h)(u_h^+-u_h)
--
-\rho(u_h)(z_h),
+\frac12\rho^\ast(u_h,z_h)(u_h^+-u_h),
+% -
+% \rho(u_h)(z_h),
 \label{eq:practical-nonlinear-estimator}
 \end{equation}
 where \(u_h\) and \(z_h\) are the primal and adjoint solutions on the current discretisation, while \(u_h^+\) and \(z_h^+\) are their enriched counterparts.
@@ -281,13 +282,13 @@ z^\star=z_h^+-I_hz_h^+
 \end{equation}
 as a less expensive alternative. Here, \(z_h^+\in V_h^+\) is the enriched adjoint solution, and \(I_hz_h^+\in V_h\) denotes its interpolation into the current discrete space. The weight \(z^\star\) avoids an additional low-order adjoint solve. 
 
-\yue{For the dual weight, my understanding is that both \(z_h^+-z_h \quad\text{and}\quad z_h^+-I_h z_h^+ \) are theoretically admissible. The first choice seems more natural,  but I'm not sure if it has any general accuracy advantage as an estimator}
-\pef{Maggie did some experiments and they both behave similarly, even when localised. I would use $z_h^+-I_h z_h^+$, there does not appear to be any gain to solving a low-order adjoint problem}
-\yue{I stated that for linear estimator we should use the interpolation. HOwever, for the nonlinear DWR estimator, since $u_h$ and $z_h$ need to be solved, so using $z_h^+ - z_h$ seems reasonable?
+% \yue{For the dual weight, my understanding is that both \(z_h^+-z_h \quad\text{and}\quad z_h^+-I_h z_h^+ \) are theoretically admissible. The first choice seems more natural,  but I'm not sure if it has any general accuracy advantage as an estimator}
+% \pef{Maggie did some experiments and they both behave similarly, even when localised. I would use $z_h^+-I_h z_h^+$, there does not appear to be any gain to solving a low-order adjoint problem}
+% \yue{I stated that for linear estimator we should use the interpolation. HOwever, for the nonlinear DWR estimator, since $u_h$ and $z_h$ need to be solved, so using $z_h^+ - z_h$ seems reasonable?
 
-I also just realise that I'm using equation (2.23) for linear global estimator all the time, which excludes the iteration error term. But many literature omit that term as well. Would including this term be a more appropriate choice? (I have this term included in nonlinear estimator)}
-\pef{I would say when we discuss how that term vanishes when Galerkin orthogonality holds, we should say that we will solve all the discrete problems to a sufficiently small tolerance so that this term is negligible. Then we can omit it in practice from both.}
-\pef{And you can still avoid the low-order adjoint solve in the nonlinear case, by only using the primal residual. In this case the error in the estimate becomes quadratic rather than cubic. I don't suggest we do this, though.}
+% I also just realise that I'm using equation (2.23) for linear global estimator all the time, which excludes the iteration error term. But many literature omit that term as well. Would including this term be a more appropriate choice? (I have this term included in nonlinear estimator)}
+% \pef{I would say when we discuss how that term vanishes when Galerkin orthogonality holds, we should say that we will solve all the discrete problems to a sufficiently small tolerance so that this term is negligible. Then we can omit it in practice from both.}
+% \pef{And you can still avoid the low-order adjoint solve in the nonlinear case, by only using the primal residual. In this case the error in the estimate becomes quadratic rather than cubic. I don't suggest we do this, though.}
 
 
 When an independently computed reference value for \(J(u)\) is available, the accuracy of the global estimator is measured by the \emph{global effectivity index}

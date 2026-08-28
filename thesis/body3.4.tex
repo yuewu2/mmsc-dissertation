@@ -62,7 +62,7 @@ J_2(u_{\mathrm{ex}})=5.2366347\times10^{-5}.
 % High-order tensor-product Gauss quadrature applied to the analytic gradient of \eqref{eq:lshape-exact} gives
 
 For the following experiments, the primal space is set to be $\mathrm{cG}(1) \otimes \mathrm{dG}(0)$, and both the enriched primal and adjoint use $\mathrm{cG}(2) \otimes \mathrm{dG}(1)$.
-\pef{Format spaces consistently in all examples}
+% \pef{Format spaces consistently in all examples}
 
 
 \subsection{Global Terminal Goal}
@@ -219,9 +219,9 @@ The adaptive sequence reduces the error much more rapidly than uniform refinemen
 % \end{equation*}
 % equals $0.1296<1$ at iterate~6, where the enriched approximation is clearly more accurate, but increases to $1.382>1$ at iterate~7. At the latter level the low-order goal error has crossed zero and has the very small magnitude $1.561\times10^{-7}$, whereas the enriched goal lies on the opposite side of the exact value with error $2.157\times10^{-7}$. Enrichment no longer reduces the goal error, and the saturation-based estimate is not guaranteed. This suggested that the enriched problem should be strengthened, for example by increasing its spatial or temporal polynomial degree, if further accuracy is required.
 
-\yue{does this make sense? though Ieff is incorrect but the error is indeed decreasing}
-\pef{It is somewhat surprising, I think this is the first time I have seen the saturation assumption fail!}
-\yue{fixed! but goal error increases from 6 to 7. I excluded ite 7 in Fig 3.10 for now. refined meshes below still uses ite 7}
+% \yue{does this make sense? though Ieff is incorrect but the error is indeed decreasing}
+% \pef{It is somewhat surprising, I think this is the first time I have seen the saturation assumption fail!}
+\yue{the goal error increases from ite. 6 to 7. I excluded ite 7 in Fig 3.10 for now, but I don't know how to explain this}
 
 Finally, \cref{fig:lshape-j1-meshes} show the two-dimensional adapted meshes at different times.
 \begin{figure}[htbp]
