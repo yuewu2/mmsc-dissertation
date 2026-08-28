@@ -119,7 +119,17 @@ The factor \(1/2\) assigns half of the flux jump to each of the two adjacent cel
 \end{align}
 where the final term is the jump of the dG solution across the incoming temporal interface.
 
-We apply this action to the dual weight \(z^\star=z_h^+-z_h\). The Cauchy--Schwarz inequality bounds each volume, spatial facet, and temporal-interface. To combine the terms supported on different-dimensional entities, the facet contributions are scaled by \(h_K^{-1/2}\) and \(h_K^{1/2}\), respectively, while the temporal jump contribution is scaled by \(k_n^{-1/2}\) and \(k_n^{1/2}\). \pef{Explain why these scalings, it sounds like you are choosing them, but you don't really have a choice?} Define
+We apply this action to the dual weight \(z^\star=z_h^+-z_h\). The Cauchy--Schwarz inequality bounds each volume, spatial facet, and temporal-interface. To combine the terms supported on different-dimensional entities, the facet contributions are scaled by \(h_K^{-1/2}\) and \(h_K^{1/2}\), respectively, while the temporal jump contribution is scaled by \(k_n^{-1/2}\) and \(k_n^{1/2}\). \pef{Explain why these scalings, it sounds like you are choosing them, but you don't really have a choice?} 
+
+
+
+
+
+
+
+
+
+Define
 \begin{subequations}
 \begin{align}
 \rho_{K,n}^{\mathrm{s}}
@@ -165,7 +175,7 @@ It provides a non-negative measure of the goal error associated to each space--t
 
 
 \paragraph{Automated localisation.}
-The automated method instead reconstructs the weak residual directly from its action on local bubble and cone test functions. For the present $\mathrm{CG}(1)\times\mathrm{dG}(0)$ heat discretisation, the recovered residual has three relevant supporting entities: a volume contribution on $K\times I_n$, a spatial-facet contribution on $F\times I_n$, and a left temporal-face contribution on $K\times\{t_{n-1}\}$. Their cell--slab contribution is
+The automated method instead reconstructs the weak residual directly from its action on local bubble and cone test functions. For the present $\mathrm{cG}(1) \otimes \mathrm{dG}(0)$ heat discretisation, the recovered residual has three relevant supporting entities: a volume contribution on $K\times I_n$, a spatial-facet contribution on $F\times I_n$, and a left temporal-face contribution on $K\times\{t_{n-1}\}$. Their cell--slab contribution is
 \begin{equation}
   \eta_{K,n}
   =
@@ -189,42 +199,44 @@ As stated in \cref{sec:nonlinear-adjoint-residual-localisation}, the entity-wise
 
 \subsection{Results and Interpretation}
 
-The manufactured moving-hill problem was solved on $\Omega=(0,1)^2$ over time interval $[0,1]$, starting from an $n_x \times n_y = 8 \times 8$ mesh in space and $N_t=8$ initial time slabs, and $\mathrm{CG}(1)\mathrm{dG}(0)$ primal and $\mathrm{CG}(2)\mathrm{dG}(1)$ enriched spaces. All estimators used the same quadrature rule (seven time quadrature points) and the nonlinear DWR identity for the quadratic running goal~\eqref{eq:mh-goal}. The D\"orfler marking fraction was set to $\theta=0.4$, the within-slab trigger $10\%$, and independent slabwise mesh refinement. Both adaptive sequences have nine reported levels.
+The manufactured moving-hill problem was solved on $\Omega=(0,1)^2$ over time interval $[0,1]$, starting from an $n_x \times n_y = 8 \times 8$ mesh in space and $N_t=8$ initial time slabs, and $\mathrm{cG}(1) \otimes \mathrm{dG}(0)$ primal and $\mathrm{cG}(2) \otimes \mathrm{dG}(1)$ enriched spaces. All estimators used the same quadrature rule (seven time quadrature points) and the nonlinear DWR identity for the quadratic running goal~\eqref{eq:mh-goal}. The D\"orfler marking fraction was set to $\theta=0.4$, the within-slab trigger $10\%$, and independent slabwise mesh refinement. Both adaptive sequences have nine reported levels.
 \pef{It feels inconsistent to use CG for continuous Galerkin but dG for discontinuous Galerkin. I suggest writing $\mathrm{cG}(1) \otimes \mathrm{dG}(0)$ etc}
 
 \begin{table}[h]
-  \centering
-  \begin{tabular}{llrrrrrr}
-    \toprule
-    method & iteration & $N_{\rm st}$ & $N_{\rm cell}$ & $N_t$
-           & $J(u_{\rm ex})-J(u_h)$ & $\eta_{\rm global}$ & $I_{\rm eff}^{\rm glob}$\\
-    \midrule
-    strong & 0 & 688     & 1,104   & 8  & $-1.638\mathrm{e}{-3}$ & $-1.517\mathrm{e}{-3}$ & 0.9262\\
-    strong & 2 & 1,036   & 1,800   & 8  & $-1.512\mathrm{e}{-3}$ & $-1.397\mathrm{e}{-3}$ & 0.9241\\
-    strong & 4 & 7,444   & 14,204  & 20 & $-3.579\mathrm{e}{-4}$ & $-3.504\mathrm{e}{-4}$ & 0.9789\\
-    strong & 6 & 45,923  & 90,258  & 43 & $-8.678\mathrm{e}{-5}$ & $-8.627\mathrm{e}{-5}$ & 0.9941\\
-    strong & 8 & 295,517 & 587,271 & 90 & $-2.079\mathrm{e}{-5}$ & $-2.075\mathrm{e}{-5}$ & 0.9982\\
-    \midrule
-    bubble & 0 & 688     & 1,104   & 8  & $-1.638\mathrm{e}{-3}$ & $-1.517\mathrm{e}{-3}$ & 0.9262\\
-    bubble & 2 & 1,281   & 2,290   & 8  & $-1.492\mathrm{e}{-3}$ & $-1.378\mathrm{e}{-3}$ & 0.9236\\
-    bubble & 4 & 9,008   & 17,366  & 18 & $-3.852\mathrm{e}{-4}$ & $-3.766\mathrm{e}{-4}$ & 0.9776\\
-    bubble & 6 & 59,663  & 117,833 & 36 & $-1.005\mathrm{e}{-4}$ & $-9.980\mathrm{e}{-5}$ & 0.9934\\
-    bubble & 8 & 401,953 & 800,335 & 72 & $-2.541\mathrm{e}{-5}$ & $-2.536\mathrm{e}{-5}$ & 0.9980\\
-    \bottomrule
-  \end{tabular}%
-  \caption{Selected adaptive iterations for the strong-residual bound and automated localisation. Here $N_{\rm st}=\sum_{n=1}^{N_t}\dim(\mathrm{CG}(1;\mathcal T_n))$, $N_{\rm cell}=\sum_{n=1}^{N_t}\#\mathcal T_n$.}
-  \label{tab:moving-hill-selected-iterations}
+\centering
+\small
+\begin{tabular}{llrrrrr}
+\toprule
+method & iteration & $N_{\rm cell}$ & $N_t$
+& $J(u_{\rm ex})-J(u_h)$
+& $\eta_{\rm global}$
+& $I_{\rm eff}^{\rm glob}$ \\
+\midrule
+strong manual & 0 & 1,104   & 8  & $-1.638\times 10^{-3}$ & $-1.517\times 10^{-3}$ & 0.9262 \\
+manual strong & 2 & 1,800   & 8  & $-1.512\times 10^{-3}$ & $-1.397\times 10^{-3}$ & 0.9241 \\
+manual strong & 4 & 14,204  & 20 & $-3.579\times 10^{-4}$ & $-3.504\times 10^{-4}$ & 0.9789 \\
+manual strong & 6 & 90,258  & 43 & $-8.678\times 10^{-5}$ & $-8.627\times 10^{-5}$ & 0.9941 \\
+manual strong & 8 & 587,271 & 90 & $-2.079\times 10^{-5}$ & $-2.075\times 10^{-5}$ & 0.9982 \\
+\midrule
+bubble automated & 0 & 1,104   & 8  & $-1.638\times 10^{-3}$ & $-1.517\times 10^{-3}$ & 0.9262 \\
+bubble automated & 2 & 2,286   & 8  & $-1.492\times 10^{-3}$ & $-1.378\times 10^{-3}$ & 0.9236 \\
+bubble automated & 4 & 16,257  & 17 & $-4.037\times 10^{-4}$ & $-3.945\times 10^{-4}$ & 0.9772 \\
+bubble automated & 6 & 122,941 & 37 & $-9.808\times 10^{-5}$ & $-9.744\times 10^{-5}$ & 0.9935 \\
+bubble automated & 8 & 841,127 & 75 & $-2.460\times 10^{-5}$ & $-2.455\times 10^{-5}$ & 0.9980 \\
+\bottomrule
+\end{tabular}
+\caption{Selected adaptive iterations for the manual strong-residual bound and the automated bubble--cone recovery.}
+\label{tab:moving-hill-selected-iterations}
 \end{table}
-\textcolor{blue}{or use a figure instead}
 \pef{In the table, maybe call strong manual, and bubble automated?}
 
 % trend, I_eff, DoF
-Table~\ref{tab:moving-hill-selected-iterations} shows the results for both residual localisations. From iteration $0$ to iteration $2$, both methods retain $N_t=8$ time slabs and the refinement is predominantly spatial. After temporal marking becomes active, the error decreases much more rapidly. For the strong-residual run, $N_t$ grows from $8$ at iteration $2$ to $43$ at iteration $6$, at which point the goal error is below $10^{-4}$. The automated run increases from $8$ to $36$ slabs over the same iterations and reaches $1.005\times10^{-4}$. 
+Table~\ref{tab:moving-hill-selected-iterations} shows the results for both residual localisations. From iteration $0$ to iteration $2$, both methods retain $N_t=8$ time slabs and the refinement is predominantly spatial. After temporal marking becomes active, the error decreases much more rapidly. For the strong-residual run, $N_t$ grows from $8$ at iteration $2$ to $43$ at iteration $6$, at which point the goal error is below $10^{-4}$. The automated run increases from $8$ to $37$ slabs over the same iterations and reaches below $10^{-4}$ as well. 
 % At the final reported iteration, the strong and automated methods attain goal errors of $2.079\times10^{-5}$ and $2.541\times10^{-5}$, respectively.
 
 Both effectivity indices approach one monotonically after time refinement becomes active. The convergence of $I_{\rm eff}$ to one confirms that the DWR identity correctly estimates the goal error.
 
-At iteration $8$, the strong-residual run uses 90 time slabs and $2.96\times10^5$ slabwise primal DoFs, whereas the bubble run uses 72 time slabs and $4.02\times10^5$ slabwise primal DoFs. Hence, for the present parameters, the strong-residual strategy attains a slightly smaller goal error with fewer slabwise unknowns. These counts also indicate a different allocation of the refinement budget. The strong-residual method performs more temporal refinement, but retains fewer spatial unknowns per slab on average, suggesting that its spatial refinement is concentrated in smaller regions. This interpretation is consistent with the mesh snapshots below, in which the strong-residual meshes exhibit compact refined patches around the rotating hill, whereas the automated meshes show a more spatially distributed refinement pattern.
+At iteration $8$, the strong-residual run uses 90 time slabs and $2.96\times10^5$ slabwise primal DoFs, whereas the bubble run uses 72 time slabs and $4.22\times10^5$ slabwise primal DoFs. Hence, for the present parameters, the strong-residual strategy attains a slightly smaller goal error with fewer slabwise unknowns. These counts also indicate a different allocation of the refinement budget. The strong-residual method performs more temporal refinement, but retains fewer spatial unknowns per slab on average, suggesting that its spatial refinement is concentrated in smaller regions. This interpretation is consistent with the mesh snapshots below, in which the strong-residual meshes exhibit compact refined patches around the rotating hill, whereas the automated meshes show a more spatially distributed refinement pattern.
 
 \begin{figure}[h]
   \centering
@@ -296,15 +308,15 @@ For both localisation methods, refinement follows the trajectory of the moving h
 
 By contrast, the automated indicator is formed by summing signed recovered contributions. Cancellations between these terms can reduce the indicator value of a cell. In addition, a recovered spatial-facet contribution is assigned to its neighbouring cells, spreading part of the indicator across the local mesh. The automated indicator is therefore more spatially distributed in this example, which produces the broader refined patches visible around the moving-hill trajectory.
 
-It is not surprising that the strong-residual method performs slightly better than the automated method in this example. However, the results motivate a componentwise marking alternative:
-\[
-m_{K,n}^{\mathrm{comp}}
-\coloneqq
-|\eta_{\mathrm{vol}}|
-+
-|\eta_{\mathrm{spatial}}|
-+
-|\eta_{\mathrm{temporal}}|.
-\]
-This modification prevents large entity contributions from being hidden by local sign cancellation and may therefore provide a more robust refinement indicator in cases where the recovered components have competing signs. However, it may also mark unexpected regions and increase computational cost, so its benefit must be assessed experimentally rather than assumed.
+% It is not surprising that the strong-residual method performs slightly better than the automated method in this example. However, the results motivate a componentwise marking alternative:
+% \[
+% m_{K,n}^{\mathrm{comp}}
+% \coloneqq
+% |\eta_{\mathrm{vol}}|
+% +
+% |\eta_{\mathrm{spatial}}|
+% +
+% |\eta_{\mathrm{temporal}}|.
+% \]
+% This modification prevents large entity contributions from being hidden by local sign cancellation and may therefore provide a more robust refinement indicator in cases where the recovered components have competing signs. However, it may also mark unexpected regions and increase computational cost, so its benefit must be assessed experimentally rather than assumed.
 \pef{I'd suggest cutting this last bit from `It is not surprising \dots'}

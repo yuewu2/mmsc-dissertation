@@ -39,7 +39,7 @@ For finite-dimensional spaces \(U_h\subset U\) and \(V_h\subset V\), a Galerkin 
 \end{equation}
 
 The development of adaptive finite element methods (AFEM) was inspired by the pioneering work of Babu\v{s}ka and Rheinboldt \cite{pioneer}. 
-To make an adaptive solver practically realisable, and to study the optimality of adaptive procedures, the basic AFEM algorithm is organised as a \textsc{Solve--Estimate--Mark--Refine} loop \cite{ENDTMAYER202419}:
+To make an adaptive solver practically realisable, and to study the optimality of adaptive procedures, the basic AFEM algorithm is organised as a \textsc{Solve--Estimate--Mark--Refine} loop \cite{carstensen2014axioms}:
 \begin{enumerate}
   \item \textsc{Solve} the differential equation on the current space--time discretisation.
   \item \textsc{Estimate} global estimator for the error quantity under consideration.
@@ -283,6 +283,10 @@ as a less expensive alternative. Here, \(z_h^+\in V_h^+\) is the enriched adjoin
 
 \yue{For the dual weight, my understanding is that both \(z_h^+-z_h \quad\text{and}\quad z_h^+-I_h z_h^+ \) are theoretically admissible. The first choice seems more natural,  but I'm not sure if it has any general accuracy advantage as an estimator}
 \pef{Maggie did some experiments and they both behave similarly, even when localised. I would use $z_h^+-I_h z_h^+$, there does not appear to be any gain to solving a low-order adjoint problem}
+\yue{I stated that for linear estimator we should use the interpolation. HOwever, for the nonlinear DWR estimator, since $u_h$ and $z_h$ need to be solved, so using $z_h^+ - z_h$ seems reasonable?
+
+I also just realise that I'm using equation (2.23) for linear global estimator all the time, which excludes the iteration error term. But many literature omit that term as well. Would including this term be a more appropriate choice? (I have this term included in nonlinear estimator)}
+
 
 When an independently computed reference value for \(J(u)\) is available, the accuracy of the global estimator is measured by the \emph{global effectivity index}
 \begin{equation}

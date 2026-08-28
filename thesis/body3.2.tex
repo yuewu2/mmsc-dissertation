@@ -154,7 +154,7 @@ where $\eta_{K,n}^{\mathrm{vol}}$ is the cell-interior contribution, $\eta_{K,n}
 
 \subsection{Results and Interpretation}
 
-In this numerical test, the initial discretisation contains $12$ spatial cells and $8$ time slabs. The primal solution and numerical dual use CG1 in space and dG0 in time. The enriched dual uses the corresponding higher-order space--time approximation. A marking parameter \(\theta=0.6\) is used and a time slab is bisected when the fraction of its marked spatial cells is at least \(15\%\).
+In this numerical test, the initial discretisation contains $12$ spatial cells and $8$ time slabs. The primal solution and numerical dual use cG1 in space and dG0 in time. The enriched dual uses the corresponding higher-order space--time approximation. A marking parameter \(\theta=0.6\) is used and a time slab is bisected when the fraction of its marked spatial cells is at least \(15\%\).
 
 First of all, \cref{fig:advection-diffusion-evolution} shows the evolution of the space--time mesh for the central sensor at $x_d=0.8$. Refinement is concentrated around the transported pulse and occurs in both the spatial and temporal directions.
 \begin{figure}[h]
@@ -175,7 +175,7 @@ First of all, \cref{fig:advection-diffusion-evolution} shows the evolution of th
     \centering
     \includegraphics[
       width=\linewidth
-    ]{figures/advection_diffusion_1d/mesh_x080_iter0.png}
+    ]{figures/advection_diffusion_1d/mesh_x080_iter.0000.png}
     \caption{Iteration 0.}
   \end{subfigure}
   \hfill
@@ -183,16 +183,16 @@ First of all, \cref{fig:advection-diffusion-evolution} shows the evolution of th
     \centering
     \includegraphics[
       width=\linewidth
-    ]{figures/advection_diffusion_1d/mesh_x080_iter2.png}
-    \caption{Iteration 2.}
+    ]{figures/advection_diffusion_1d/mesh_x080_iter.0004.png}
+    \caption{Iteration 4.}
   \end{subfigure}
   \hfill
   \begin{subfigure}[h]{0.30\textwidth}
     \centering
     \includegraphics[
       width=\linewidth
-    ]{figures/advection_diffusion_1d/mesh_x080_iter4.png}
-    \caption{Iteration 4.}
+    ]{figures/advection_diffusion_1d/mesh_x080_iter.0008.png}
+    \caption{Iteration 8.}
   \end{subfigure}
   \caption{Evolution of the space--time mesh for the Gaussian detector centred at $x_d=0.8$.}
   \label{fig:advection-diffusion-evolution}

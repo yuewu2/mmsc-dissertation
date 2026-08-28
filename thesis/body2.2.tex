@@ -1,11 +1,11 @@
 \section{Error Localisation Strategies}
 \label{sec:background-localisation}
 
-\Cref{sec:introduction-localisation} motivated a decomposition of the global DWR estimator into computable local contributions. Elementwise integration by parts (IBP) gives strong cell residuals, flux jumps, and boundary residuals, but its derivation depends on the differential operator and boundary conditions. 
-% Partition-of-unity (PU) localisation inserts functions \(\{\chi_i\}_{i=1}^M\), with \(\sum_i\chi_i=1\), into the weak residual and associates the resulting terms with basis functions or patches \cite{Richter_Wick_2015}. This is effective for stationary and space--time adaptivity \cite{ThieleWick2024,R6,non-flow}, but a single patch contribution may combine several residual mechanisms.
-Partition-of-unity localisation distributes the global DWR estimator through locally supported functions \(\{\chi_i\}_{i=1}^{M}\) satisfying \(\sum_i\chi_i=1\). For example, in the constructions considered in \cite{Richter_Wick_2015,ThieleWick2024,R6}, the resulting quantities are naturally associated with nodes, degrees of freedom, or temporal elements. These PU contributions have a valid variational interpretation, but they are not generally tied to a geometric residual mechanism. In particular, since a single PU function may overlap several spatial elements and temporal interfaces, its contribution may combine different components of the residual. An additional redistribution or marking rule is therefore needed to convert the PU contributions into indicators for specific space--time mesh entities.
-
-The present construction pursues a more geometrically resolved decomposition. It probes the weak residual with polynomial functions supported on individual cells, spatial facets, temporal faces, and, when present, mixed space--time ridges. The resulting coefficients separate the residual mechanisms according to their geometric support, while still being recovered directly from UFL evaluations of the weak residual in \texttt{Firedrake}. Thus no problem-specific strong residual or hand-derived flux-jump formula is needed. This approach is motivated by the stationary bubble--cone construction of Rognes and Logg \cite{Rognes_Logg_2013}; our contribution is its extension below to discontinuous Galerkin discretisations in time.
+\Cref{sec:introduction-localisation} motivated a decomposition of the global DWR estimator into computable local contributions. 
+% Elementwise integration by parts (IBP) gives strong cell residuals, flux jumps, and boundary residuals, but its derivation depends on the differential operator and boundary conditions. 
+% Partition-of-unity localisation distributes the global DWR estimator through locally supported functions \(\{\chi_i\}_{i=1}^{M}\) satisfying \(\sum_i\chi_i=1\). For example, in the constructions considered in \cite{Richter_Wick_2015,ThieleWick2024,R6}, the resulting quantities are naturally associated with nodes, degrees of freedom, or temporal elements. These PU contributions have a valid variational interpretation, but they are not generally tied to a geometric residual mechanism. In particular, since a single PU function may overlap several spatial elements and temporal interfaces, its contribution may combine different components of the residual. An additional redistribution or marking rule is therefore needed to convert the PU contributions into indicators for specific space--time mesh entities.
+\yue{Differenet ways of localisation have been discussed in Introductino.}
+The present construction pursues a geometrically resolved decomposition. It probes the weak residual with polynomial functions supported on individual cells, spatial facets, temporal faces, and, when present, mixed space--time ridges. The resulting coefficients separate the residual mechanisms according to their geometric support, while still being recovered directly from UFL evaluations of the weak residual in \texttt{Firedrake}. Thus no problem-specific strong residual or hand-derived flux-jump formula is needed. This approach is motivated by the stationary bubble--cone construction of Rognes and Logg \cite{Rognes_Logg_2013}; our contribution is its extension below to discontinuous Galerkin discretisations in time.
 
 
 \subsection{Stationary Bubble and Cone Projection}
@@ -615,15 +615,15 @@ where, by the adjoint-residual definition in~\eqref{eq:nonlinear-adjoint-residua
 \end{equation}
 Both maps in \eqref{eq:two-recovered-residual-functionals} are linear in their displayed arguments. We can therefore apply the bubble recovery developed above twice, once to \(\mathscr R^{\mathrm p}\) and once to \(\mathscr R^{\mathrm a}\). In the present implementation, the two reconstructions use the same entity-wise recovery spaces introduced in assumption~(A3) and the same local test families, but solve two independent problems for two different residuals. Note that the two recovery spaces could be enriched independently if necessary.
 
-In the implementation, let \(\psi\) denote a local bubble or cone test function. Time needs to be treated separately through the reference-slab coordinate
-\[
-  \tau=\frac{t-t_{n-1}}{k_n}.
-\]
-The code must supply the physical time derivative explicitly:
-\[
-  \partial_t\psi=\frac{1}{k_n}\partial_\tau\psi.
-\]
-Once \(\psi\) and \(\partial_t\psi\) have been supplied, all spatial derivatives appearing in the weak functional are handled automatically by UFL.
+% In the implementation, let \(\psi\) denote a local bubble or cone test function. Time needs to be treated separately through the reference-slab coordinate
+% \[
+%   \tau=\frac{t-t_{n-1}}{k_n}.
+% \]
+% The code must supply the physical time derivative explicitly:
+% \[
+%   \partial_t\psi=\frac{1}{k_n}\partial_\tau\psi.
+% \]
+% Once \(\psi\) and \(\partial_t\psi\) have been supplied, all spatial derivatives appearing in the weak functional are handled automatically by UFL.
 \pef{Why does the code need to supply the physical time derivative explicitly?}
 
 
@@ -635,7 +635,7 @@ We now combine the recovered densities with the DWR weights. For each entity
   E\in\{\mathrm{vol},\mathrm{sf},\mathrm{tf},\mathrm{xt}\},
 \end{equation*}
 \pef{say what these abbreviations mean.}
-the recovered primal- and adjoint-residual densities are paired with \(e_z\) and \(e_u\), respectively, to define \(\eta_{K,n}^{\mathrm p,E}\) and \(\eta_{K,n}^{\mathrm a,E}\). The correction contribution \(\eta_{K,n}^{\mathrm c,E}\) pairs the recovered primal-residual density with \(z_h\).
+where $\mathrm{vol}$ denotes the cell-volume entity $Q_{K,n}$, $\mathrm{sf}$ a spatial facet $F\times I_n$, $\mathrm{tf}$ the incoming temporal face $K\times\{t_{n-1}\}$, and $\mathrm{xt}$ the mixed space--time ridge $F\times\{t_{n-1}\}$, the recovered primal- and adjoint-residual densities are paired with \(e_z\) and \(e_u\), respectively, to define \(\eta_{K,n}^{\mathrm p,E}\) and \(\eta_{K,n}^{\mathrm a,E}\). The correction contribution \(\eta_{K,n}^{\mathrm c,E}\) pairs the recovered primal-residual density with \(z_h\).
 
 For example, the volume terms are
 \begin{align}

@@ -1,6 +1,5 @@
 \section{Benjamin--Bona--Mahony (BBM) Equation}
 \label{sec:bbm-experiment}
-\textcolor{blue}{this section is an earlier draft and hasnt been fully revised}
 
 In this section, we turn to a one-dimensional nonlinear BBM experiment. It tests the automated space--time localisation for a nonlinear dispersive equation, for which the nonlinear DWR identity is required. Moreover, it tests whether the entity recovery remains complete when the time derivative is paired through a spatial $H^1$ bilinear form rather than the spatial $L^2$ pairing used in the previous heat and advection--diffusion examples.
 
@@ -55,7 +54,7 @@ We take $L=100$, $c=0.5$, and $x_0=30$. The amplitude is one and the propagation
   s=\frac{1}{1-c^2}=\frac43.
   \label{eq:bbm-wave-speed}
 \]
-Thus the wave centre moves from $x_0=30$ to $x_0+sT=54$ at $T=18$. Throughout this interval the wave remains far from the periodic seam. 
+Thus the wave centre moves from $x_0=30$ to $x_0+sT=54$ at $T=18$.
 \pef{Does that matter?}
 % Its exponentially small tails therefore make the long periodic computation a close approximation to the solitary wave on the real line.
 
@@ -148,7 +147,7 @@ The first sum is supported on $K\times\{t_{n-1}\}$, the interior of a temporal f
 \end{equation}
 the intersection of a spatial facet and the temporal interface. This is the mixed space--time ridge. In one spatial dimension a facet $F$ is a point, so the mixed ridge appears as a zero-dimensional space--time corner in the $(x,t)$ diagram.
 
-For the present CG1 discretisation, $j_n$ is piecewise linear. Therefore
+For the present cG1 discretisation, $j_n$ is piecewise linear. Therefore
 \begin{equation*}
   \partial_{xx}j_n=0\quad\text{inside each cell},
   \qquad
@@ -162,19 +161,11 @@ The derivative part of the interface defect can consequently have a substantial 
 
 \subsection{Results and Interpretation}
 
-The global estimator uses the nonlinear DWR identity with the unknown cubic remainder omitted.
-\begin{equation}
-  \eta_{\mathrm{global}}
-  =\frac12\rho(u_h)(z_h^+-z_h)
-   +\frac12\rho^*(u_h,z_h)(u_h^+-u_h)
-   -\rho(u_h)(z_h).
-  \label{eq:bbm-nonlinear-estimator}
-\end{equation}
-The low-order and enriched spaces are, respectively,
+The global estimator uses the nonlinear DWR identity with the unknown cubic remainder omitted~\cref{eq:localised-symmetric-nonlinear-dwr}. The low-order and enriched spaces are, respectively,
 \begin{equation*}
-  V_h^{\mathrm{low}}=\mathrm{CG}(1)_x\otimes\mathrm{DG}(0)_t,
+  V_h^{\mathrm{low}}=\mathrm{dG}(1)_x\otimes\mathrm{dG}(0)_t,
   \qquad
-  V_h^+=\mathrm{CG}(2)_x\otimes\mathrm{DG}(1)_t.
+  V_h^+=\mathrm{dG}(2)_x\otimes\mathrm{dG}(1)_t.
   \label{eq:bbm-discrete-spaces}
 \end{equation*}
 We take the D\"orfler marking fraction as $0.35$ and bisect a time slab when at least $10\%$ of its spatial cells are selected. We have initially $50$ spatial cells and $6$ time slabs. The terminal time is set to be $T = 18$.
@@ -241,38 +232,45 @@ With the mixed ridge included, $|\delta_{\mathrm{loc}}|$ stays at floating-point
   \begin{subfigure}[b]{0.90\linewidth}
     \centering
     \includegraphics[width=\linewidth, height=0.25\textheight, keepaspectratio]{figures/bbm/bbm_mesh_iter_08.png}
-    \caption{Iteration 8: $856$ cells.}
+    \caption{Iteration 8: $843$ cells.}
   \end{subfigure}
   \vspace{0.5em}
 
   \begin{subfigure}[b]{0.90\linewidth}
     \centering
     \includegraphics[width=\linewidth, height=0.25\textheight, keepaspectratio]{figures/bbm/bbm_mesh_iter_12.png}
-    \caption{Iteration 12: $2816$ cells.}
+    \caption{Iteration 12: $2966$ cells.}
   \end{subfigure}
   \caption{Evolution of the independently refined slabwise space--time mesh.}
   \label{fig:bbm-mesh-evolution}
 \end{figure}
 
-Finally, selected iterations are listed in \cref{tab:bbm-results}. The goal error remains appreciable because a narrow nonlinear wave is transported over a long time interval on relatively modest meshes. The main estimator result is the improvement in effectivity from $0.7306$ to $0.9956$.
-\begin{table}[h]
+Finally, selected iterations are listed in \cref{tab:bbm-results}. The goal error remains appreciable because a narrow nonlinear wave is transported over a long time interval on relatively modest meshes. The main estimator result is the improvement in effectivity from $0.7306$ to $0.9298$.
+\begin{table}[htbp]
   \centering
+  % \small
+  \setlength{\tabcolsep}{4pt}
   \begin{tabular}{rrrrrrr}
     \toprule
-    Iter. & Cells & $N_t$ & Terminal DOFs & $J(u_h)$
-      & $|J_{\mathrm{ref}}-J(u_h)|$ & $I_{\mathrm{eff}}^{\rm glob}$ \\
+    Iter. & Cells & $N_t$ & Terminal DoFs & $|J_{\mathrm{ref}}-J(u_h)|$
+      & $I_{\mathrm{eff}}^{\mathrm{glob}}$ \\
     \midrule
-     0 &  300 &  6 &  50 & 0.548244 & 1.172006 & 0.730579 \\
-     6 &  465 &  7 &  68 & 0.576199 & 1.144052 & 0.764990 \\
-     8 &  856 & 11 &  82 & 0.704237 & 1.016014 & 0.890155 \\
-    10 & 1372 & 15 & 106 & 0.787125 & 0.933125 & 0.939198 \\
-    12 & 2816 & 26 & 123 & 0.980816 & 0.739434 & 0.995630 \\
+     0 &   300 &   6 &  50 & 1.172006 & 0.730579 \\
+     % 6 &   571 &   9 &  74 & 1.110802 & 0.765569 \\
+     8 &   843 &  12 &  83 & 1.041180 & 0.818794 \\
+    % 10 &  1653 &  20 & 101 & 0.862186 & 0.947709 \\
+    12 &  2966 &  31 & 126 & 0.751703 & 0.967864 \\
+    % 14 &  6694 &  57 & 163 & 0.540380 & 0.968159 \\
+    16 & 15926 & 111 & 194 & 0.364666 & 0.929799 \\
+    18 & 41682 & 226 & 279 & 0.232930 & 0.877563 \\
+    20 & 115015 & 452 & 425 & 0.158710 & 0.794674 \\
     \bottomrule
   \end{tabular}
   \caption{Selected iterations of the periodic BBM adaptive calculation.}
   \label{tab:bbm-results}
 \end{table}
 \pef{Can we do more adaptive iterations? These computations should be fairly cheap, I think?}
+\yue{More iterations are included in the table. The temporal bisection went crazy so I stopped at 20}
 
 % \begin{figure}[htbp]
 %   \centering
