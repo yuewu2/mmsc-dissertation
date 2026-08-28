@@ -3,3 +3,150 @@
 
 This final experiment extends the automated space--time framework to a nonlinear mixed problem: incompressible Navier--Stokes flow past a cylinder. It follows the tensor-product treatment of Roth et al.~\cite{non-flow}, while retaining the automated bubble recovery localisation developed in this thesis. 
 
+
+\subsection{Problem and Quantity of Interest}
+\label{subsec:cylinder-problem}
+
+Let
+\(
+  \Omega=((0,2.2)\times(0,0.41))\setminus\overline{B_{0.05}(0.2,0.2)}
+\)
+be the channel-with-cylinder domain, $I=(0,T)$, and take $T=8$ and viscosity \(\nu=10^{-3}\). The boundary is decomposed into the inlet \(\Gamma_{\mathrm{in}}\), channel walls and cylinder \(\Gamma_{\mathrm{wall}}\cup\Gamma_C\), and outlet \(\Gamma_{\mathrm{out}}\). We solve velocity and pressure \(U=(\boldsymbol u,p)\) satisfying
+\begin{subequations}
+\label{eq:cylinder-strong}
+\begin{align}
+  \partial_t\boldsymbol u+
+  (\boldsymbol u\!\cdot\!\nabla)\boldsymbol u
+  -\nu\Delta\boldsymbol u+\nabla p &= \boldsymbol 0
+  &&\text{in }\Omega\times I,\label{eq:cylinder-momentum}\\
+  \nabla\!\cdot\boldsymbol u &=0
+  &&\text{in }\Omega\times I.\label{eq:cylinder-continuity}
+\end{align}
+\end{subequations}
+The prescribed inflow is
+\begin{equation}
+ \boldsymbol u_{\mathrm{in}}(y,t)
+ =\left(
+  6\sin(\pi t/8)\frac{y(0.41-y)}{0.41^2},0
+ \right)^{T},
+ \label{eq:cylinder-inflow}
+\end{equation}
+with no slip on \(\Gamma_{\mathrm{wall}}\cup\Gamma_C\) and the natural traction condition at the outlet.  This is the nonstationary cylinder benchmark used by Roth et al.~\cite{non-flow}.
+
+For
+\[
+ V_g(t)=\{\boldsymbol v\in[H^1(\Omega)]^2:
+ \boldsymbol v=\boldsymbol g(t)\text{ on the essential boundary}\},
+ \qquad Q=L^2_0(\Omega),
+\]
+the weak spatial operator is
+\begin{align}
+ a(U;\Phi)={}&
+ ((\boldsymbol u\!\cdot\!\nabla)\boldsymbol u,\boldsymbol v)_\Omega
+ +\nu(\nabla\boldsymbol u,\nabla\boldsymbol v)_\Omega
+ -(p,\nabla\!\cdot\boldsymbol v)_\Omega
+  +(\nabla\!\cdot\boldsymbol u,q)_\Omega,
+ \label{eq:cylinder-spatial-operator}
+\end{align}
+where \(\Phi=(\boldsymbol v,q)\in V_0\times Q\). The complete weak problem adds \((\partial_t\boldsymbol u,\boldsymbol v)_\Omega\) and the initial-condition term.
+
+The quantity of interest is the time-mean drag on the cylinder,
+\begin{equation}
+ J(U)=\frac1T\int_0^T C_D(U(t))\,\mathrm dt,
+ \qquad
+ C_D(U)=20\int_{\Gamma_C}
+ \boldsymbol e_x\!\cdot\!\bigl((-pI+\nu\nabla\boldsymbol u)
+ \boldsymbol n_C\bigr)\,\mathrm ds,
+ \label{eq:cylinder-goal}
+\end{equation}
+where \(\boldsymbol n_C\) points from the cylinder into the fluid. We use the reference value \(J_{\mathrm{ref}}=1.6031368\).
+
+
+\subsection{Implementation}
+\label{subsec:cylinder-mixed-treatment}
+
+For the problem, pressure is a Lagrange multiplier for incompressibility. The semidiscrete system is a differential--algebraic equation with singular mixed mass operator
+\begin{equation}
+ \mathcal M=
+ \begin{pmatrix}M_u&0\\0&0\end{pmatrix}.
+ \label{eq:cylinder-dae-mass}
+\end{equation}
+Only velocity is propagated between time slabs.
+Following the mixed-order setting of~\cite{non-flow}, on each slab \(I_n=(t_{n-1},t_n)\) the primal spatial pair is the inf--sup stable continuous-Galerkin Taylor--Hood element. The velocity and pressure space can be denoted as 
+\begin{equation}
+ V_{h,n}=[\mathrm{cG}(2;\mathcal T_n)]^2,
+ \qquad Q_{h,n}=\mathrm{cG}(1;\mathcal T_n)\cap L^2_0(\Omega),
+ \label{eq:cylinder-taylor-hood}
+\end{equation}
+and the primal uses \(\mathrm{dG}(1)\) in time. Velocity and pressure are solved together. The resulting velocity is discretely incompressible:
+\begin{equation}
+ (\nabla\!\cdot\boldsymbol u_h,q_h)_\Omega=0
+ \qquad\forall q_h\in Q_{h,n}.
+ \label{eq:cylinder-discrete-divergence}
+\end{equation}
+
+The enriched spaces used for the high-order adjoint are the continuous-Galerkin pair \(\mathrm{cG}4\otimes\mathrm{cG}2\),
+\begin{equation}
+ V^+_{h,n}=[\mathrm{cG}(4;\mathcal T_n)]^2,
+ \qquad Q^+_{h,n}=\mathrm{cG}(2;\mathcal T_n)\cap L^2_0(\Omega),
+ \qquad \mathrm{dG}(2)\text{ in time}.
+ \label{eq:cylinder-enriched-space}
+\end{equation}
+
+From our slabwise refinement strategy, spatial meshes may change from one slab to the next. A direct nodal interpolation of the outgoing velocity generally does not preserve the discretely divergence-free subspace associated with the receiving Taylor--Hood pair. Following the divergence-free transfer strategy considered by Roth et al.~\cite{non-flow}, the implemented forward transfer consists of two steps. First, the outgoing velocity trace is interpolated to the receiving velocity space,
+\begin{equation}
+  \boldsymbol{s}_n
+  :=
+  I_n\boldsymbol{u}^-,
+  \qquad
+  I_n:V_{h,n-1}\longrightarrow V_{h,n}.
+  \label{eq:cylinder-cross-mesh-interpolation}
+\end{equation}
+Second, \(\boldsymbol{s}_n\) is projected onto the discretely divergence-free subspace of the target Taylor--Hood pair.
+
+Let
+\begin{equation}
+  V_{h,n,0}
+  :=
+  \left\{
+    \boldsymbol{v}_h\in V_{h,n}:
+    \boldsymbol{v}_h=\boldsymbol{0}
+    \text{ on }\Gamma_D
+  \right\},
+\end{equation}
+and let \(V_{h,n,g}\) denote the corresponding affine velocity space satisfying the prescribed physical Dirichlet data \(g\). The transferred velocity and the auxiliary multiplier
+\[
+  \bigl(P_n\boldsymbol{u}^-,\lambda_n\bigr)
+  \in V_{h,n,g}\times Q_{h,n}
+\]
+are obtained from
+\begin{subequations}
+\label{eq:cylinder-stokes-projection}
+\begin{align}
+  \bigl(P_n\boldsymbol{u}^-,\boldsymbol{v}_n\bigr)_\Omega
+  -
+  \bigl(\lambda_n,\nabla\!\cdot\boldsymbol{v}_n\bigr)_\Omega
+  &=
+  \bigl(I_n\boldsymbol{u}^-,\boldsymbol{v}_n\bigr)_\Omega
+  &&
+  \forall\boldsymbol{v}_n\in V_{h,n,0},
+  \label{eq:cylinder-stokes-projection-a}
+  \\
+  \bigl(\nabla\!\cdot P_n\boldsymbol{u}^-,q_n\bigr)_\Omega
+  &=0
+  &&
+  \forall q_n\in Q_{h,n}.
+  \label{eq:cylinder-stokes-projection-b}
+\end{align}
+\end{subequations}
+Thus, the implemented transfer operator is
+\begin{equation}
+  P_n=Q_n^{L^2}I_n,
+\end{equation}
+where \(Q_n^{L^2}\) denotes the constrained \(L^2\) projection on the target mesh. The multiplier \(\lambda_n\) is an auxiliary variable of the transfer problem and is not propagated as the physical pressure into the next slab.
+
+
+
+\subsection{Adaptive Results}
+\label{subsec:cylinder-nonlinear-results}
+
