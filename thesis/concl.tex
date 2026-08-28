@@ -1,23 +1,54 @@
-\chapter{Conclusions and Future Work} \label{chap:conclusion}
+\chapter{Conclusions and Future Work}
+\label{chap:conclusion}
 
-Here we summarise the work that has been presented in this dissertation and discuss
-possible areas for future work.
 
 \section{Summary}
 
-Give a summary of what has been done. You might do this chapter by chapter but be sure to highlight all the important points.
+The main contribution of this dissertation is an extension of the bubble--cone residual recovery strategy from stationary finite element problems to space--time discretisations. The method evaluates the weak residual on polynomial test functions and reconstructs contributions associated with space--time cell interiors, spatial facets, and temporal interfaces. When the time-derivative pairing contains spatial derivatives, the method also recovers contributions supported on mixed space--time ridges.
+
+This construction can be obtained directly from the variational form supplied to \texttt{Firedrake}. For nonlinear problems, the primal residual and the adjoint residual are recovered independently and are then combined with the computable approximation of the nonlinear DWR identity. The resulting contributions are associated with individual space--time cells and used in a slabwise adaptive algorithm, which preserves the tensor-product structure of the discretisation. Spatial refinement is performed independently on each time slab, while temporal refinement is triggered when a sufficient proportion of the marked cells lies within that slab. This allows the spatial mesh to vary in time. For nonmatching slab meshes, the forward and adjoint solutions are transferred between consecutive spatial spaces. Overall, the implementation accounts for both the geometric localisation of the residual and the temporal coupling caused by discontinuous-Galerkin time stepping.
+
+The numerical experiments in \cref{chap:experiments} examined the method for five different model problems. First, the rotating-hill heat equation provided a comparison between the bubble--cone localisation and a manually derived strong-residual localisation. The automated method reproduced the principal goal-oriented refinement behaviour of the manual construction. 
+Second, the one-dimensional advection--diffusion problem demonstrated the dependence of goal-oriented refinement on the selected quantity of interest. The primal problem and discretisation were kept fixed while the location of a terminal sensor was changed. The resulting adapted meshes followed different space--time regions, corresponding to the backward propagation of the sensor-dependent adjoint.
+Next, the Benjamin--Bona--Mahony experiment showed that mixed space--time ridge contributions can be necessary. This as well as the advection--diffusion provided visualisations of the space--time refinement. 
+
+The parabolic $p$-Laplace problem on the L-shaped domain tested the method in the presence of a re-entrant-corner singularity and nonlinear diffusion. For the terminal spatial goal, the adapted meshes refined towards the singular corner. For the localised nonlinear goal, refinement was instead concentrated around the observation region and its sensitivity region, while the corner was not resolved unnecessarily. This experiment highlights the practical trade-off of goal-oriented adaptivity. In some cases, the savings from concentrating refinement in the goal-relevant region can outweigh the cost of computing the enriched solutions and constructing the global and local indicators, allowing the adaptive method to achieve a comparable accuracy using far fewer space--time degrees of freedom than uniform refinement. 
+Finally, the incompressible Navier--Stokes cylinder problem extended the framework to a nonlinear mixed velocity--pressure system. The experiment implemented a temporal transfer with a divergence-constrained Stokes projection and demonstrates the practical potential of applying the same localisation framework to a broader range of time-dependent PDE problems.
+Taken together, the experiments show that the proposed method can automate the localisation required for goal-oriented space--time adaptivity across linear, nonlinear, scalar, and mixed problems. 
+
+
+\section{Limitations}
+
+The present work has several limitations. First, in practical terms, the Navier--Stokes experiment could not be continued through a long adaptive sequence because further temporal refinement became computationally expensive. The available results are therefore insufficient to assess the asymptotic behaviour of the estimator for this problem.
+
+Second, the complete adaptive algorithm is not supported by a general convergence theory. The feasibility of the method is instead assessed empirically through the numerical tests in \cref{chap:experiments}. 
+
+Finally, the present localisation framework is formulated primarily for first-order-in-time evolution equations. Problems involving higher-order time derivatives would require an extension of the temporal residual decomposition and may introduce additional temporal-interface or mixed space--time contributions. 
+
 
 \section{Future Work}
 
-You don't actually have to list further work, but most people do this so it seems unusual not to. Just think what you would do next if you had more time on this project.
+Two directions are particularly important for developing the present work further.
 
-% 通过权重把indicator变得directional
+First, the current implementation could be developed into a user-facing software contribution to the \texttt{Firedrake} ecosystem. The aim would be to provide a simple interface through which users specify the weak residual, the quantity of interest, the spatial and temporal discretisations, and the marking parameters. The construction of the adjoint problems, enriched solutions, bubble--cone recovery, local indicators, and slabwise refinement could then be handled automatically by the framework. Such an interface would make the method available to users who want to apply goal-oriented space--time adaptivity without implementing the localisation procedure for each new PDE problem.
+
+Second, the enrichment and marking strategies could be made more directional. At present, the enriched solution difference is used as a combined space--time weight. A possible alternative is to compute four adjoint solutions: the standard adjoint $Z_{00}$, a spatially enriched adjoint $Z_{10}$, a temporally enriched adjoint $Z_{01}$, and an adjoint enriched in both space and time $Z_{11}$. The corresponding differences could be defined by
+\begin{align*}
+  \delta_h  &\coloneqq Z_{10}-Z_{00}, \\
+  \delta_k  &\coloneqq Z_{01}-Z_{00}, \\
+  \delta_{hk}
+  &\coloneqq Z_{11}-Z_{10}-Z_{01}+Z_{00}.
+\end{align*}
+The residual action associated with each of these components could then be localised separately to obtain spatial, temporal, and space--time interaction indicators. For example, the relative magnitudes of
+\begin{equation*}
+  \rho(U_{00})(\delta_h), \qquad
+  \rho(U_{00})(\delta_k), \qquad
+  \rho(U_{00})(\delta_{hk})
+\end{equation*}
+would provide diagnostics for the importance of spatial enrichment, temporal enrichment, and their interaction, respectively. Such a decomposition would also allow different marking and refinement strategies, including error-balancing approaches that allocate computational effort between spatial and temporal refinement according to their estimated contributions, as in \cite{Bangerth_Rannacher_2003}.
 
 
 \section{Conclusion}
 
-You might like to give a final conclusion so the reader is left remembering what you have done, rather than what you would do if there wasn't a submission deadline.
+Overall, this dissertation has developed and investigated an automated goal-oriented space--time adaptive finite element method for time-dependent PDEs. The method combines dual-weighted residual (DWR) error estimation with an automated bubble--cone localisation procedure for discontinuous-Galerkin time discretisations. The numerical results support the feasibility of the approach.
 
-\section{Page Numbering}
-
-Remember that the page count stops after the final page of your final chapter so the last page of the conclusions should be at most 54 to avoid a penalty.
