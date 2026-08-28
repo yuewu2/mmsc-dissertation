@@ -2,6 +2,7 @@
 \label{sec:cylinder-nonlinear-dwr}
 
 This final experiment extends the automated space--time framework to a nonlinear mixed problem: incompressible Navier--Stokes flow past a cylinder. It follows the tensor-product treatment of Roth et al.~\cite{non-flow}, while retaining the automated bubble recovery localisation developed in this thesis. 
+\pef{What specifically is borrowed from Roth?}
 
 
 \subsection{Problem and Quantity of Interest}
@@ -23,6 +24,7 @@ be the channel-with-cylinder domain, $I=(0,T)$, and take $T=8$ and viscosity \(\
   &&\text{in }\Omega\times I.\label{eq:cylinder-continuity}
 \end{align}
 \end{subequations}
+\pef{This is the standard formulation of the test case, but you should know that the Laplace form of the viscous term $\nu \Delta \boldsymbol u$ gives nonphysical boundary conditions on the outflow. I don't suggest changing it, and if you get pressed on it just say you know about the problem but decided to stick to the publiched formulation}
 The prescribed inflow is
 \begin{equation}
  \boldsymbol u_{\mathrm{in}}(y,t)
@@ -60,6 +62,7 @@ The quantity of interest is the time-mean drag on the cylinder,
  \label{eq:cylinder-goal}
 \end{equation}
 where \(\boldsymbol n_C\) points from the cylinder into the fluid. We use the reference value \(J_{\mathrm{ref}}=1.6031368\).
+\pef{From Roth?}
 
 
 \subsection{Implementation}
@@ -81,11 +84,13 @@ Following the mixed-order setting of~\cite{non-flow}, on each slab \(I_n=(t_{n-1
 and the primal uses \(\mathrm{dG}(1)\) in time. Velocity and pressure are solved together. The resulting velocity is discretely incompressible:
 \begin{equation}
  (\nabla\!\cdot\boldsymbol u_h,q_h)_\Omega=0
- \qquad\forall q_h\in Q_{h,n}.
+ \qquad\forall q_h\in Q_{h,n},
  \label{eq:cylinder-discrete-divergence}
 \end{equation}
+but not exactly incompressible.
 
 The enriched spaces used for the high-order adjoint are the continuous-Galerkin pair \(\mathrm{cG}4\otimes\mathrm{cG}2\),
+\pef{The natural enrichment would be to increase both polynomial degrees (for velocity and pressure) by one. The important point is that a differential operator applied to velocity maps you to a pressure, so their difference being one is the important thing, not the ratio between them.}
 \begin{equation}
  V^+_{h,n}=[\mathrm{cG}(4;\mathcal T_n)]^2,
  \qquad Q^+_{h,n}=\mathrm{cG}(2;\mathcal T_n)\cap L^2_0(\Omega),
