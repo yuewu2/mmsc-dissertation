@@ -286,6 +286,8 @@ as a less expensive alternative. Here, \(z_h^+\in V_h^+\) is the enriched adjoin
 \yue{I stated that for linear estimator we should use the interpolation. HOwever, for the nonlinear DWR estimator, since $u_h$ and $z_h$ need to be solved, so using $z_h^+ - z_h$ seems reasonable?
 
 I also just realise that I'm using equation (2.23) for linear global estimator all the time, which excludes the iteration error term. But many literature omit that term as well. Would including this term be a more appropriate choice? (I have this term included in nonlinear estimator)}
+\pef{I would say when we discuss how that term vanishes when Galerkin orthogonality holds, we should say that we will solve all the discrete problems to a sufficiently small tolerance so that this term is negligible. Then we can omit it in practice from both.}
+\pef{And you can still avoid the low-order adjoint solve in the nonlinear case, by only using the primal residual. In this case the error in the estimate becomes quadratic rather than cubic. I don't suggest we do this, though.}
 
 
 When an independently computed reference value for \(J(u)\) is available, the accuracy of the global estimator is measured by the \emph{global effectivity index}

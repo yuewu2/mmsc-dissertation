@@ -120,6 +120,7 @@ The factor \(1/2\) assigns half of the flux jump to each of the two adjacent cel
 where the final term is the jump of the dG solution across the incoming temporal interface.
 
 We apply this action to the dual weight \(z^\star=z_h^+-z_h\). The Cauchy--Schwarz inequality bounds each volume, spatial facet, and temporal-interface. To combine the terms supported on different-dimensional entities, \pef{Explain why these scalings, it sounds like you are choosing them, but you don't really have a choice?} 
+\pef{Update: I think you should argue that these scalings make sure everything has the same units.}
 we use mesh-dependent residual and weight norms. For a spatial cell \(K\), the factor \(h_K\) compensates for the difference between the measures of \(K\) and its facets \(F\). Similarly, the factor \(k_n\) provides the corresponding scaling for a temporal interface. Hence, the dual-weight terms are multiplied by \(h_K^{1/2}\) and \(k_n^{1/2}\), while the residual terms carry the reciprocal factors \(h_K^{-1/2}\) and \(k_n^{-1/2}\). Define
 \begin{subequations}
 \begin{align}
@@ -310,4 +311,4 @@ By contrast, the automated indicator is formed by summing signed recovered contr
 % |\eta_{\mathrm{temporal}}|.
 % \]
 % This modification prevents large entity contributions from being hidden by local sign cancellation and may therefore provide a more robust refinement indicator in cases where the recovered components have competing signs. However, it may also mark unexpected regions and increase computational cost, so its benefit must be assessed experimentally rather than assumed.
-\pef{I'd suggest cutting this last bit from `It is not surprising \dots'}
+%\pef{I'd suggest cutting this last bit from `It is not surprising \dots'}
