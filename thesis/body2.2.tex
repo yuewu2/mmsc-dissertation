@@ -589,14 +589,15 @@ Let
   e_z\coloneqq z_h^+-z_h,
   \label{eq:nonlinear-dwr-discrete-errors}
 \end{equation}
-where $(u_h,z_h)$ are the low-order primal and adjoint approximations and $(u_h^+,z_h^+)$ are their enriched counterparts. Recall that we wish to localise the global DWR estimate
-\begin{equation}
-  \eta_{\mathrm{global}}
-  =\frac12\rho(u_h)(e_z)
-   +\frac12\rho^\ast(u_h,z_h)(e_u)
-   -\rho(u_h)(z_h).
-  \label{eq:localised-symmetric-nonlinear-dwr}
-\end{equation}
+where $(u_h,z_h)$ are the low-order primal and adjoint approximations and $(u_h^+,z_h^+)$ are their enriched counterparts. 
+Recall that we wish to localise the global DWR estimate~\cref{eq:practical-nonlinear-estimator}
+\[
+\eta_{\mathrm{global}}
+=
+\frac12\rho(u_h)(e_z)
++
+\frac12\rho^\ast(u_h,z_h)(e_u).
+\]
 \yue{Since we are neglecting the term $-\rho(u_h)(z_h)$ now, should we still have it included here and in the following constructions e.g., \cref{eq:complete-nonlinear-entity-indicator}?}
 
 Once $u_h$ and $z_h$ are fixed, introduce the two linear residual functionals
@@ -636,7 +637,8 @@ We now combine the recovered densities with the DWR weights. For each entity
 \begin{equation*}
   E\in\{\mathrm{vol},\mathrm{sf},\mathrm{tf},\mathrm{xt}\},
 \end{equation*}
-where $\mathrm{vol}$ denotes the cell-volume entity $Q_{K,n}$, $\mathrm{sf}$ a spatial facet $F\times I_n$, $\mathrm{tf}$ the incoming temporal face $K\times\{t_{n-1}\}$, and $\mathrm{xt}$ the mixed space--time ridge $F\times\{t_{n-1}\}$, the recovered primal- and adjoint-residual densities are paired with \(e_z\) and \(e_u\), respectively, to define \(\eta_{K,n}^{\mathrm p,E}\) and \(\eta_{K,n}^{\mathrm a,E}\). The correction contribution \(\eta_{K,n}^{\mathrm c,E}\) pairs the recovered primal-residual density with \(z_h\).
+where $\mathrm{vol}$ denotes the cell-volume entity $Q_{K,n}$, $\mathrm{sf}$ a spatial facet $F\times I_n$, $\mathrm{tf}$ the incoming temporal face $K\times\{t_{n-1}\}$, and $\mathrm{xt}$ the mixed space--time ridge $F\times\{t_{n-1}\}$, the recovered primal- and adjoint-residual densities are paired with \(e_z\) and \(e_u\), respectively, to define \(\eta_{K,n}^{\mathrm p,E}\) and \(\eta_{K,n}^{\mathrm a,E}\). 
+% The correction contribution \(\eta_{K,n}^{\mathrm c,E}\) pairs the recovered primal-residual density with \(z_h\).
 
 For example, the volume terms are
 \begin{align}
@@ -646,11 +648,11 @@ For example, the volume terms are
   \notag\\
   \eta_{K,n}^{\mathrm a,vol}
   &\coloneqq
-  \bigl(R_{K,n}^{\mathrm a,vol},e_u\bigr)_{Q_{K,n}},
-  \notag\\
-  \eta_{K,n}^{\mathrm c,vol}
-  &\coloneqq
-  \bigl(R_{K,n}^{\mathrm p,vol},z_h\bigr)_{Q_{K,n}}.
+  \bigl(R_{K,n}^{\mathrm a,vol},e_u\bigr)_{Q_{K,n}}.
+  % \notag\\
+  % \eta_{K,n}^{\mathrm c,vol}
+  % &\coloneqq
+  % \bigl(R_{K,n}^{\mathrm p,vol},z_h\bigr)_{Q_{K,n}}.
   \label{eq:nonlinear-dwr-volume-components}
 \end{align}
 The spatial-facet terms are
@@ -663,12 +665,12 @@ The spatial-facet terms are
   \eta_{K,n}^{\mathrm a,sf}
   &\coloneqq
   \sum_{F\subset\partial K}
-  \bigl(R_{K,F,n}^{\mathrm a,sf},e_u\bigr)_{F\times I_n},
-  \notag\\
-  \eta_{K,n}^{\mathrm c,sf}
-  &\coloneqq
-  \sum_{F\subset\partial K}
-  \bigl(R_{K,F,n}^{\mathrm p,sf},z_h\bigr)_{F\times I_n}.
+  \bigl(R_{K,F,n}^{\mathrm a,sf},e_u\bigr)_{F\times I_n}.
+  % \notag\\
+  % \eta_{K,n}^{\mathrm c,sf}
+  % &\coloneqq
+  % \sum_{F\subset\partial K}
+  % \bigl(R_{K,F,n}^{\mathrm p,sf},z_h\bigr)_{F\times I_n}.
   \label{eq:nonlinear-dwr-spatial-components}
 \end{align}
 At a dG temporal interface, the adjoint residual depends on the primal variation through its jump. Evaluating this residual at the primal error \(e_u\) gives the error jump
@@ -689,11 +691,11 @@ Thus,
   \eta_{K,n}^{\mathrm a,tf}
   &\coloneqq
   \bigl(R_{K,n-1}^{\mathrm a,tf},
-        \delta_{n-1}(e_u)\bigr)_K,
-  \notag\\
-  \eta_{K,n}^{\mathrm c,tf}
-  &\coloneqq
-  \bigl(R_{K,n-1}^{\mathrm p,tf},z_h(t_{n-1}^+)\bigr)_K.
+        \delta_{n-1}(e_u)\bigr)_K.
+  % \notag\\
+  % \eta_{K,n}^{\mathrm c,tf}
+  % &\coloneqq
+  % \bigl(R_{K,n-1}^{\mathrm p,tf},z_h(t_{n-1}^+)\bigr)_K.
   \label{eq:nonlinear-dwr-temporal-components}
 \end{align}
 Finally, when the mixed entity is present, the analogous terms are
@@ -708,13 +710,13 @@ Finally, when the mixed entity is present, the analogous terms are
   &\coloneqq
   \sum_{F\subset\partial K}
   \bigl(R_{K,F,n-1}^{\mathrm a,xt},
-        \delta_{n-1}(e_u)\bigr)_F,
-  \notag\\
-  \eta_{K,n}^{\mathrm c,xt}
-  &\coloneqq
-  \sum_{F\subset\partial K}
-  \bigl(R_{K,F,n-1}^{\mathrm p,xt},
-        z_h(t_{n-1}^+)\bigr)_F.
+        \delta_{n-1}(e_u)\bigr)_F.
+  % \notag\\
+  % \eta_{K,n}^{\mathrm c,xt}
+  % &\coloneqq
+  % \sum_{F\subset\partial K}
+  % \bigl(R_{K,F,n-1}^{\mathrm p,xt},
+  %       z_h(t_{n-1}^+)\bigr)_F.
   \label{eq:nonlinear-dwr-mixed-components}
 \end{align}
 
@@ -722,10 +724,10 @@ For each entity, the nonlinear contribution is
 \begin{equation}
   \eta_{K,n}^{E}
   =\frac12\eta_{K,n}^{\mathrm p,E}
-   +\frac12\eta_{K,n}^{\mathrm a,E}
-   -\eta_{K,n}^{\mathrm c,E}.
+   +\frac12\eta_{K,n}^{\mathrm a,E}.
   \label{eq:complete-nonlinear-entity-indicator}
 \end{equation}
+   % -\eta_{K,n}^{\mathrm c,E}
 The space--time cell indicator is therefore
 \begin{equation}
   \eta_{K,n}
@@ -735,7 +737,7 @@ The space--time cell indicator is therefore
    +\eta_{K,n}^{\mathrm{xt}}.
   \label{eq:complete-nonlinear-cell-indicator}
 \end{equation}
-For a linear DWR estimator using only $\rho(u_h)(z^\star)$, this definition reduces to the sum of the primal components without the factors one half and without the adjoint and correction parts.
+For a linear DWR estimator using only $\rho(u_h)(z^\star)$, this definition reduces to the sum of the primal components without the factors one half and without the adjoint parts.
 
 Since the recovery matches each residual functional only on the selected finite-dimensional bubble--cone test space, exact global-local equality is not generally assumed. We therefore define
 \begin{equation}
@@ -752,3 +754,5 @@ I_{\mathrm{eff}}^{\mathrm{loc}}
 \label{eq:localisation-effectivity}
 \end{equation}
 whenever \(\eta_{\mathrm{glob}}\neq 0\). Exact localisation gives \(I_{\mathrm{eff}}^{\mathrm{loc}}=1\).
+
+\emph{localisation gap}

@@ -53,26 +53,41 @@ The complete procedure therefore consists of one global space--time bulk selecti
 
 The complete solve--estimate--mark--refine cycle is summarised in \cref{alg:complete-adaptive-cycle}.
 
-\begin{algorithm}[h]
+\begin{algorithm}[htbp]
 \caption{Goal-oriented slabwise space--time adaptive cycle}
 \label{alg:complete-adaptive-cycle}
 \begin{algorithmic}[1]
-\Require PDE, initial slab meshes, tolerance \(\mathrm{TOL}\), goal functional \(J\), bulk parameter \(\theta\), temporal threshold \(\varphi_t\)
+\Require PDE, goal functional \(J\), initial slab meshes, estimator type, bulk parameter \(\theta\), temporal threshold \(\varphi_t\)
+
+\State Initialise the current space--time discretisation
 
 \While{the stopping criterion is not satisfied}
-  \State Construct spatial spaces \(V_n\), enriched spaces, transfer operators \(P_{n}\) and \(P_{n}^{\ast}\).
-  \State Solve the primal problem using the dG-in-time formulation \eqref{eq:global-dg-semilinear-form}. Solve the enriched primal problem if required by \eqref{eq:localised-symmetric-nonlinear-dwr}.
-  \State Solve the enriched adjoint problems defined by \eqref{eq:discrete-nonlinear-adjoint}. Solve the adjoint problem if required by \eqref{eq:localised-symmetric-nonlinear-dwr}.
-  \State Form the adjoint difference \(e_z=z_h^+-z_h\) and the primal difference \(e_u=u_h^+-u_h\). Or form \(z^\star=z_h^+-I_hz_h^+\) if the linear identity is used.
-  \State Assemble \(\eta_{\mathrm{global}}\) from \eqref{eq:localised-symmetric-nonlinear-dwr} or \eqref{eq:computable-dwr-interpolated-weight}.
-  \State Recover the local residual densities using \eqref{eq:space-time-volume-projection}--\eqref{eq:mixed-ridge-recovery}.
-  \State Assemble the entity contributions from \eqref{eq:complete-nonlinear-entity-indicator} and the cell indicators \(\eta_{K,n}\) from \eqref{eq:complete-nonlinear-cell-indicator}.
-  \If{\(|\eta_{\mathrm{global}}|\le\mathrm{TOL}\)}
-    \State \Return the current discretisation and estimators.
+  \State Construct the current and enriched spatial spaces, together with the transfer operators \(P_{n-1}\) and \(P_{n-1}^{\ast}\) defined in \eqref{eq:forward-slab-transfer} and \eqref{eq:mass-adjoint-transfer-definition}.
+  
+  \State Solve the primal problem using the dG-in-time formulation \eqref{eq:global-dg-semilinear-form} to algebraic
+  tolerance \(\mathrm{TOL}_{\mathrm{alg}}\).
+
+  \If{the nonlinear estimator is selected}
+    \State Solve the enriched primal problem according to \eqref{eq:enriched-primal}.
+    \State Solve the current and enriched adjoint problems according to \eqref{eq:discrete-nonlinear-adjoint} and \eqref{eq:enriched-adjoint}.
+    \State Form \(e_u\) and \(e_z\) as defined in \eqref{eq:nonlinear-dwr-discrete-errors}.
+    \State Assemble \(\eta_{\mathrm{global}}\) from \eqref{eq:practical-nonlinear-estimator}.
+  \Else
+  \State Solve the enriched adjoint problem defined by \eqref{eq:discrete-nonlinear-adjoint}. 
+  \State Form \(z^\star=z_h^+-I_hz_h^+\) according to \eqref{eq:computable-dwr-interpolated-weight}.
+    \State Assemble \(\eta_{\mathrm{global}}\) from \eqref{eq:computable-dwr-two-solves}.
   \EndIf
+  
+  \State Recover the local residual densities using \eqref{eq:space-time-volume-projection}--\eqref{eq:mixed-ridge-recovery}.
+  
+  \State Assemble the local entity contributions from \eqref{eq:complete-nonlinear-entity-indicator} and the space--time cell indicators \(\eta_{K,n}\) from \eqref{eq:complete-nonlinear-cell-indicator}.
+  
+  \If{\(|\eta_{\mathrm{global}}|\le\mathrm{TOL}\)}
+    \State \Return the final discretisation and estimators.
+  \EndIf
+  
   \State Apply the space--time marking criterion \eqref{eq:space-time-dorfler} and the temporal criterion \eqref{eq:within-slab-time-trigger}.
-  \State Refine the selected spatial meshes and bisect the selected
-  temporal slabs.
+  \State Refine the selected spatial meshes and bisect the selected temporal slabs.
 \EndWhile
 \end{algorithmic}
 \end{algorithm}
@@ -108,7 +123,7 @@ The current implementation retains the complete forward trajectory in memory. Fo
 The primal residual is localised using a hierarchical bubble--cone recovery. Firedrake's scalar Bubble (\texttt{B}) and FacetBubble (\texttt{FB}) element families provide the auxiliary cell-interior and facet-supported test functions, respectively \cite{Firedrake}.
 Temporal integration is performed using Gauss--Legendre quadrature, while the spatial forms are assembled by Firedrake using an explicitly selected quadrature degree.
 
-In the two-dimensional examples, the initial geometry-conforming meshes and the marked-cell spatial refinements are generated using \texttt{Netgen}.
+In the two-dimensional examples, the initial geometry-conforming meshes and the marked-cell spatial refinements are generated using \texttt{Netgen} (cite).
 \yue{Add Netgen}
 
 % https://www.firedrakeproject.org/variational-problems.html
