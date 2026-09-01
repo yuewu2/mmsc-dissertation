@@ -590,7 +590,7 @@ Let
   \label{eq:nonlinear-dwr-discrete-errors}
 \end{equation}
 where $(u_h,z_h)$ are the low-order primal and adjoint approximations and $(u_h^+,z_h^+)$ are their enriched counterparts. 
-Recall that we wish to localise the global DWR estimate~\cref{eq:practical-nonlinear-estimator}
+Recall that we wish to localise the global DWR estimate~\eqref{eq:practical-nonlinear-estimator}
 \[
 \eta_{\mathrm{global}}
 =
@@ -741,18 +741,23 @@ For a linear DWR estimator using only $\rho(u_h)(z^\star)$, this definition redu
 
 Since the recovery matches each residual functional only on the selected finite-dimensional bubble--cone test space, exact global-local equality is not generally assumed. We therefore define
 \begin{equation}
-\eta_{\mathrm{loc}}
+  \eta_{\mathrm{loc}}
   \coloneqq
-\sum_{n,K}\eta_{K,n},
-\label{eq:localisation-gap}
+  \sum_{n,K}\eta_{K,n},
+  \qquad
+  \delta_{\mathrm{loc}}
+  \coloneqq
+  \eta_{\mathrm{loc}}-\eta_{\mathrm{glob}}.
 \end{equation}
-To assess the quality of localisation, we define the \emph{localisation effectivity index}
+Whenever $\eta_{\mathrm{glob}}\neq0$, the relative \emph{localisation gap} is
 \begin{equation}
-I_{\mathrm{eff}}^{\mathrm{loc}}
+  g_{\mathrm{loc}}
   \coloneqq
-\frac{\eta_{\mathrm{loc}}}{\eta_{\mathrm{glob}}},
-\label{eq:localisation-effectivity}
+  \frac{|\delta_{\mathrm{loc}}|}
+       {|\eta_{\mathrm{glob}}|}.
 \end{equation}
-whenever \(\eta_{\mathrm{glob}}\neq 0\). Exact localisation gives \(I_{\mathrm{eff}}^{\mathrm{loc}}=1\).
+Exact localisation gives $\delta_{\mathrm{loc}}=g_{\mathrm{loc}}=0$.
 
-\textcolor{blue}{\emph{localisation gap}}
+\begin{remark}[Cancellation of local contributions]
+Local DWR contributions are signed, and contributions of opposite sign may cancel in the global sum. A global effectivity index close to one does not by itself describe the distribution of the local contributions used for marking. Triangle-inequality-based indicator indices have been proposed to quantify this effect; see, for example, Richter and Wick~\cite{Richter_Wick_2015}. 
+\end{remark}

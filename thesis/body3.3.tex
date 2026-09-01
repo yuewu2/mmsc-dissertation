@@ -173,13 +173,15 @@ The global estimator uses the nonlinear DWR identity~\cref{eq:practical-nonlinea
 \end{equation*}
 We take the D\"orfler marking fraction as $0.35$ and bisect a time slab when at least $10\%$ of its spatial cells are selected. We have initially $50$ spatial cells and $6$ time slabs. The terminal time is set to be $T = 18$.
 
-To verify algebraic completeness as stated in \cref{sec:bbm-mixed-ridge-specialisation}, each adaptive iterate is post-processed on the same primal solution, adjoint solution, and mesh in two ways: with all recovered entities and after deleting only the signed mixed-ridge contribution. 如果之前define 了gap再看一下。Define
-\begin{equation}
-  \delta_{\mathrm{loc}}
-  \coloneqq\sum_{n,K}\eta_{K,n}-\eta_{\mathrm{global}}.
-  \label{eq:bbm-localisation-gap}
-\end{equation}
-With the mixed ridge included, $|\delta_{\mathrm{loc}}|$ stays at floating-point roundoff, but without it it does not. 
+To verify algebraic completeness as stated in \cref{sec:bbm-mixed-ridge-specialisation}, each adaptive iterate is post-processed on the same primal solution, adjoint solution, and mesh in two ways: with all recovered entities and after deleting only the signed mixed-ridge contribution.
+% Define
+% \begin{equation}
+%   \delta_{\mathrm{loc}}
+%   \coloneqq\sum_{n,K}\eta_{K,n}-\eta_{\mathrm{global}}.
+%   \label{eq:bbm-localisation-gap}
+% \end{equation}
+% With the mixed ridge included, $|\delta_{\mathrm{loc}}|$ stays at floating-point roundoff, but without it it does not. For example, deleting only the mixed-ridge term rises to about \(12.7\%\) at iteration~12. 
+Including the mixed-ridge contribution yields global--local agreement up to floating-point roundoff, whereas omitting only this contribution produces a relative localisation gap of approximately \(12.7\%\) at iteration~12.
 
 %This test in \cref{tab:bbm-mixed-ridge-ablation} demonstrates that the mixed ridge term is required to reproduce the global DWR estimator for this BBM calculation.
 %\begin{table}[h]

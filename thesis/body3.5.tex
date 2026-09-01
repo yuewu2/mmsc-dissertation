@@ -1,9 +1,9 @@
 \section{Incompressible Navier–Stokes Equations}
 \label{sec:cylinder-nonlinear-dwr}
 
-This final experiment extends the automated space--time framework to a nonlinear mixed problem: incompressible Navier--Stokes flow past a cylinder. 
-The benchmark geometry is taken from \cite{benchmark,reference_value}, while the tensor-product space--time discretisation follows Roth et al.~\cite{non-flow}. More specifically, we use discontinuous Galerkin discretisation in time, Taylor--Hood finite elements \cite{TaylorHood} for the velocity--pressure pair, and a divergence-free projection \cite{projection} to transfer the velocity between successive spatial meshes. The automated bubble-recovery localisation and the resulting local error indicators are those developed in this thesis.
+This final experiment examines whether the automated goal-oriented workflow developed in this thesis extends beyond the preceding scalar model problems to a more complex nonlinear mixed system. In particular, it tests the proposed bubble automated localisation and coupled space--time refinement within the incompressible Navier--Stokes equations. 
 
+We consider incompressible Navier--Stokes flow past a cylinder. The benchmark geometry is taken from \cite{benchmark,reference_value}, while the tensor-product space--time discretisation follows Roth et al.~\cite{non-flow}. More specifically, we use discontinuous Galerkin discretisation in time, Taylor--Hood finite elements \cite{TaylorHood} for the velocity--pressure pair, and a divergence-free projection \cite{projection} to transfer the velocity between successive spatial meshes. The automated bubble--recovery localisation and the resulting local error indicators are those developed in this thesis. Degree-two polynomial representations are used in all active recovery spaces.
 
 \subsection{Problem and Quantity of Interest}
 \label{subsec:cylinder-problem}
@@ -24,23 +24,19 @@ be the channel-with-cylinder domain, $I=(0,T)$, and take $T=8$ and viscosity \(\
   &&\text{in }\Omega\times I.\label{eq:cylinder-continuity}
 \end{align}
 \end{subequations}
+% \pef{This is the standard formulation of the test case, but you should know that the Laplace form of the viscous term $\nu \Delta \boldsymbol u$ gives nonphysical boundary conditions on the outflow. I don't suggest changing it, and if you get pressed on it just say you know about the problem but decided to stick to the publiched formulation}
 The prescribed inflow is
 \begin{equation}
  \boldsymbol u_{\mathrm{in}}(y,t)
  =\left(
-  6\sin(\pi t/8)\frac{y(0.41-y)}{0.41^2},0
+  6\sin(\frac{\pi t}8)\frac{y(0.41-y)}{0.41^2},0
  \right)^{T},
  \label{eq:cylinder-inflow}
 \end{equation}
-with no slip on \(\Gamma_{\mathrm{wall}}\cup\Gamma_C\) and the natural traction condition at the outlet.  This is the nonstationary cylinder benchmark used by Roth et al.~\cite{non-flow}.
+with no slip on \(\Gamma_{\mathrm{wall}}\cup\Gamma_C\) and the natural traction condition at the outlet. This is the nonstationary cylinder benchmark used by Roth et al.~\cite{non-flow}.
 
-For
-\[
- V_g(t)=\{\boldsymbol v\in[H^1(\Omega)]^2:
- \boldsymbol v=\boldsymbol g(t)\text{ on the essential boundary}\},
- \qquad Q=L^2_0(\Omega),
-\]
-\pef{If you have an outflow boundary condition, the pressure space should be $Q = L^2(\Omega)$, not $Q = L^2_0(\Omega)$ (since the natural outflow boundary condition involves the value of the pressure on the boundary, the pressure is no longer undefined up to a constant). Double check your code to make sure you're not imposing the mean-zero constraint, it shouldn't be.}
+For \( V_g(t)=\{\boldsymbol v\in[H^1(\Omega)]^2: \boldsymbol v=\boldsymbol g(t)\text{ on the essential boundary}\}\), \(Q=L^2(\Omega)\), 
+% \pef{If you have an outflow boundary condition, the pressure space should be $Q = L^2(\Omega)$, not $Q = L^2_0(\Omega)$ (since the natural outflow boundary condition involves the value of the pressure on the boundary, the pressure is no longer undefined up to a constant). Double check your code to make sure you're not imposing the mean-zero constraint, it shouldn't be.}
 the weak spatial operator is
 \begin{align}
  a(U;\Phi)={}&
@@ -73,16 +69,16 @@ For the problem, pressure is a Lagrange multiplier for incompressibility. The se
 \begin{equation}
  \mathcal M=
  \begin{pmatrix}M_u&0\\0&0\end{pmatrix}.
- \label{eq:cylinder-dae-mass}
+ % \label{eq:cylinder-dae-mass}
 \end{equation}
 Only velocity is propagated between time slabs.
 Following the mixed-order setting of~\cite{non-flow}, on each slab \(I_n=(t_{n-1},t_n)\) the primal spatial pair is the inf--sup stable continuous-Galerkin Taylor--Hood element. The velocity and pressure space can be denoted as 
 \begin{equation}
  V_{h,n}=[\mathrm{cG}(2;\mathcal T_n)]^2,
- \qquad Q_{h,n}=\mathrm{cG}(1;\mathcal T_n)\cap L^2_0(\Omega),
+ \qquad Q_{h,n}=\mathrm{cG}(1;\mathcal T_n),
  \label{eq:cylinder-taylor-hood}
 \end{equation}
-\pef{Shouldn't have intersection with $L^2_0(\Omega)$}
+% \pef{Shouldn't have intersection with $L^2_0(\Omega)$}
 and the primal uses \(\mathrm{dG}(1)\) in time. Velocity and pressure are solved together. The resulting velocity is discretely incompressible:
 \begin{equation}
  (\nabla\!\cdot\boldsymbol u_h,q_h)_\Omega=0
@@ -90,16 +86,15 @@ and the primal uses \(\mathrm{dG}(1)\) in time. Velocity and pressure are solved
  \label{eq:cylinder-discrete-divergence}
 \end{equation}
 but not exactly incompressible.
-
-The enriched spaces used for the high-order adjoint is \(([\mathrm{cG}3]^2 \times \mathrm{cG}2) \otimes \mathrm{dG}(2)\),
+The enriched spaces used for the high-order adjoint is \(([\mathrm{cG}(3)]^2 \times \mathrm{cG}(2)) \otimes \mathrm{dG}(2)\).
 % \pef{The natural enrichment would be to increase both polynomial degrees (for velocity and pressure) by one. The important point is that a differential operator applied to velocity maps you to a pressure, so their difference being one is the important thing, not the ratio between them.}
-\begin{equation}
- V^+_{h,n}=[\mathrm{cG}(3;\mathcal T_n)]^2,
- \qquad Q^+_{h,n}=\mathrm{cG}(2;\mathcal T_n)\cap L^2_0(\Omega),
- \qquad \mathrm{dG}(2)\text{ in time}.
- \label{eq:cylinder-enriched-space}
-\end{equation}
-\pef{Shouldn't have intersection with $L^2_0(\Omega)$}
+% \begin{equation}
+%  V^+_{h,n}=[\mathrm{cG}(3;\mathcal T_n)]^2,
+%  \qquad Q^+_{h,n}=\mathrm{cG}(2;\mathcal T_n),
+%  \qquad \mathrm{dG}(2)\text{ in time}.
+%  \label{eq:cylinder-enriched-space}
+% \end{equation}
+% \pef{Shouldn't have intersection with $L^2_0(\Omega)$}
 
 From our slabwise refinement strategy, spatial meshes may change from one slab to the next. A direct nodal interpolation of the outgoing velocity generally does not preserve the discretely divergence-free subspace associated with the receiving Taylor--Hood pair. Following the divergence-free transfer strategy described in \cite{projection} and its implementation in \cite{non-flow}, we define the transfer between consecutive time slabs as follows. Let
 \[
@@ -152,7 +147,7 @@ Q_{n,\mathrm{df}}^{L^2}
 % Q_{n,\mathrm{df}}^{L^2}\circ I_n.
 % \]
 
-Although the primal Navier--Stokes problem is nonlinear, we use the economical one-term primal-residual estimator
+With this transfer in place, we evaluate the DWR estimator on the resulting discrete trajectory. Although the primal Navier--Stokes problem is nonlinear, we use the economical one-term primal-residual estimator
 \begin{equation}
   \eta := \rho(U_h)\bigl(Z_h^+-I_hI_kZ_h^+\bigr),
   \label{eq:cylinder-linear-estimator}
@@ -166,10 +161,11 @@ where \(Z_h^+\) is the enriched adjoint. Here \(I_k\) is the Gauss--Legendre nod
 The initial spatial mesh is the first uniformly refined level of the geometry-fitted triangular \texttt{Netgen} mesh. It contains \(1092\) triangles and \(5239\) mixed Taylor--Hood degrees of freedom on each time slab. We start with \(N_t=40\) uniform time slabs, so that \(\Delta t=0.2\). This is a compromise between the cost of the initial solves and the need to resolve the shorter time scales generated in the wake, i.e. the downstream flow region behind the cylinder, as vortex shedding develops.
 
 Both our preliminary experiments and the reference computations indicate that substantial temporal refinement is needed before the estimator enters a useful regime. Roth et al.~\cite{non-flow} bisect the \(75\%\) of time slabs with the largest temporal indicators in each adaptive loop, producing the sequence
-\[
-  20,\;36,\;64,\;113,\;199.
-\]
-\pef{What does this sequence mean? Is this the number of cells in time? Not clear}
+\(
+  20,\;36,\;64,\;113,\;199,
+\)
+which are the successive numbers of temporal cells in their adaptive meshes.
+% \pef{What does this sequence mean? Is this the number of cells in time? Not clear}
 The more recent computation \cite{recent-flow} instead starts from \(160\) time slabs and subsequently applies an approximately \(10\%\) fixed-rate temporal refinement.
 
 Motivated by these observations, we use a two-stage temporal strategy. First, the score of time slab \(I_n\) is obtained directly from the already localised strong-residual indicators,
@@ -177,28 +173,27 @@ Motivated by these observations, we use a two-stage temporal strategy. First, th
   E_n := \sum_{K\in\mathcal{T}_h^n}\lvert\eta_{K,n}\rvert.
 \]
 The \(75\%\) of slabs with the largest \(E_n\) are bisected. Two refinements give
-\[
-  40\longrightarrow70\longrightarrow123.
-\]
+\(
+  40\rightarrow70\rightarrow123.
+\)
 Thereafter, we return to the cell-fraction trigger: slab \(I_n\) is eligible for bisection when more than \(1\%\) of its spatial cells have been selected by the spatial marking. At most
-\[
+\(
   \min(0.30N_t,20)
-\]
-slabs are bisected in one loop. Spatial cells are still selected by global D\"orfler marking with \(\theta_h=0.40\) and are refined independently on each slab. This combination produces the time-grid sequence
-\[
-  40,\;70,\;123,\;143,\;163,\;183,\;203.
-\]
+\)
+slabs are bisected in one loop. Spatial cells are still selected by global D\"orfler marking with \(\theta=0.40\) and are refined independently on each slab. 
+% This combination produces the time-grid sequence
+% \[
+%   40,\;70,\;123,\;143,\;163,\;183,\;203.
+% \]
 
 
 \subsection{Results and Interpretation}
 \label{subsec:cylinder-results}
 
-\Cref{tab:cylinder-adaptive-results} reports the resulting adaptive sequence. The mean drag increases monotonically from \(1.534362\) to \(1.598684\), while the error relative to \(J_{\mathrm{ref}}=1.6031368\) decreases from \(6.88\times10^{-2}\) to \(4.45\times10^{-3}\), a reduction of approximately \(93.5\%\). The estimator has the correct sign in every iteration, and the localisation gap is negligible.
+\Cref{tab:cylinder-adaptive-results} reports the resulting adaptive sequence. The mean drag increases monotonically from \(1.534362\) to \(1.598684\), while the error relative to \(J_{\mathrm{ref}}=1.6031368\) decreases from \(6.88\times10^{-2}\) to \(4.45\times10^{-3}\), a reduction of approximately \(93.5\%\). The estimator has the correct sign in every iteration, and the relative localisation gap remains below \(5\times10^{-9}\).
 
 \begin{table}[htbp]
 \centering
-\caption{Adaptive Navier--Stokes computation.}
-\label{tab:cylinder-adaptive-results}
 \begin{tabular}{rrrrrrr}
 \toprule
 \(\ell\) & \(N_t\) & primal DoFs & \(J(U_h)\) & \(\lvert J_{\mathrm{ref}}-J(U_h)\rvert\) & \(\eta\) & \(I_{\mathrm{eff}}\)\\
@@ -210,15 +205,17 @@ slabs are bisected in one loop. Spatial cells are still selected by global D\"or
 4 & 163 &  2836230 & 1.572898 & \(3.0239\times10^{-2}\) & \(3.8520\times10^{-2}\) & 1.274\\
 5 & 183 &  4105792 & 1.592390 & \(1.0746\times10^{-2}\) & \(1.5197\times10^{-2}\) & 1.414\\
 6 & 203 &  6081534 & 1.598684 & \(4.4532\times10^{-3}\) & \(7.1917\times10^{-3}\) & 1.615\\
+% 7 & 223 &  8974950 & 1.601273 & \(1.8639\times10^{-3}\) & \(5.1099\times10^{-3}\) & 2.742\\
 \bottomrule
 \end{tabular}
+\caption{Adaptive Navier--Stokes computation.}
+\label{tab:cylinder-adaptive-results}
 \end{table}
 
-The goal error therefore converges convincingly, but the effectivity index does not yet exhibit asymptotic stabilisation. It decreases from a strong overestimate at iteration 1 to \(1.274\) at iteration 4 and then rises to \(1.615\). In particular, a single value close to one should not be interpreted as convergence of the estimator; stability must be assessed over several consecutive refinements.
-
-The adaptive result is substantially more accurate than the available uniform space--time refinement sequence.  The latter gives an error of \(2.20\times10^{-2}\) with \(1.279\times10^7\) primal space--time degrees of freedom, whereas the present adaptive computation gives \(4.45\times10^{-3}\) with \(6.082\times10^6\) degrees of freedom. Thus, in this comparison, adaptivity obtains approximately one fifth of the uniform error with less than one half of the primal degrees of freedom. However, note that this comparison concerns goal accuracy rather than running time. The essential trade-off is between avoiding unnecessary refinement throughout the space--time domain and paying the additional cost of the enriched solve, which constitutes the main overhead of the adaptive method. When adaptivity reduces the goal error to a level that would be prohibitively expensive for uniform refinement to attain, this additional cost can be regarded as justified.
-
-The final temporal mesh is shown in Figure~\ref{fig:cylinder-temporal-mesh}. It contains \(203\) time slabs, with \(\Delta t_{\min}=0.00625\) and \(\Delta t_{\max}=0.2\). Most temporal refinement is concentrated during the development of the time-dependent wake, whereas the final part of the interval remains relatively coarse.
+The temporal distribution of the refinement at iteration~6 is shown in \cref{fig:cylinder-temporal-mesh}. The mesh contains \(203\) time slabs, with
+\(\Delta t_{\min}=0.00625\) and \(\Delta t_{\max}=0.2\). Most temporal
+refinement is concentrated during the development of the time-dependent wake,
+whereas the final part of the interval remains relatively coarse.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.95\textwidth]{figures/flow/ns_time.png}
@@ -226,10 +223,42 @@ The final temporal mesh is shown in Figure~\ref{fig:cylinder-temporal-mesh}. It 
   \label{fig:cylinder-temporal-mesh}
 \end{figure}
 
+The goal error decreases consistently over the reported adaptive sequence. The effectivity index, however, does not show asymptotic stabilisation: after attaining \(1.274\) at iteration~4, it rises to \(1.615\) at iteration~6. The present data support the convergence of the primal quantity of interest, but not an asymptotic reliability claim for the economical one-term estimator. Such non-monotone effectivities have also been reported for this benchmark in \cite{non-flow}. In addition, although differences in the meshes, finite-element spaces, and enrichment strategies prevent a direct efficiency comparison with the PU localisation of \cite{non-flow}, the smaller final goal error obtained here shows that the present localisation is capable of delivering competitive goal accuracy on this benchmark.
 
+To assess the computed drag trajectories independently, \cref{fig:cylinder-drag-trajectories} compares them with the pointwise reference data at levels~6. The reference data are taken from the publicly available FeatFlow results for the DFG flow-around-a-cylinder benchmark.\footnote{The FeatFlow benchmark specifies a
+\(Q_2/P_1^{\mathrm{disc}}\) spatial discretisation and Crank--Nicolson time
+stepping. The corresponding reference results are available on the
+\href{https://wwwold.mathematik.tu-dortmund.de/~featflow/en/benchmarks/cfdbenchmarking/flow/dfg_benchmark3_re100.html}{FeatFlow benchmark page}.}
 
-Finally, ~\cref{fig:cylinder-velocity-snapshots} shows the velocity magnitude on the slabwise spatial meshes in the final adaptive loop. At \(t=3\), the flow remains approximately symmetric in the near wake. By \(t=5\), the asymmetric velocity pattern associated with the developing vortex street is clearly visible downstream of the cylinder. The snapshot at \(t=6\) shows the subsequent evolution of this structure. The mesh is concentrated near the cylinder and in the dynamically active part, while remaining comparatively coarse farther downstream.
 \begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/flow/drag_coefficient.png}
+    \caption{Drag coefficient.}
+    \label{fig:cylinder-drag-coefficient}
+  \end{subfigure}\hfill
+  \begin{subfigure}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/flow/pointwise_drag_error.png}
+    \caption{Pointwise error relative to FeatFlow level~6.}
+    \label{fig:cylinder-drag-error}
+  \end{subfigure}
+  \caption{Evolution of the drag trajectory under adaptive refinement and
+  comparison with uniform temporal refinement on the initial spatial mesh.}
+  \label{fig:cylinder-drag-trajectories}
+\end{figure}
+
+As the adaptive iteration proceeds, the computed drag trajectory moves progressively towards the reference curve. The early-time pointwise discrepancy is reduced first, whereas at iteration~6 the largest remaining discrepancy is concentrated around \(t=5\)--\(6\). 
+% The oscillatory structure of this residual error is consistent with a small phase or amplitude mismatch in the vortex-shedding response: even two similar drag trajectories can produce an oscillatory difference when their peaks are slightly displaced in time. 
+As shown in \cref{fig:cylinder-temporal-mesh}, the interval \(t=5\)--\(6\) is still comparatively lightly refined at iteration~6. This is not necessarily contradictory, since the marking is driven by contributions to the time-averaged drag functional rather than by the magnitude of the pointwise drag error. In addition, refinement at earlier times changes the state propagated into subsequent slabs and may therefore also influence the late-time trajectory.
+
+% The marking proposal produced at iteration~6 selects 20 additional time slabs, including three consecutive slabs covering \(t\in[5.6,5.9]\). After applying these marks, iteration~7 reduces the independently measured goal error from \(4.45\times10^{-3}\) to \(1.86\times10^{-3}\), a further reduction of approximately \(58\%\). 
+
+% A comparison with the PU localisation of \cite{non-flow} is of clear interest, but a direct efficiency comparison is precluded by the different meshes, finite-element spaces, and enrichment strategies. Nevertheless, the final goal error obtained here is smaller than the errors reported in \cite{non-flow}, indicating that the present localisation can achieve competitive goal accuracy for this benchmark.
+
+Finally, \cref{fig:cylinder-velocity-snapshots} shows representative velocity magnitudes on the slabwise spatial meshes of adaptive iteration~6. At \(t=3\), the flow remains approximately symmetric in the near wake. By \(t=5\), the asymmetric velocity pattern associated with the developing vortex street is clearly visible downstream of the cylinder. The snapshot at \(t=6\) shows the subsequent evolution of this structure. The mesh is concentrated near the cylinder and in the dynamically active region, while remaining comparatively coarse farther downstream.
+\begin{figure}[!htbp]
   \centering
 
   \begin{subfigure}{0.9\textwidth}
@@ -266,7 +295,3 @@ Finally, ~\cref{fig:cylinder-velocity-snapshots} shows the velocity magnitude on
   \caption{Snapshots of the velocity magnitude and refined meshes of the primal Navier--Stokes solution at \(t=3\), \(5\), and \(6\) in adaptive iteration 6.}
   \label{fig:cylinder-velocity-snapshots}
 \end{figure}
-
-
-
-

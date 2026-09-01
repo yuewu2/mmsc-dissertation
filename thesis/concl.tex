@@ -28,12 +28,17 @@ Finally, the present localisation framework is formulated primarily for first-or
 
 
 \section{Future Work}
+\label{sec:future}
 
 Two directions are particularly important for developing the present work further.
 
 First, the current implementation could be developed into a user-facing software contribution to the \texttt{Firedrake} ecosystem. The aim would be to provide a simple interface through which users specify the weak residual, the quantity of interest, the spatial and temporal discretisations, and the marking parameters. The construction of the adjoint problems, enriched solutions, bubble--cone recovery, local indicators, and slabwise refinement could then be handled automatically by the framework. Such an interface would make the method available to users who want to apply goal-oriented space--time adaptivity without implementing the localisation procedure for each new PDE problem.
 
-Second, the enrichment and marking strategies could be made more directional. At present, the enriched solution difference is used as a combined space--time weight. A possible alternative is to compute four adjoint solutions: the standard adjoint $Z_{00}$, a spatially enriched adjoint $Z_{10}$, a temporally enriched adjoint $Z_{01}$, and an adjoint enriched in both space and time $Z_{11}$. The corresponding differences could be defined by
+Second, the structural information produced by the localisation could be used more fully in the marking strategy. The present recovery already distinguishes contributions associated with cell interiors, spatial facets, temporal interfaces, and mixed space--time ridges. However, these contributions are subsequently combined into a single cell--slab score for marking. A possible extension would retain the entity-wise decomposition when deciding whether refinement should be spatial, temporal, or directed towards regions in which several residual mechanisms interact. Such a strategy would require additional numerical validation, particularly in cases with strong cancellation between signed entity contributions.
+
+A complementary extension would make the enrichment itself more directional. 
+% Second, the enrichment and marking strategies could be made more directional. 
+At present, the enriched solution difference is used as a combined space--time weight. A possible alternative is to compute four adjoint solutions: the standard adjoint $Z_{00}$, a spatially enriched adjoint $Z_{10}$, a temporally enriched adjoint $Z_{01}$, and an adjoint enriched in both space and time $Z_{11}$. The corresponding differences could be defined by
 \begin{align*}
   \delta_h  &\coloneqq Z_{10}-Z_{00}, \\
   \delta_k  &\coloneqq Z_{01}-Z_{00}, \\

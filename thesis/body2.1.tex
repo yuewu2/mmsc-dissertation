@@ -106,7 +106,7 @@ Assume that \(\mathcal{A}\in C^3(U,V^\ast)\) and \(J\in C^3(U,\mathbb{R})\). For
   \frac{1}{2}
   \rho^\ast(\widetilde{u},\widetilde{z})
   (u-\widetilde{u})
-  -
+  +
   \rho(\widetilde{u})(\widetilde{z})
   +
   \mathcal{R}^{(3)},
@@ -160,7 +160,7 @@ Along the segment \(x_s=\widetilde x+s(x-\widetilde x)\), the fundamental theore
 The exact primal and adjoint equations make \(x\) a stationary point of \(\mathcal L\), so \(\mathcal L'(x)=0\). Expanding \(\mathcal L'(\widetilde x)\) in its primal and dual directions produces the primal residual \(\rho\) and adjoint residual \(\rho^\ast\); substituting the definition of \(\mathcal L\) gives the Galerkin correction in \eqref{eq:nonlinear-dwr-identity}. Expanding the third derivative gives \eqref{eq:nonlinear-dwr-remainder}. Complete algebraic details are given in, for example, \cite{Rannacher_2013,93,ENDTMAYER202419}.
 \end{proof}
 
-As previously mentioned, the term \(-\rho(\widetilde u)(\widetilde z)\) vanishes by Galerkin orthogonality when the discrete problems are solved exactly. Otherwise it can be used to balance e.g.~discretisation and errors in iterative solvers (Newton and/or Krylov iterations) \cite{Rannacher_2013}.
+As previously mentioned, the term \(\rho(\widetilde u)(\widetilde z)\) vanishes by Galerkin orthogonality when the discrete problems are solved exactly. Otherwise it can be used to balance e.g.~discretisation and errors in iterative solvers (Newton and/or Krylov iterations) \cite{Rannacher_2013}.
 
 If \(\mathcal A\) is affine and \(J\) is linear, then \(\mathcal R^{(3)}=0\), and the two half-residual terms coincide. To state the resulting linear identity explicitly, let \(a:U\times V\rightarrow\mathbb R\) be bilinear, \(\ell\in V^\ast\), and define
 \begin{align}
@@ -230,7 +230,7 @@ If \(u_h^+\) and \(z_h^+\) solve \eqref{eq:enriched-primal}--\eqref{eq:enriched-
  \coloneqq{}&\tfrac12\rho(\widetilde u)(z_h^+-\widetilde z)
  +\tfrac12\rho^\ast(\widetilde u,\widetilde z)
   (u_h^+-\widetilde u)
- -\rho(\widetilde u)(\widetilde z)
+ +\rho(\widetilde u)(\widetilde z)
  +\mathcal R_+^{(3)}.
  \label{eq:enriched-nonlinear-dwr}
 \end{align}
@@ -255,7 +255,7 @@ Combining \eqref{eq:enriched-exact-splitting} and \eqref{eq:goal-saturation} wit
 Hence, under saturation, the computable estimator \(\eta^+\) bounds the unknown goal error from both sides. The upper bound gives reliability, since the estimator cannot substantially underestimate the error. The lower bound gives efficiency, since it cannot substantially overestimate it. \cite{reli_eff}
 
 % \yue{omit the iteration term now}
-In the computations, we always neglect both the cubic remainder and the iteration error in \cref{eq:enriched-nonlinear-dwr}. \(R_+^{(3)}\) is of higher order with respect to the primal and adjoint errors. The algebraic correction  \(-\rho(\tilde{u})(\tilde{z})\), on the other hand, represents the error due to the inexact solution of the discrete primal problem. We therefore solve each discrete problem to a sufficiently small tolerance such that this term is negligible. Neglecting these two contributions yields the practical symmetric nonlinear estimator
+In the computations, we always neglect both the cubic remainder and the iteration error in \cref{eq:enriched-nonlinear-dwr}. \(R_+^{(3)}\) is of higher order with respect to the primal and adjoint errors. The algebraic correction  \(\rho(\tilde{u})(\tilde{z})\), on the other hand, represents the error due to the inexact solution of the discrete primal problem. We therefore solve each discrete problem to a sufficiently small tolerance such that this term is negligible. Neglecting these two contributions yields the practical symmetric nonlinear estimator
 \begin{equation}
 \eta_{\mathrm{global}}
 \coloneqq
@@ -277,10 +277,10 @@ If \(\mathcal A\) is affine and \(J\) is linear, the estimator can be reduced to
 \end{equation}
 where we use the dual weight
 \begin{equation}
-z^\star=z_h^+-I_hz_h^+
+z^\star=z_h^+-\Pi_{hk}z_h^+
 \label{eq:computable-dwr-interpolated-weight}
 \end{equation}
-as a less expensive alternative. Here, \(z_h^+\in V_h^+\) is the enriched adjoint solution, and \(I_hz_h^+\in V_h\) denotes its interpolation into the current discrete space. The weight \(z^\star\) avoids an additional low-order adjoint solve. 
+as a less expensive alternative. Here, \(z_h^+\in V_h^+\) is the enriched adjoint solution, and \(\Pi_{hk}:V_{hk}^{+}\rightarrow V_{hk}\) denotes the interpolation from the enriched space--time space into the primal space. The weight \(z^\star\) avoids an additional low-order adjoint solve. 
 
 % \yue{For the dual weight, my understanding is that both \(z_h^+-z_h \quad\text{and}\quad z_h^+-I_h z_h^+ \) are theoretically admissible. The first choice seems more natural,  but I'm not sure if it has any general accuracy advantage as an estimator}
 % \pef{Maggie did some experiments and they both behave similarly, even when localised. I would use $z_h^+-I_h z_h^+$, there does not appear to be any gain to solving a low-order adjoint problem}
@@ -291,9 +291,9 @@ as a less expensive alternative. Here, \(z_h^+\in V_h^+\) is the enriched adjoin
 % \pef{And you can still avoid the low-order adjoint solve in the nonlinear case, by only using the primal residual. In this case the error in the estimate becomes quadratic rather than cubic. I don't suggest we do this, though.}
 
 
-When an independently computed reference value for \(J(u)\) is available, the accuracy of the global estimator is measured by the \emph{global effectivity index}
+When an independently computed reference value for \(J(u)\) is available, the accuracy of the global estimator is measured by the \emph{effectivity index}
 \begin{equation}
-I_{\mathrm{eff}}^{\mathrm{glob}}
+I_{\mathrm{eff}}
 \coloneqq
 \frac{\eta_{\mathrm{global}}}{J(u)-J(u_h)}.
 \label{eq:signed-effectivity}

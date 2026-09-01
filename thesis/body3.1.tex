@@ -193,7 +193,7 @@ m_{K,n}^{\mathrm{aut}}
 
 \subsection{Results and Interpretation}
 
-The manufactured moving-hill problem was solved on $\Omega=(0,1)^2$ over time interval $[0,1]$, starting from an $n_x \times n_y = 8 \times 8$ mesh in space and $N_t=8$ initial time slabs, and $\mathrm{cG}(1) \otimes \mathrm{dG}(0)$ primal and $\mathrm{cG}(2) \otimes \mathrm{dG}(1)$ enriched spaces. All estimators used the same quadrature rule with seven temporal quadrature points. For the quadratic running goal~\eqref{eq:mh-goal}, the practical two-term nonlinear DWR estimator was used. The D\"orfler marking fraction was set to $\theta=0.40$, the within-slab trigger $10\%$, and independent slabwise mesh refinement. Both adaptive sequences have seven reported levels.
+The manufactured moving-hill problem was solved on $\Omega=(0,1)^2$ over time interval $[0,1]$, starting from an $n_x \times n_y = 8 \times 8$ mesh in space and $N_t=8$ initial time slabs, and $\mathrm{cG}(1) \otimes \mathrm{dG}(0)$ primal and $\mathrm{cG}(2) \otimes \mathrm{dG}(1)$ enriched spaces. All estimators used the same quadrature rule with seven temporal quadrature points. For the quadratic running goal~\eqref{eq:mh-goal}, the practical two-term nonlinear DWR estimator was used. The D\"orfler marking fraction was set to $\theta=0.40$, the within-slab trigger $10\%$, and independent slabwise mesh refinement. Seven adaptive levels were computed for both methods.
 % \pef{It feels inconsistent to use CG for continuous Galerkin but dG for discontinuous Galerkin. I suggest writing $\mathrm{cG}(1) \otimes \mathrm{dG}(0)$ etc}
 
 \begin{table}[h]
@@ -204,7 +204,7 @@ The manufactured moving-hill problem was solved on $\Omega=(0,1)^2$ over time in
 method & iteration & $N_{\rm cell}$ & $N_t$
 & $J(u_{\rm ex})-J(u_h)$
 & $\eta_{\rm global}$
-& $I_{\rm eff}^{\rm glob}$ \\
+& $I_{\rm eff}$ \\
 \midrule
 strong manual
 & 0 & 1,104 & 8
@@ -263,6 +263,8 @@ localisation and the automated bubble--cone recovery.}
 % \pef{In the table, maybe call strong manual, and bubble automated?}
 
 % trend, I_eff, DoF
+% The relative localisation gap for the bubble automated sequence decreases from \(1.02\%\) to \(0.432\%\), which show that the recovered local contributions reproduce the global estimator closely.
+
 Table~\ref{tab:moving-hill-selected-iterations} shows the results for both residual localisations. During iterations \(0\)--\(2\), both sequences retain \(N_t=8\) and the refinement is predominantly spatial. The small decrease in both effectivity indices therefore indicates that spatial refinement alone does not improve the relative accuracy of the estimator. Once temporal refinement becomes active after iteration \(2\), this imbalance is reduced and both effectivity indices increase steadily towards one, reaching \(0.9941\) and \(0.9955\) at iteration \(6\).
 
 At iteration $6$, both methods reduce the absolute goal error below \(10^{-4}\). The bubble automated method attains a smaller goal error, while the strong manual method requires much fewer space--time unknowns. 
@@ -325,7 +327,7 @@ The mesh snapshots below show how the resulting spatial refinements are distribu
     \label{fig:moving-hill-comparison}
 \end{figure}
 
-For both localisation methods, refinement follows the trajectory of the moving hill. The difference lies in how the activity is distributed among the space--time cells. Under the present marking rule, all space–time cell indicators are sorted in descending order and the largest entries are selected until their cumulative sum reaches \(\theta=0.40\) of the total indicator activity. The strong-residual indicator is a positive upper bound. Therefore, fewer cells are selected and the resulting refined patches remain relatively compact.
+For both localisation methods, refinement follows the trajectory of the moving hill. The principal difference is the spatial distribution of the marking activity. In the strong-residual sequence, a larger fraction of the total activity is concentrated in a relatively small number of cells. Hence, the D\"orfler threshold is reached with fewer marked cells, and the resulting refined patches remain comparatively compact.
 
 By contrast, the automated indicator is formed by summing signed recovered contributions. 
 These signed contributions may partially cancel, while recovered facet terms are distributed between neighbouring cells. For the present experiment, the resulting marking activity is spread over a broader part of the mesh. As a result, more cells are marked within each slab, and more slabs satisfy the \(10\%\) temporal-refinement trigger. This accounts for both the broader spatial patches visible in the snapshots and the larger number of time slabs in the automated sequence.

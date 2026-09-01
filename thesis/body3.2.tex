@@ -123,6 +123,7 @@ Hence, as the adjoint is propagated backwards in physical time, its terminal Gau
 x_z(t)\approx x_d-b(T-t).
 \label{eq:advection-diffusion-adjoint-centre}
 \end{equation}
+% The terminal sensor determines an adjoint trajectory \(x_z(t)=x_d-0.6(1-t)\). It coincides exactly with the primal trajectory when \(x_d=0.8\), while the choices \(x_d=0.7\) and \(0.9\) produce constant offsets of \(-0.1\) and \(+0.1\). 
 
 The three detector locations therefore generate three parallel, spatially shifted sensitivity trajectories in the \((x,t)\) plane. Since the primal problem is identical in all three runs, differences in the adapted meshes can be attributed to these shifted dual weights. The resulting refinement is expected to reflect the interaction between the forward pulse-error trajectory and the detector-dependent adjoint-sensitivity band.
 

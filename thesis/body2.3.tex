@@ -123,8 +123,9 @@ The current implementation retains the complete forward trajectory in memory. Fo
 The primal residual is localised using a hierarchical bubble--cone recovery. Firedrake's scalar Bubble (\texttt{B}) and FacetBubble (\texttt{FB}) element families provide the auxiliary cell-interior and facet-supported test functions, respectively \cite{Firedrake}.
 Temporal integration is performed using Gauss--Legendre quadrature, while the spatial forms are assembled by Firedrake using an explicitly selected quadrature degree.
 
-In the two-dimensional examples, the initial geometry-conforming meshes and the marked-cell spatial refinements are generated using \texttt{Netgen} (cite).
-\yue{Add Netgen}
+The default computations use degree-one polynomial densities for the cell, facet, and temporal recovery stages, together with five-point Gauss--Legendre quadrature in time. The resulting global--local discrepancy is monitored through the localisation gap.
+
+In the two-dimensional examples, the initial geometry-conforming meshes and the marked-cell spatial refinements are generated with \texttt{Netgen} and imported through \texttt{Firedrake}'s interface \cite{Schoeberl1997Netgen,Firedrake}.
 
 % https://www.firedrakeproject.org/variational-problems.html
 
