@@ -1,7 +1,7 @@
 \section{Benjamin--Bona--Mahony (BBM) Equation}
 \label{sec:bbm-experiment}
 
-In this section, we turn to a one-dimensional nonlinear BBM experiment. It tests the automated space--time localisation for a nonlinear dispersive equation, for which the nonlinear DWR identity is required. Moreover, it tests whether the entity recovery remains complete when the time derivative is paired through a spatial $H^1$ bilinear form rather than the spatial $L^2$ pairing used in the previous heat and advection--diffusion examples.
+In this section, we turn to a one-dimensional nonlinear BBM experiment, originally introduced as a regularised long-wave model by Benjamin, Bona, andMahony~\cite{BBM}. It tests the automated space--time localisation for a nonlinear dispersive equation, for which the nonlinear DWR identity is required. Moreover, it tests whether the entity recovery remains complete when the time derivative is paired through a spatial $H^1$ bilinear form rather than the spatial $L^2$ pairing used in the previous heat and advection--diffusion examples.
 
 
 \subsection{Primal Problem and Solitary Wave}
@@ -164,23 +164,23 @@ The derivative part of the interface defect can consequently have a substantial 
 
 \subsection{Results and Interpretation}
 
-The global estimator uses the nonlinear DWR identity with the unknown cubic remainder omitted~\cref{eq:localised-symmetric-nonlinear-dwr}. The low-order and enriched spaces are, respectively,
+The global estimator uses the nonlinear DWR identity~\cref{eq:practical-nonlinear-estimator}. The low-order and enriched spaces are, respectively,
 \begin{equation*}
-  V_h^{\mathrm{low}}=\mathrm{dG}(1)_x\otimes\mathrm{dG}(0)_t,
+  V_h^{\mathrm{low}}=\mathrm{cG}(1)\otimes\mathrm{dG}(0),
   \qquad
-  V_h^+=\mathrm{dG}(2)_x\otimes\mathrm{dG}(1)_t.
-  \label{eq:bbm-discrete-spaces}
+  V_h^+=\mathrm{cG}(2)\otimes\mathrm{dG}(1).
+  % \label{eq:bbm-discrete-spaces}
 \end{equation*}
 We take the D\"orfler marking fraction as $0.35$ and bisect a time slab when at least $10\%$ of its spatial cells are selected. We have initially $50$ spatial cells and $6$ time slabs. The terminal time is set to be $T = 18$.
 
-To verify algebraic completeness as stated in \cref{sec:bbm-mixed-ridge-specialisation}, each adaptive iterate is post-processed on the same primal solution, adjoint solution, and mesh in two ways: with all recovered entities and after deleting only the signed mixed-ridge
-contribution. Define
+To verify algebraic completeness as stated in \cref{sec:bbm-mixed-ridge-specialisation}, each adaptive iterate is post-processed on the same primal solution, adjoint solution, and mesh in two ways: with all recovered entities and after deleting only the signed mixed-ridge contribution. 如果之前define 了gap再看一下。Define
 \begin{equation}
   \delta_{\mathrm{loc}}
   \coloneqq\sum_{n,K}\eta_{K,n}-\eta_{\mathrm{global}}.
   \label{eq:bbm-localisation-gap}
 \end{equation}
 With the mixed ridge included, $|\delta_{\mathrm{loc}}|$ stays at floating-point roundoff, but without it it does not. 
+
 %This test in \cref{tab:bbm-mixed-ridge-ablation} demonstrates that the mixed ridge term is required to reproduce the global DWR estimator for this BBM calculation.
 %\begin{table}[h]
 %  \centering
@@ -210,7 +210,8 @@ With the mixed ridge included, $|\delta_{\mathrm{loc}}|$ stays at floating-point
 %   \label{fig:bbm-mixed-ridge-ablation}
 % \end{figure}
 
-\Cref{fig:bbm-mesh-evolution} displays the adapted meshes in the $(x,t)$ plane. The initial mesh is uniform. By iteration $8$, local spatial and temporal refinements form a recognisable diagonal corridor from the initial wave position towards the terminal sensor. At iteration $12$ this corridor is substantially denser, while cells far from it remain comparatively coarse. Its alignment with the exact space--time wave whose centre moves from $x=30$ at $t=0$ to $x=54$ at $T=18$.
+\Cref{fig:bbm-mesh-evolution} displays the adapted meshes in the $(x,t)$ plane. The initial mesh is uniform. At iteration \(6\), local spatial and temporal refinements form a recognisable diagonal corridor from the initial wave position towards the terminal sensor. By iteration $12$, this corridor is substantially denser, while cells far from it remain comparatively coarse. Its alignment with the exact space--time wave whose centre moves from $x=30$ at $t=0$ to $x=54$ at $T=18$.
+
 \begin{figure}[!htbp]
   \centering
   % space--time axis
@@ -222,55 +223,55 @@ With the mixed ridge included, $|\delta_{\mathrm{loc}}|$ stays at floating-point
     \end{tikzpicture}
     \vspace{-1.5em}
     \captionsetup{labelformat=empty}
-    \caption{}
+    \caption*{\strut}
   \end{subfigure}
   \hfill
   \begin{subfigure}[b]{0.90\linewidth}
     \centering
     \includegraphics[width=\linewidth, height=0.25\textheight, keepaspectratio]{figures/bbm/bbm_mesh_iter_00.png}
-    \caption{Iteration 0: $300$ cells.}
+    \caption{Iteration 0: 300 space--time cells.}
   \end{subfigure}
   \vspace{0.5em}
   
   \begin{subfigure}[b]{0.90\linewidth}
     \centering
-    \includegraphics[width=\linewidth, height=0.25\textheight, keepaspectratio]{figures/bbm/bbm_mesh_iter_08.png}
-    \caption{Iteration 8: $843$ cells.}
+    \includegraphics[width=\linewidth, height=0.25\textheight, keepaspectratio]{figures/bbm/bbm_mesh_iter_06.png}
+    \caption{Iteration 6: 870 space--time cells.}
   \end{subfigure}
   \vspace{0.5em}
 
   \begin{subfigure}[b]{0.90\linewidth}
     \centering
     \includegraphics[width=\linewidth, height=0.25\textheight, keepaspectratio]{figures/bbm/bbm_mesh_iter_12.png}
-    \caption{Iteration 12: $2966$ cells.}
+    \caption{Iteration 12: 10{,}431 space--time cells.}
   \end{subfigure}
   \caption{Evolution of the independently refined slabwise space--time mesh.}
   \label{fig:bbm-mesh-evolution}
 \end{figure}
 
-Finally, selected iterations are listed in \cref{tab:bbm-results}. The goal error remains appreciable because a narrow nonlinear wave is transported over a long time interval on relatively modest meshes. The main estimator result is the improvement in effectivity from $0.7306$ to $0.9298$.
-\begin{table}[htbp]
-  \centering
-  % \small
-  \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{rrrrrrr}
-    \toprule
-    Iter. & Cells & $N_t$ & Terminal DoFs & $|J_{\mathrm{ref}}-J(u_h)|$
-      & $I_{\mathrm{eff}}^{\mathrm{glob}}$ \\
-    \midrule
-     0 &   300 &   6 &  50 & 1.172006 & 0.730579 \\
-     % 6 &   571 &   9 &  74 & 1.110802 & 0.765569 \\
-     8 &   843 &  12 &  83 & 1.041180 & 0.818794 \\
-    % 10 &  1653 &  20 & 101 & 0.862186 & 0.947709 \\
-    12 &  2966 &  31 & 126 & 0.751703 & 0.967864 \\
-    % 14 &  6694 &  57 & 163 & 0.540380 & 0.968159 \\
-    16 & 15926 & 111 & 194 & 0.364666 & 0.929799 \\
-    18 & 41682 & 226 & 279 & 0.232930 & 0.877563 \\
-    20 & 115015 & 452 & 425 & 0.158710 & 0.794674 \\
-    \bottomrule
-  \end{tabular}
-  \caption{Selected iterations of the periodic BBM adaptive calculation.}
-  \label{tab:bbm-results}
+Finally, selected iterations up to iteration \(12\) are reported in \cref{tab:bbm-results}. Over this sequence, the goal error decreases from \(1.1720\) to \(4.1940\times10^{-1}\), while the global effectivity index improves from \(0.7306\) to \(0.9806\). 
+% Finally, selected iterations are reported in \cref{tab:bbm-results}. The goal error decreases from its initial value to \(9.1811\times10^{-2}\) at iteration \(18\). The global effectivity index improves from \(0.7306\) initially to \(0.9868\) at iteration \(9\), but subsequently decreases to \(0.9000\) on the final mesh. Although this remains a satisfactory effectivity index, the downward trend indicates a moderate underestimation of the goal error at later refinement levels. This may reflect the limited accuracy of the enriched approximations under strongly non-uniform space--time refinement, together with the higher-order terms omitted from the two-term DWR estimator. Nevertheless, the estimator continues to capture both the magnitude and the decay of the goal error.
+\begin{table}[!htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lllllrr}
+\toprule
+Iter. & Space--time cells &
+$N_t$ & Terminal DoFs & $\lvert J_{\mathrm{ref}}-J(u_h)\rvert$ & $\eta_{\mathrm{global}}$ & $I_{\mathrm{eff}}^{\mathrm{glob}}$ \\
+\midrule
+ 0 &     300 &     6 &    50 & $1.1720$                   & $8.5624\times10^{-1}$ & 0.7306 \\
+ 3 & 346 & 6 & 58 & $1.1662$ & $8.6313\times10^{-1}$ & 0.7401 \\
+ 6 &     870 &    12 &    73 & $9.7814\times10^{-1}$     & $9.0395\times10^{-1}$ & 0.9242 \\
+ 9 &   2,545 &    27 &   111 & $7.4250\times10^{-1}$     & $7.3270\times10^{-1}$ & 0.9868 \\
+12 &  10,431 &    81 &   263 & $4.1940\times10^{-1}$     & $4.1126\times10^{-1}$ & 0.9806 \\
+% 15 &  42,552 &   206 &   861 & $1.9764\times10^{-1}$     & $1.8692\times10^{-1}$ & 0.9458 \\
+% 18 & 189,670 &   601 & 1,956 & $9.1811\times10^{-2}$     & $8.2626\times10^{-2}$ & 0.9000 \\
+% 20 & 530,315 & 1,208 & 3,757 & $5.2067\times10^{-2}$     & $4.5028\times10^{-2}$ & 0.8648 \\
+\bottomrule
+\end{tabular}
+\caption{Selected iterations of the periodic BBM adaptive calculation.}
+\label{tab:bbm-results}
 \end{table}
 %\pef{Can we do more adaptive iterations? These computations should be fairly cheap, I think?}
 %\yue{More iterations are included in the table. The temporal bisection went crazy so I stopped at 20}

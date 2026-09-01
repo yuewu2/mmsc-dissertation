@@ -254,7 +254,7 @@ Combining \eqref{eq:enriched-exact-splitting} and \eqref{eq:goal-saturation} wit
 \end{equation}
 Hence, under saturation, the computable estimator \(\eta^+\) bounds the unknown goal error from both sides. The upper bound gives reliability, since the estimator cannot substantially underestimate the error. The lower bound gives efficiency, since it cannot substantially overestimate it. \cite{reli_eff}
 
-\yue{omit the iteration term now}
+% \yue{omit the iteration term now}
 In the computations, we always neglect both the cubic remainder and the iteration error in \cref{eq:enriched-nonlinear-dwr}. \(R_+^{(3)}\) is of higher order with respect to the primal and adjoint errors. The algebraic correction  \(-\rho(\tilde{u})(\tilde{z})\), on the other hand, represents the error due to the inexact solution of the discrete primal problem. We therefore solve each discrete problem to a sufficiently small tolerance such that this term is negligible. Neglecting these two contributions yields the practical symmetric nonlinear estimator
 \begin{equation}
 \eta_{\mathrm{global}}

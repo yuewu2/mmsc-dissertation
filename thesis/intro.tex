@@ -24,12 +24,12 @@ The dual-weighted residual (DWR) method provides a systematic framework for goal
 % \yue{yeah I have found out this so I am quite nervous about the viva. I add the next three paragraphs.}
 % \pef{I think Mike's involvement is a good thing. He will understand the big picture and appreciate why your contribution is useful. He is a kind person and I don't think you should be any more worried than you were before.
 % I like your text. }
-\pef{Instead of the Prudhomme reference you have, cite the main one, doi:10.1016/S0045-7825(98)00343-0. I think there might also be some early references by Claes Johnson, but I can't dig them out at the moment.}
-\yue{I found some references by Johnson that seem more closely related to AFEM and duality-based a posteriori error estimation. e.g., Adaptive finite element methods in computational mechanics, Introduction to adaptive methods for differential equations\cite{Eriksson_Estep_Hansbo_Johnson_1995}, Computational Differential Equations.}
+% \pef{Instead of the Prudhomme reference you have, cite the main one, doi:10.1016/S0045-7825(98)00343-0. I think there might also be some early references by Claes Johnson, but I can't dig them out at the moment.}
+% \yue{I found some references by Johnson that seem more closely related to AFEM and duality-based a posteriori error estimation. e.g., Adaptive finite element methods in computational mechanics, Introduction to adaptive methods for differential equations\cite{Eriksson_Estep_Hansbo_Johnson_1995}, Computational Differential Equations.}
 
 Theoretical analyses of goal-oriented error estimation have established guaranteed computable bounds and convergence results, while more abstract analyses have investigated the optimality of goal-oriented adaptive algorithms \cite{Ainsworth_Rankin_2012,Ladevese_Pled_Chamoin_2013,Mommer_Stevenson_2009,Feischl_Praetorius_van_der_Zee_2016}. Numerical studies have further demonstrated that the resulting adjoint-weighted indicators can effectively drive adaptive mesh refinement \cite{R6,ThieleWick2024,non-flow}. Although the present dissertation focuses on a single quantity of interest, the goal-oriented framework has also been extended to multiple quantities of interest \cite{multi1,multi2}.
 
-The use of adjoint equations and duality for estimating errors in selected functionals is broader than the DWR framework alone. Giles and S\"uli provide a broad overview of adjoint methods in a posteriori finite element error analysis for quantities of interest, and the post-processing of integral functionals to obtain more accurate, potentially superconvergent, approximations \cite{Giles_Suli_2002}. Pierce and Giles further distinguish between adjoint methods, which estimate or correct the error in a particular output functional, and defect methods, which aim to improve the accuracy of the entire numerical solution \cite{Pierce_Giles_2004}. In an engineering setting, Prudhomme and Oden applied goal-oriented error estimation to control pointwise errors for elliptic problems by solving an associated dual problem and evaluating residual-based bounds \cite{PRUDHOMME_1999}. These studies illustrate how adjoint-based error estimation can be adapted to different error sources, physical models, and application-specific outputs.
+The use of adjoint equations and duality for estimating errors in selected functionals is broader than the DWR framework alone. Giles and S\"uli provide a broad overview of adjoint methods in a posteriori finite element error analysis for quantities of interest, and the post-processing of integral functionals to obtain more accurate, potentially superconvergent, approximations \cite{Giles_Suli_2002}. Pierce and Giles further distinguish between adjoint methods, which estimate or correct the error in a particular output functional, and defect methods, which aim to improve the accuracy of the entire numerical solution \cite{Pierce_Giles_2004}. For elliptic problems, Prudhomme and Oden applied goal-oriented error estimation to control pointwise errors by solving an associated dual problem and evaluating residual-based bounds \cite{PRUDHOMME_1999}. These studies illustrate how adjoint-based error estimation can be adapted to different error sources, physical models, and application-specific outputs.
 
 The present dissertation adopts the DWR framework because it is a broad and useful abstraction that applies to many problems, and hence is amenable to automation. 
 Exact DWR identities contain errors in the primal and adjoint solutions that are not available computationally. In practice, these terms are approximated using enriched finite element spaces. The detailed identities, computable approximations, and the assumptions under which they estimate the true goal error are presented in \cref{chap:background}.
@@ -59,16 +59,16 @@ In this dissertation, time is divided into slabs and discretised by discontinuou
 % The geometric support of an interface residual also depends on the time-mass pairing of the evolution equation. 
 %\pef{I expect examiners won't know what `time-mass pairing of the evolution equation' means, give examples} 
 Time dependence also introduces a choice in the mass or time-derivative pairing. For a standard parabolic equation the pairing is typically
-\begin{equation}
+\begin{equation*}
   m_0(w,v)=(w,v)_\Omega,
   \label{eq:intro-l2-mass-pairing}
-\end{equation}
+\end{equation*}
 so the dG jump term has the form $m_0([U],V^+) = ([U],V^+)_\Omega$. In contrast, a $H^1$-based evolution problem may use
-\begin{equation}
+\begin{equation*}
   m_1(w,v)=(w,v)_\Omega+\alpha(\nabla w,\nabla v)_\Omega,
   \qquad \alpha>0.
   \label{eq:intro-h1-mass-pairing}
-\end{equation}
+\end{equation*}
 The jump term then contains $\alpha(\nabla[U],\nabla V^+)_\Omega$. When this term is localised elementwise, spatial integration by parts produces contributions on spatial facets at the temporal interface. Their support is the intersection of a spatial facet and a temporal face, which is the mixed space--time ridge stated above.
 
 % For the standard spatial $L^2$ pairing, the discontinuous-Galerkin jump term acts on a temporal face. If the pairing contains spatial derivatives, integration over that face can additionally reveal a contribution on the intersection of a spatial facet and a temporal interface. This lower-dimensional entity is referred to here as a mixed space--time ridge. It does not arise for every problem, but when it does it is crucial to account for it.
@@ -94,7 +94,6 @@ The bubble--cone residual recovery is extended from stationary finite element pr
 The implementation is written in Python using \texttt{Firedrake}, which represents and assembles finite element variational forms through the Unified Form Language (UFL) \cite{Firedrake}. UFL differentiation is used to form the linearised and transposed spatial operators and the derivatives of the specified goal functional. The time discretisation follows the automated Galerkin time-stepping framework developed in and around \texttt{Irksome} \cite{Farrell_Kirby_Marchena_2021,andrews2026automatedgalerkintimestepping}.
 
 The development repository can be found at https://github.com/yuewu2/mmsc-dissertation.
-
 
 
 \section{Structure of the Dissertation}

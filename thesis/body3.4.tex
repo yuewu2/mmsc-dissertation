@@ -8,10 +8,10 @@ The preceding experiments considered smooth spatial settings and were useful for
 \label{subsec:lshape-benchmark}
 
 Let
-\begin{equation}
+\[
   \Omega=(-1,1)^2\setminus\bigl([0,1]\times[-1,0]\bigr),
   \qquad Q=\Omega\times(0,1).
-\end{equation}
+\]
 We solve
 \begin{equation}
   \partial_t u
@@ -76,7 +76,7 @@ The computed goal error exhibits an overall decreasing trend over the six adapti
 % \)
 % on the initial discretisation to $1.21\times 10^{-3}$ at adaptive iteration~7. 
 % The decrease is not strictly monotone, which is expected for a signed global quantity of interest because local space--time contributions may partially cancel after each non-uniform refinement step.
-while the global effectivity starts from $0.0559$ and increases to $ 1.0463$ at iteration~7. The localised effectivity is much closer to one throughout the sequence. Figure~\ref{fig:lshape-terminal-meshes} shows the spatial meshes associated with four representative time slabs from the final adaptive sequence. The refinement becomes progressively denser near the re-entrant corner and extends into its surrounding region as the terminal time is approached. This pattern is that expected for a goal functional whose value depends on the corner singularity.
+while the global effectivity starts from $0.0543$ and increases to \(1.1072\) at iteration~6. The localised effectivity is much closer to one throughout the sequence. Figure~\ref{fig:lshape-terminal-meshes} shows the spatial meshes associated with four representative time slabs from the final adaptive sequence. The refinement becomes progressively denser near the re-entrant corner and extends into its surrounding region as the terminal time is approached. This pattern is that expected for a goal functional whose value depends on the corner singularity.
 \begin{figure}[h]
   \centering
   \begin{subfigure}[t]{0.24\textwidth}
@@ -106,8 +106,7 @@ while the global effectivity starts from $0.0559$ and increases to $ 1.0463$ at 
       {figures/lshape/j2_mesh.0003.png}
     \caption{$t=1$}
   \end{subfigure}
-
-  \caption{Spatial meshes at time $t=0,\,0.5,\,0.75,\,1$ for goal $J_1$ at iteration~7.}
+  \caption{Spatial meshes at time $t=0,\,0.5,\,0.75,\,1$ for goal $J_1$ at iteration~6.}
   \label{fig:lshape-terminal-meshes}
 \end{figure}
 
@@ -121,94 +120,83 @@ Figure~\ref{fig:lshape-j1-comparison} compares the true $J_2$ error against $N_{
   \centering
   \includegraphics[width=0.65\textwidth]
   {figures/lshape/lshape_j1_adaptive_uniform.png}
-  \caption{$J_2$ error against total primal space--time degrees of freedom for adaptive iterations 0--6 and the uniform sequence 0--3.}
+  \caption{$J_2$ error against total primal space--time degrees of freedom for adaptive iterations 0--8 and the uniform sequence 0--3.}
   \label{fig:lshape-j1-comparison}
 \end{figure}
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
-\caption{Representative fitted-$J_2$ results.}
-\label{tab:lshape-j1-results}
-% \small
+\small
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{lrrrr}
+\begin{tabular}{lrrrrrr}
 \toprule
-strategy/iterate
-& $N_{\mathrm{st}}$
-& $N_t$
-& $|e_{J_1}|$
-& $I_{\mathrm{eff}}^{\mathrm{glob}}$ \\
+Strategy/iter. & $N_{\mathrm{st}}$ & $N_{\mathrm{cell}}$ & $N_t$ & $\lvert J_2(u)-J_2(u_h)\rvert$ & $\eta_{\mathrm{global}}$ & $I_{\mathrm{eff}}^{\mathrm{glob}}$ \\
 \midrule
-initial
-& $600$
-& $8$
-& $1.798\times10^{-4}$
-& $0.925$ \\
-
-% uniform 1
-% & $4\,240$
-% & $16$
-% & $3.304\times10^{-5}$
-% & $1.082$ \\
+uniform 1
+& $4\,240$
+& $7\,424$
+& $16$
+& $3.3044\times10^{-5}$
+& $-3.5746\times10^{-5}$
+& $1.0818$ \\
 
 uniform 2
 & $31\,776$
+& $59\,392$
 & $32$
-& $8.036\times10^{-6}$
-& $1.023$ \\
+& $8.0355\times10^{-6}$
+& $-8.2200\times10^{-6}$
+& $1.0230$ \\
 
-% uniform 3
-% & $245\,824$
-% & $64$
-% & $2.307\times10^{-6}$
-% & $1.007$ \\
+uniform 3
+& $245\,824$
+& $475\,136$
+& $64$
+& $2.3075\times10^{-6}$
+& $-2.3240\times10^{-6}$
+& $1.0072$ \\
 
-% adaptive 1
-% & $613$
-% & $8$
-% & $3.748\times10^{-5}$
-% & $1.100$ \\
-
+\midrule
 adaptive 2
-& $651$
+& $644$
+& $1\,016$
 & $8$
-& $2.434\times10^{-5}$
-& $1.148$ \\
-
-% adaptive 3
-% & $714$
-% & $8$
-% & $1.872\times10^{-5}$
-% & $1.174$ \\
+& $2.4308\times10^{-5}$
+& $-2.6792\times10^{-5}$
+& $1.1022$ \\
 
 adaptive 4
-& $862$
+& $854$
+& $1\,431$
 & $8$
-& $1.280\times10^{-5}$
-& $1.055$ \\
-
-% adaptive 5
-% & $1\,413$
-% & $9$
-% & $7.032\times10^{-6}$
-% & $1.101$ \\
+& $1.1523\times10^{-5}$
+& $-1.2088\times10^{-5}$
+& $1.0490$ \\
 
 adaptive 6
-& $2\,871$
+& $2\,488$
+& $4\,587$
 & $10$
-& $1.162\times10^{-6}$
-& $1.502$ \\
+& $3.5738\times10^{-6}$
+& $-3.6546\times10^{-6}$
+& $1.0226$ \\
 
-adaptive 7
-& $6\,060$
-& $14$
-& $3.070\times10^{-6}$
-& $0.941$ \\
+adaptive 8
+& $10\,651$
+& $20\,506$
+& $17$
+& $1.7775\times10^{-6}$
+& $-1.8216\times10^{-6}$
+& $1.0248$ \\
 \bottomrule
 \end{tabular}
+\caption{Selected uniform and adaptive results for the localised nonlinear goal \(J_2\).}
+\label{tab:lshape-j1-results}
 \end{table}
 
-The adaptive sequence reduces the error much more rapidly than uniform refinement. Uniform refinement uses approximately $245824/2871\simeq 85.6$ times as many primal space--time degrees of freedom to reach a comparable goal accuracy. 
+The adaptive sequence reduces the goal error considerably more efficiently than uniform refinement. At adaptive iteration \(8\), it attains an error of \(1.7775\times10^{-6}\) using \(10\,651\) primal space--time degrees of freedom. By comparison, uniform iteration \(3\) uses \(245\,824\) degrees of freedom to obtain the larger error \(2.3075\times10^{-6}\). Uniform refinement therefore requires approximately \(23.1\) times as many primal space--time degrees of freedom while delivering slightly lower accuracy.
+
+% The adaptive sequence reduces the error much more rapidly than uniform refinement. Uniform refinement uses approximately $245824/2871\simeq 85.6$ times as many primal space--time degrees of freedom to reach a comparable goal accuracy. 
 % At the initial level the global and localised estimates are $-1.6628\times10^{-4}$ and $-1.6645\times10^{-4}$, giving effectivities $0.925$ and $0.926$, respectively. Uniform refinement subsequently drives both indices smoothly towards one. The adaptive global index remains between $0.925$ and $1.321$ through iterate~6, despite changing only a small fraction of the space--time cells.
 
 % However, from the table, an unexpected decrease to $I_{\mathrm{eff}}^{\mathrm{glob}}=0.550$ occurs at adaptive iterate~7. The available reference goal value shows that this is associated with a failure of the saturation property underlying the DWR reliability and efficiency theory \cite{ENDTMAYER202419}. With $u_h^+$ denoting the enriched primal solution, the observed ratio 
@@ -221,7 +209,7 @@ The adaptive sequence reduces the error much more rapidly than uniform refinemen
 
 % \yue{does this make sense? though Ieff is incorrect but the error is indeed decreasing}
 % \pef{It is somewhat surprising, I think this is the first time I have seen the saturation assumption fail!}
-\yue{the goal error increases from ite. 6 to 7. I excluded ite 7 in Fig 3.10 for now, but I don't know how to explain this}
+% \yue{the goal error increases from ite. 6 to 7. I excluded ite 7 in Fig 3.10 for now, but I don't know how to explain this}
 
 Finally, \cref{fig:lshape-j1-meshes} show the two-dimensional adapted meshes at different times.
 \begin{figure}[htbp]
@@ -264,9 +252,9 @@ Finally, \cref{fig:lshape-j1-meshes} show the two-dimensional adapted meshes at 
     ]{figures/lshape/j1_mesh.0004.png}
     \caption{}
   \end{subfigure}
-  \caption{Spatial meshes for goal $J_2$ at iteration~7. (a) shows the initial mesh, (b)--(e) show the spatial meshes carried by the adaptive time slabs whose right endpoints are $t=0.5$, $0.625$, $0.75$, and $1$, respectively.}
+  \caption{Spatial meshes for goal $J_2$ at iteration~8. (a) shows the initial mesh, (b)--(e) show the spatial meshes carried by the adaptive time slabs whose right endpoints are $t=0.5$, $0.625$, $0.75$, and $1$, respectively.}
   \label{fig:lshape-j1-meshes}
 \end{figure}
 % \pef{I'm not sure this figure adds anything, I don't know how to interpret it.}
 
-The mesh sequence clarifies the advantage of goal-oriented adaptivity. At $t=0.625$ and $t=0.75$, the selected slabs contain $1\,895$ and $1\,971$ cells, respectively, whereas the terminal slabs contain only the initial $116$ cells. Refinement is concentrated around $\Omega_I$ and its surrounding sensitivity region, and does not over-resolve the re-entrant corner. The DWR algorithm does not attempt to resolve every feature of the solution, only those that matter for the computation of the specified goal. DWR can be much more efficient than uniform refinement or non-goal-oriented adaptivity for goal functionals such as this.
+The mesh sequence clarifies the advantage of goal-oriented adaptivity. At $t=0.625$ and $t=0.75$, the selected slabs contain \(2\,174\) and \(3\,099\) cells, respectively, whereas the terminal slabs contain only the initial $116$ cells. Refinement is concentrated around $\Omega_I$ and its surrounding sensitivity region, and does not over-resolve the re-entrant corner. The DWR algorithm does not attempt to resolve every feature of the solution, only those that matter for the computation of the specified goal. DWR can be much more efficient than uniform refinement or non-goal-oriented adaptivity for goal functionals such as this.

@@ -62,8 +62,8 @@ The quantity of interest is the time-mean drag on the cylinder,
  \label{eq:cylinder-goal}
 \end{equation}
 where \(\boldsymbol n_C\) points from the cylinder into the fluid. We use the reference value \(J_{\mathrm{ref}}=1.6031368\), which is reported in \cite{non-flow}.
-\pef{From Roth?}
-\yue{reference updated}
+% \pef{From Roth?}
+% \yue{reference updated}
 
 
 \subsection{Implementation}
@@ -149,4 +149,121 @@ Q_{n,\mathrm{df}}^{L^2}
 % =
 % Q_{n,\mathrm{df}}^{L^2}\circ I_n.
 % \]
+
+Although the primal Navier--Stokes problem is nonlinear, we use the economical one-term primal-residual estimator
+\begin{equation}
+  \eta := \rho(U_h)\bigl(Z_h^+-I_hI_kZ_h^+\bigr),
+  \label{eq:cylinder-linear-estimator}
+\end{equation}
+where \(Z_h^+\) is the enriched adjoint. Here \(I_k\) is the Gauss--Legendre nodal interpolant from \(\mathrm{dG}(2)\) to \(\mathrm{dG}(1)\) on each time slab, and \(I_h\) is the componentwise nodal interpolant from the enriched \(\mathrm{cG}(3)/\mathrm{cG}(2)\) pair to the primal \(\mathrm{cG}(2)/\mathrm{cG}(1)\) pair. This choice avoids the low-order adjoint and enriched-primal solves required by the nonlinear estimator. It is also motivated by the asymptotic equivalence of the primal- and adjoint-residual terms for sufficiently smooth, mildly nonlinear semilinear problems with a linear goal functional \cite{non-flow}. 
+
+
+\subsection{Initial Discretisation and Adaptive Strategy}
+\label{subsec:cylinder-adaptive-configuration}
+
+The initial spatial mesh is the first uniformly refined level of the geometry-fitted triangular \texttt{Netgen} mesh. It contains \(1092\) triangles and \(5239\) mixed Taylor--Hood degrees of freedom on each time slab. We start with \(N_t=40\) uniform time slabs, so that \(\Delta t=0.2\). This is a compromise between the cost of the initial solves and the need to resolve the shorter time scales generated in the wake, i.e. the downstream flow region behind the cylinder, as vortex shedding develops.
+
+Both our preliminary experiments and the reference computations indicate that substantial temporal refinement is needed before the estimator enters a useful regime. Roth et al.~\cite{non-flow} bisect the \(75\%\) of time slabs with the largest temporal indicators in each adaptive loop, producing the sequence
+\[
+  20,\;36,\;64,\;113,\;199.
+\]
+The more recent computation \cite{recent-flow} instead starts from \(160\) time slabs and subsequently applies an approximately \(10\%\) fixed-rate temporal refinement.
+
+Motivated by these observations, we use a two-stage temporal strategy. First, the score of time slab \(I_n\) is obtained directly from the already localised strong-residual indicators,
+\[
+  E_n := \sum_{K\in\mathcal{T}_h^n}\lvert\eta_{K,n}\rvert.
+\]
+The \(75\%\) of slabs with the largest \(E_n\) are bisected. Two refinements give
+\[
+  40\longrightarrow70\longrightarrow123.
+\]
+Thereafter, we return to the cell-fraction trigger: slab \(I_n\) is eligible for bisection when more than \(1\%\) of its spatial cells have been selected by the spatial marking. At most
+\[
+  \min(0.30N_t,20)
+\]
+slabs are bisected in one loop. Spatial cells are still selected by global D\"orfler marking with \(\theta_h=0.40\) and are refined independently on each slab. This combination produces the time-grid sequence
+\[
+  40,\;70,\;123,\;143,\;163,\;183,\;203.
+\]
+
+
+\subsection{Results and Interpretation}
+\label{subsec:cylinder-results}
+
+Table~\ref{tab:cylinder-adaptive-results} reports the resulting adaptive sequence. The mean drag increases monotonically from \(1.534362\) to \(1.598684\), while the error relative to \(J_{\mathrm{ref}}=1.6031368\) decreases from \(6.88\times10^{-2}\) to \(4.45\times10^{-3}\), a reduction of approximately \(93.5\%\). The estimator has the correct sign in every iteration, and the localisation gap is negligible.
+
+\begin{table}[htbp]
+\centering
+\caption{Adaptive Navier--Stokes computation.}
+\label{tab:cylinder-adaptive-results}
+\begin{tabular}{rrrrrrr}
+\toprule
+\(\ell\) & \(N_t\) & primal DoFs & \(J(U_h)\) & \(\lvert J_{\mathrm{ref}}-J(U_h)\rvert\) & \(\eta\) & \(I_{\mathrm{eff}}\)\\
+\midrule
+0 &  40 &   419120 & 1.534362 & \(6.8774\times10^{-2}\) & \(4.4338\times10^{-2}\) & 0.645\\
+1 &  70 &   756508 & 1.548852 & \(5.4285\times10^{-2}\) & \(2.6750\times10^{-1}\) & 4.928\\
+2 & 123 &  1442810 & 1.554548 & \(4.8588\times10^{-2}\) & \(9.2346\times10^{-2}\) & 1.901\\
+3 & 143 &  2036664 & 1.561633 & \(4.1503\times10^{-2}\) & \(7.2375\times10^{-2}\) & 1.744\\
+4 & 163 &  2836230 & 1.572898 & \(3.0239\times10^{-2}\) & \(3.8520\times10^{-2}\) & 1.274\\
+5 & 183 &  4105792 & 1.592390 & \(1.0746\times10^{-2}\) & \(1.5197\times10^{-2}\) & 1.414\\
+6 & 203 &  6081534 & 1.598684 & \(4.4532\times10^{-3}\) & \(7.1917\times10^{-3}\) & 1.615\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The goal error therefore converges convincingly, but the effectivity index does not yet exhibit asymptotic stabilisation. It decreases from a strong overestimate at iteration 1 to \(1.274\) at iteration 4 and then rises to \(1.615\). In particular, a single value close to one should not be interpreted as convergence of the estimator; stability must be assessed over several consecutive refinements.
+
+The adaptive result is substantially more accurate than the available uniform space--time refinement sequence.  The latter gives an error of \(2.20\times10^{-2}\) with \(1.279\times10^7\) primal space--time degrees of freedom, whereas the present adaptive computation gives \(4.45\times10^{-3}\) with \(6.082\times10^6\) degrees of freedom. Thus, in this comparison, adaptivity obtains approximately one fifth of the uniform error with less than one half of the primal degrees of freedom. However, note that this comparison concerns goal accuracy rather than running time. The essential trade-off is between avoiding unnecessary refinement throughout the space--time domain and paying the additional cost of the enriched solve, which constitutes the main overhead of the adaptive method. When adaptivity reduces the goal error to a level that would be prohibitively expensive for uniform refinement to attain, this additional cost can be regarded as justified.
+
+The final temporal mesh is shown in Figure~\ref{fig:cylinder-temporal-mesh}. It contains \(203\) time slabs, with \(\Delta t_{\min}=0.00625\) and \(\Delta t_{\max}=0.2\). Most temporal refinement is concentrated during the development of the time-dependent wake, whereas the final part of the interval remains relatively coarse.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.95\textwidth]{thesis/figures/flow/ns_time.png}
+  \caption{Temporal mesh in adaptive iteration 6.}
+  \label{fig:cylinder-temporal-mesh}
+\end{figure}
+
+
+
+Finally, ~\cref{fig:cylinder-velocity-snapshots} shows the velocity magnitude on the slabwise spatial meshes in the final adaptive loop. At \(t=3\), the flow remains approximately symmetric in the near wake. By \(t=5\), the asymmetric velocity pattern associated with the developing vortex street is clearly visible downstream of the cylinder. The snapshot at \(t=6\) shows the subsequent evolution of this structure. The mesh is concentrated near the cylinder and in the dynamically active part, while remaining comparatively coarse farther downstream.
+\begin{figure}[htbp]
+  \centering
+
+  \begin{subfigure}{0.9\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]
+      {thesis/figures/flow/velocity-t3.png}
+    \caption{$t=3$}
+  \end{subfigure}
+
+  \vspace{0.5em}
+
+  \begin{subfigure}{0.9\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]
+      {thesis/figures/flow/velocity-t5.png}
+    \caption{$t=5$}
+  \end{subfigure}
+
+  \vspace{0.5em}
+
+  \begin{subfigure}{0.9\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]
+      {thesis/figures/flow/velocity-t6.png}
+    \caption{$t=6$}
+  \end{subfigure}
+
+  \vspace{0.6em}
+
+  % Shared colour bar — intentionally no subcaption
+  \includegraphics[width=0.80\textwidth]
+    {thesis/figures/flow/velocity-magnitude-colorbar.png}
+
+  \caption{Snapshots of the velocity magnitude and refined meshes of the primal Navier--Stokes solution at \(t=3\), \(5\), and \(6\) in adaptive iteration 6.}
+  \label{fig:cylinder-velocity-snapshots}
+\end{figure}
+
+
+
 
