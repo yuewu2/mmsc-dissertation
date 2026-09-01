@@ -91,7 +91,7 @@ and the primal uses \(\mathrm{dG}(1)\) in time. Velocity and pressure are solved
 \end{equation}
 but not exactly incompressible.
 
-The enriched spaces used for the high-order adjoint is \(\mathrm{cG}3 \times \mathrm{cG}2 \otimes \mathrm{dG}(2)\),
+The enriched spaces used for the high-order adjoint is \(([\mathrm{cG}3]^2 \times \mathrm{cG}2) \otimes \mathrm{dG}(2)\),
 % \pef{The natural enrichment would be to increase both polynomial degrees (for velocity and pressure) by one. The important point is that a differential operator applied to velocity maps you to a pressure, so their difference being one is the important thing, not the ratio between them.}
 \begin{equation}
  V^+_{h,n}=[\mathrm{cG}(3;\mathcal T_n)]^2,
@@ -157,7 +157,7 @@ Although the primal Navier--Stokes problem is nonlinear, we use the economical o
   \eta := \rho(U_h)\bigl(Z_h^+-I_hI_kZ_h^+\bigr),
   \label{eq:cylinder-linear-estimator}
 \end{equation}
-where \(Z_h^+\) is the enriched adjoint. Here \(I_k\) is the Gauss--Legendre nodal interpolant from \(\mathrm{dG}(2)\) to \(\mathrm{dG}(1)\) on each time slab, and \(I_h\) is the componentwise nodal interpolant from the enriched \(\mathrm{cG}(3)/\mathrm{cG}(2)\) pair to the primal \(\mathrm{cG}(2)/\mathrm{cG}(1)\) pair. This choice avoids the low-order adjoint and enriched-primal solves required by the nonlinear estimator. It is also motivated by the asymptotic equivalence of the primal- and adjoint-residual terms for sufficiently smooth, mildly nonlinear semilinear problems with a linear goal functional \cite{non-flow}. 
+where \(Z_h^+\) is the enriched adjoint. Here \(I_k\) is the Gauss--Legendre nodal interpolant from \(\mathrm{dG}(2)\) to \(\mathrm{dG}(1)\) on each time slab, and \(I_h\) is the componentwise nodal interpolant from the enriched \([\mathrm{cG}(3)]^2 \times \mathrm{cG}(2)\) pair to the primal \([\mathrm{cG}(2)]^2\times \mathrm{cG}(1)\) pair. This choice avoids the low-order adjoint and enriched-primal solves required by the nonlinear estimator. It is also motivated by the asymptotic equivalence of the primal- and adjoint-residual terms for sufficiently smooth, mildly nonlinear semilinear problems with a linear goal functional \cite{non-flow}. 
 
 
 \subsection{Initial Discretisation and Adaptive Strategy}
@@ -169,6 +169,7 @@ Both our preliminary experiments and the reference computations indicate that su
 \[
   20,\;36,\;64,\;113,\;199.
 \]
+\pef{What does this sequence mean? Is this the number of cells in time? Not clear}
 The more recent computation \cite{recent-flow} instead starts from \(160\) time slabs and subsequently applies an approximately \(10\%\) fixed-rate temporal refinement.
 
 Motivated by these observations, we use a two-stage temporal strategy. First, the score of time slab \(I_n\) is obtained directly from the already localised strong-residual indicators,
@@ -192,7 +193,7 @@ slabs are bisected in one loop. Spatial cells are still selected by global D\"or
 \subsection{Results and Interpretation}
 \label{subsec:cylinder-results}
 
-Table~\ref{tab:cylinder-adaptive-results} reports the resulting adaptive sequence. The mean drag increases monotonically from \(1.534362\) to \(1.598684\), while the error relative to \(J_{\mathrm{ref}}=1.6031368\) decreases from \(6.88\times10^{-2}\) to \(4.45\times10^{-3}\), a reduction of approximately \(93.5\%\). The estimator has the correct sign in every iteration, and the localisation gap is negligible.
+\Cref{tab:cylinder-adaptive-results} reports the resulting adaptive sequence. The mean drag increases monotonically from \(1.534362\) to \(1.598684\), while the error relative to \(J_{\mathrm{ref}}=1.6031368\) decreases from \(6.88\times10^{-2}\) to \(4.45\times10^{-3}\), a reduction of approximately \(93.5\%\). The estimator has the correct sign in every iteration, and the localisation gap is negligible.
 
 \begin{table}[htbp]
 \centering
