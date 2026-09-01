@@ -82,6 +82,7 @@ Following the mixed-order setting of~\cite{non-flow}, on each slab \(I_n=(t_{n-1
  \qquad Q_{h,n}=\mathrm{cG}(1;\mathcal T_n)\cap L^2_0(\Omega),
  \label{eq:cylinder-taylor-hood}
 \end{equation}
+\pef{Shouldn't have intersection with $L^2_0(\Omega)$}
 and the primal uses \(\mathrm{dG}(1)\) in time. Velocity and pressure are solved together. The resulting velocity is discretely incompressible:
 \begin{equation}
  (\nabla\!\cdot\boldsymbol u_h,q_h)_\Omega=0
@@ -90,7 +91,7 @@ and the primal uses \(\mathrm{dG}(1)\) in time. Velocity and pressure are solved
 \end{equation}
 but not exactly incompressible.
 
-The enriched spaces used for the high-order adjoint are the continuous-Galerkin pair \(\mathrm{cG}3\otimes\mathrm{cG}2\),
+The enriched spaces used for the high-order adjoint is \(\mathrm{cG}3 \times \mathrm{cG}2 \otimes \mathrm{dG}(2)\),
 % \pef{The natural enrichment would be to increase both polynomial degrees (for velocity and pressure) by one. The important point is that a differential operator applied to velocity maps you to a pressure, so their difference being one is the important thing, not the ratio between them.}
 \begin{equation}
  V^+_{h,n}=[\mathrm{cG}(3;\mathcal T_n)]^2,
@@ -98,6 +99,7 @@ The enriched spaces used for the high-order adjoint are the continuous-Galerkin 
  \qquad \mathrm{dG}(2)\text{ in time}.
  \label{eq:cylinder-enriched-space}
 \end{equation}
+\pef{Shouldn't have intersection with $L^2_0(\Omega)$}
 
 From our slabwise refinement strategy, spatial meshes may change from one slab to the next. A direct nodal interpolation of the outgoing velocity generally does not preserve the discretely divergence-free subspace associated with the receiving Taylor--Hood pair. Following the divergence-free transfer strategy described in \cite{projection} and its implementation in \cite{non-flow}, we define the transfer between consecutive time slabs as follows. Let
 \[
