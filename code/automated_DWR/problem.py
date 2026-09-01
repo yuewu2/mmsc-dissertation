@@ -715,3 +715,71 @@ class BBMFiniteIntervalSolitaryWaveProblem(BBMSolitaryWaveProblem):
         if self.goal_mode == "invariant_i2":
             return None
         return super().exact_goal_value(final_time)
+
+
+# =============================================================================
+# TEMPLATE INPUT 2: incompressible Navier--Stokes (velocity--pressure system)
+# =============================================================================
+#
+# Do not uncomment this template until ``MixedBubbleRecovery`` is available.
+# The existing scalar bubble space cannot recover vector momentum and scalar
+# continuity residuals correctly.  The outer DWR/mark/refine/output algorithm
+# will be unchanged; only the state-space and localisation backend differ.
+#
+# On Omega=(0,1)^2, with velocity u and pressure p, use
+#
+#     u_t + (u.grad)u - div(2*nu*epsilon(u)) + grad(p) = f,
+#     div(u) = 0.
+#
+# The mixed weak residual is
+#
+#     F((u,p);(v,q)) = (u_t,v) + ((u.grad)u,v)
+#       + (2*nu*epsilon(u),epsilon(v)) - (p,div(v))
+#       + (div(u),q) - (f,v) = 0.
+#
+# The Irksome paper's important point is retained: pressure is an auxiliary
+# variable with no time derivative, while velocity is DG/CPG in time.
+#
+# from firedrake import (
+#     MixedFunctionSpace, SpatialCoordinate, TestFunctions, VectorFunctionSpace,
+#     div, split, sym,
+# )
+#
+#
+# class NavierStokesCylinderProblem(TransientDWRProblem):
+#     """Future mixed-system input for a cylinder/lift-drag QoI experiment."""
+#
+#     name = "incompressible_navier_stokes_cylinder"
+#
+#     def __init__(self, viscosity=1.0e-3):
+#         self.viscosity = Constant(float(viscosity))
+#
+#     def state_space(self, mesh, velocity_degree, pressure_degree):
+#         # Taylor--Hood is the first robust choice: [CG(k)]^2 x CG(k-1).
+#         velocity_space = VectorFunctionSpace(mesh, "CG", velocity_degree)
+#         pressure_space = FunctionSpace(mesh, "CG", pressure_degree)
+#         return MixedFunctionSpace((velocity_space, pressure_space))
+#
+#     def primal_residual(self, state, tests, time):
+#         # ``tests`` is the pair (v,q), and only velocity receives Dt(...).
+#         velocity, pressure = split(state)
+#         test_velocity, test_pressure = tests
+#         strain = sym(grad(velocity))
+#         return (
+#             inner(Dt(velocity), test_velocity)*dx
+#             + inner(dot(velocity, grad(velocity)), test_velocity)*dx
+#             + 2.0*self.viscosity*inner(strain, sym(grad(test_velocity)))*dx
+#             - pressure*div(test_velocity)*dx
+#             + div(velocity)*test_pressure*dx
+#         )
+#
+#     def terminal_adjoint_condition(self, mesh):
+#         # Example only: a lift/drag or local velocity sensor defines this data.
+#         # The final implementation receives it from a QoI object instead.
+#         raise NotImplementedError("Provide a cylinder lift/drag QoI.")
+#
+#     # A proper NS local residual has separate momentum, continuity, viscous,
+#     # convective/upwind-facet, pressure, and DG-time-jump contributions.  The
+#     # future ``MixedBubbleRecovery`` evaluates these through the same
+#     # rho_n^V/rho_n^T interface used by Heat and BBM; it does not use Heat's
+#     # scalar ``f-u_t+kappa*Delta(u)`` recovery.
