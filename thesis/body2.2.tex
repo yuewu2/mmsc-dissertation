@@ -4,8 +4,8 @@
 \Cref{sec:introduction-localisation} motivated a decomposition of the global DWR estimator into computable local contributions. 
 % Elementwise integration by parts (IBP) gives strong cell residuals, flux jumps, and boundary residuals, but its derivation depends on the differential operator and boundary conditions. 
 % Partition-of-unity localisation distributes the global DWR estimator through locally supported functions \(\{\chi_i\}_{i=1}^{M}\) satisfying \(\sum_i\chi_i=1\). For example, in the constructions considered in \cite{Richter_Wick_2015,ThieleWick2024,R6}, the resulting quantities are naturally associated with nodes, degrees of freedom, or temporal elements. These PU contributions have a valid variational interpretation, but they are not generally tied to a geometric residual mechanism. In particular, since a single PU function may overlap several spatial elements and temporal interfaces, its contribution may combine different components of the residual. An additional redistribution or marking rule is therefore needed to convert the PU contributions into indicators for specific space--time mesh entities.
-%\yue{Differenet ways of localisation have been discussed in Introductino.}
-The present construction pursues a geometrically resolved decomposition. It probes the weak residual with polynomial functions supported on individual cells, spatial facets, temporal faces, and, when present, mixed space--time ridges. The resulting coefficients separate the residual mechanisms according to their geometric support, while still being recovered directly from UFL evaluations of the weak residual in \texttt{Firedrake}. Thus no problem-specific strong residual or hand-derived flux-jump formula is needed. This approach is motivated by the stationary bubble--cone construction of Rognes and Logg \cite{Rognes_Logg_2013}; our contribution is its extension below to discontinuous Galerkin discretisations in time.
+%\yue{Differenet ways of localisation have been discussed in Introduction.}
+The construction developed here organises these contributions according to their geometric support. It probes the weak residual with polynomial functions supported on individual cells, spatial facets, temporal faces, and, when present, mixed space--time ridges. The coefficients are recovered by evaluating the UFL weak residual on these test functions in Firedrake, eliminating the need for a problem-specific strong residual or hand-derived flux-jump formula. This approach is motivated by the stationary bubble--cone construction of Rognes and Logg \cite{Rognes_Logg_2013}; our contribution is its extension below to discontinuous Galerkin discretisations in time.
 
 
 \subsection{Stationary Bubble and Cone Projection}
@@ -37,7 +37,7 @@ We first recall the stationary construction for the primal residual. The nonline
     \label{eq:stationary-polynomial-representability}
   \end{equation}
 \end{description}
-Assumptions (A1) and (A2) identify the residual-supporting entities, while (A3) determines whether the recovery is exact or a weighted projection.
+Assumptions (A1) and (A2) identify the residual-supporting entities, while (A3) determines whether the recovery is exact or a weighted projection. We now construct the local test functions used in this recovery, beginning with the cell bubble.
 
 For a \(d\)-simplex \(K\) with vertices \(\{x_i\}_{i=1}^{d+1}\) and associated barycentric coordinates \(\{\lambda_i^K\}_{i=1}^{d+1}\), the cell bubble is defined by 
 \begin{equation}
@@ -53,7 +53,7 @@ This means that \(R_K^B\in\mathbb P^p(K)\) can be recovered from solving the var
   \label{eq:stationary-cell-projection}
 \end{equation}
 
-For \(F\in\mathcal F(K)\), let
+Having recovered the cell-interior density, we next construct test functions for the facet contributions. For \(F\in\mathcal{F}(K)\), let
 \begin{equation}
   \mathcal I_F\coloneqq\{i:x_i\in F\},
   \qquad
@@ -61,22 +61,22 @@ For \(F\in\mathcal F(K)\), let
   \label{eq:recovery-facet-cone}
 \end{equation}
 This cone function is the analogue of the bubble function on a facet. It is nonzero on the relative interior of \(F\), vanishes on every other facet, and remains nonzero inside \(K\).
-To test the facet residual using functions defined on the cell, we introduce a facet-to-cell lifting
+To probe the facet residual with test functions defined on \(K\), we choose a facet-to-cell lifting that extends a polynomial from \(F\) to \(K\) while preserving its trace:
 \[
-E_{K,F}:\mathbb P^q(F)\longrightarrow\mathbb P^q(K),
+E_{K,F}:\mathbb{P}^q(F)\longrightarrow\mathbb{P}^q(K),
 \qquad
 (E_{K,F}\psi)|_F=\psi.
 \]
-Thus, \(E_{K,F}\) maps a polynomial defined on the facet \(F\) to a polynomial on \(K\) with the same trace on \(F\). We write \(\widetilde\psi:=E_{K,F}\psi.\)
-% \pef{You need to introduce this operator, give it a name and say what it does.}
-% \yue{is this an appropriate name?}Once the cell density \(R_{K}^B\) is recovered, the facet residual contribution \(R_{K,F}^B\in\mathbb P^q(F)\) is defined by solving the variational problem
+For brevity, we write \(\widetilde{\psi}\coloneqq E_{K,F}\psi\). Using this lifting and the previously recovered cell density, the recovered facet density \(R_{K,F}^B\in\mathbb{P}^q(F)\) is determined by
 \begin{equation}
-  \bigl(R_{K,F}^B,(\beta_{K,F}|_F)\psi\bigr)_F
-  =
-  \rho_K(\beta_{K,F}\widetilde\psi)
-  -(R_K^B,\beta_{K,F}\widetilde\psi)_K
-  \quad\forall\psi\in\mathbb P^q(F).
-  \label{eq:stationary-facet-projection}
+\bigl(R_{K,F}^B,(\beta_{K,F}|_F)\psi\bigr)_F
+=
+\rho_K(\beta_{K,F}\widetilde{\psi})
+-
+(R_K^B,\beta_{K,F}\widetilde{\psi})_K
+\qquad
+\forall\psi\in\mathbb{P}^q(F).
+\label{eq:stationary-facet-projection}
 \end{equation}
 The subtraction removes the cell action seen by the cone. Under (A1)--(A3), these weighted mass problems uniquely recover \(R_K\) and \(R_{K,F}\) \cite{Rognes_Logg_2013}. When (A3) does not hold, the procedure computes polynomial approximations to the residuals.
 \Cref{fig:stationary-bubble-cone} illustrates two representative bubble and cone test functions.
@@ -202,15 +202,14 @@ The subtraction removes the cell action seen by the cone. Under (A1)--(A3), thes
 \subsection{Space--Time Extension of the Residual Recovery}
 \label{sec:space-time-residual-recovery}
 
-
 We now consider the extension of this approach to time-dependent problems.
-Let \(V\) be a spatial trial and test space. We now consider an evolution problem of the form
+Let \(V\) be a spatial trial and test space, and consider an evolution problem of the form
 \begin{equation}
   m(\partial_tu(t),v)+\mathfrak a(u(t);v,t)=\ell(v;t)
   \qquad\forall v\in V,\quad t\in(0,T),
   \label{eq:abstract-evolution-problem}
 \end{equation}
-with \(u(0)=u_0\). Here \(m\) is the time-derivative pairing, \(\mathfrak a\) contains the remaining spatial and possibly nonlinear terms, and \(\ell\) is the load functional. Denote
+with \(u(0)=u_0\). Here \(m\) is the time-derivative pairing, \(\mathfrak a\) contains the remaining spatial and possibly nonlinear terms, and \(\ell\) is the load functional. We introduce the temporal mesh and trace notation
 \begin{equation}
   I_n=(t_{n-1},t_n],
   \qquad k_n=t_n-t_{n-1},
@@ -227,7 +226,7 @@ On \(I_n\), trial and test functions are time polynomials with values in a spati
   \llbracket U \rrbracket^n\coloneqq U^{n+}-U^{n-}.
   \label{eq:dg-time-traces}
 \end{equation}
-For matching spatial spaces, the global dG semilinear form can be written as
+With this notation, for matching spatial spaces, the global dG semilinear form can be written as
 \begin{align}
   \mathcal A(U)(W)
   \coloneqq{}&
@@ -244,7 +243,8 @@ The discrete problem is \(\mathcal A(U_h)(W_h)=0\) for all discrete tests. Throu
   \label{eq:dg-residual-sign-convention}
 \end{equation}
 
-The extension of the stationary recovery is based on the following assumptions.
+With the discrete residual now fixed, we formulate the space--time extension of the stationary recovery through the following assumptions.
+% The extension of the stationary recovery is based on the following assumptions.
 
 \begin{description}
   \item[(A1) Global decomposition.] The global residual is the sum of local space--time functionals,
@@ -296,28 +296,28 @@ Note that if \(V_{n-1}\ne V_n\), the outgoing trace must first be transferred in
   \qquad n>1,
   \label{eq:transferred-dg-time-defect}
 \end{equation}
-where \(P_{n-1}:V_{n-1}\to V_n\). The transfer and its adjoint are discussed in more details in \cref{sec:slab-transfer-adjoint}.
+where \(P_{n-1}:V_{n-1}\to V_n\). The transfer and its adjoint are discussed in more detail in \cref{sec:slab-transfer-adjoint}.
 
   \item[(A2) Local decomposition.] On each space--time cell \(Q_{K,n}\), the residual admits a representation by contributions supported on the cell interior, spatial facets, temporal facets, and, when required by $m$, their intersections, as shown in \cref{fig:space-time-residual-entities}.
   \begin{equation}
     \begin{aligned}
     \rho_{K,n}(U_h)(W)
     ={}&
-    (R_{K,n}^{B,\mathrm{vol}},W)_{Q_{K,n}}
+    (R_{K,n}^{\mathrm{vol}},W)_{Q_{K,n}}
     +
     \sum_{F\subset\partial K}
-    (R_{K,F,n}^{B,\mathrm{sf}},W)_{F\times I_n}
+    (R_{K,F,n}^{\mathrm{sf}},W)_{F\times I_n}
     \\
     &+
-    (R_{K,n-1}^{B,\mathrm{tf}},W(t_{n-1}^{+}))_{K} +
+    (R_{K,n-1}^{\mathrm{tf}},W(t_{n-1}^{+}))_{K} +
     \sum_{F\subset\partial K}
-    (R_{F,n-1}^{B,\mathrm{xt}},
+    (R_{F,n-1}^{\mathrm{xt}},
       W(t_{n-1}^{+}))_{F}.
     \end{aligned}
     \label{eq:space-time-entity-representation}
   \end{equation}
 
-\begin{figure}[h]
+\begin{figure}[!h]
   \centering
   \begin{tikzpicture}[
     x=1cm,y=1cm,>=stealth,font=\small,
@@ -374,9 +374,18 @@ where \(P_{n-1}:V_{n-1}\to V_n\). The transfer and its adjoint are discussed in 
   \caption{Space--time cell \(Q_{K,n}=K\times I_n\).}
   \label{fig:space-time-residual-entities}
 \end{figure}
+For visual clarity, \cref{fig:space-time-residual-entities} displays the temporal entities on the upper face. The recovery below uses their incoming counterparts at \(t_{n-1}\).
 
 \item[(A3) Polynomial representation.]
-The residual densities belong to the selected recovery spaces,
+The residual densities are piecewise polynomial on their respective supporting entities. For selected spatial and temporal polynomial degrees, define
+\[
+Q_{K,n}^{p_x,p_t}
+  := \mathbb{P}_{p_x}(K)\otimes\mathbb{P}_{p_t}(I_n),
+\qquad
+Q_{F,n}^{q_x,q_t}
+  := \mathbb{P}_{q_x}(F)\otimes\mathbb{P}_{q_t}(I_n).
+\]
+The residual densities satisfy
 \begin{align}
   R_{K,n}^{\mathrm{vol}}
   &\in Q_{K,n}^{p_x,p_t},
@@ -394,7 +403,7 @@ The residual densities belong to the selected recovery spaces,
 whenever the corresponding densities are present.
 \end{description}
 
-Assumption (A1) follows naturally when the weak form is assembled slab by slab from cell and facet integrals. (A2) records the geometric supports. Under (A3), problems recover a density exactly when it belongs to the selected polynomial space; when (A3) does not hold, polynomial approximations are recovered.
+Assumption (A1) follows naturally when the weak form is assembled slab by slab from cell and facet integrals. (A2) records the geometric supports. Under (A3), the problems recover a density exactly when it belongs to the selected polynomial space; when (A3) does not hold, polynomial approximations are recovered.
 
 
 \paragraph{Volume recovery.}
@@ -460,7 +469,6 @@ be a fixed polynomial extension and write \(\widetilde\Psi\coloneqq E_{K,F,n}\Ps
     R_{K,n}^{B,\mathrm{vol}},
     C_{K,F,n}^{\mathrm{sf}}\widetilde\Psi
   \Bigr)_{Q_{K,n}}
-  \notag
   \qquad \quad
   \forall\Psi\in Q_{F,n}^{q_x,q_t}.
   \label{eq:space-time-spatial-facet-projection}
@@ -633,11 +641,13 @@ Both maps in \eqref{eq:two-recovered-residual-functionals} are linear in their d
 \subsection{Construction of the Space--Time Error Indicators}
 \label{sec:space-time-local-indicator-construction}
 
-We now combine the recovered densities with the DWR weights. For each entity
-\begin{equation*}
-  E\in\{\mathrm{vol},\mathrm{sf},\mathrm{tf},\mathrm{xt}\},
-\end{equation*}
-where $\mathrm{vol}$ denotes the cell-volume entity $Q_{K,n}$, $\mathrm{sf}$ a spatial facet $F\times I_n$, $\mathrm{tf}$ the incoming temporal face $K\times\{t_{n-1}\}$, and $\mathrm{xt}$ the mixed space--time ridge $F\times\{t_{n-1}\}$, the recovered primal- and adjoint-residual densities are paired with \(e_z\) and \(e_u\), respectively, to define \(\eta_{K,n}^{\mathrm p,E}\) and \(\eta_{K,n}^{\mathrm a,E}\). 
+We now combine the recovered densities with the DWR weights. We use \(E\in\{\mathrm{vol},\mathrm{sf},\mathrm{tf},\mathrm{xt}\}\) to label, respectively, the cell volume \(Q_{K,n}\), a spatial facet \(F\times I_n\), the incoming temporal face \(K\times\{t_{n-1}\}\), and the mixed space--time ridge \(F\times\{t_{n-1}\}\). For each \(E\), pairing the recovered primal- and adjoint-residual densities with \(e_z\) and \(e_u\), respectively, defines the entity-wise contributions \(\eta_{K,n}^{\mathrm p,E}\) and \(\eta_{K,n}^{\mathrm a,E}\).
+
+% We now combine the recovered densities with the DWR weights. For each entity
+% \begin{equation*}
+%   E\in\{\mathrm{vol},\mathrm{sf},\mathrm{tf},\mathrm{xt}\},
+% \end{equation*}
+% where $\mathrm{vol}$ denotes the cell-volume entity $Q_{K,n}$, $\mathrm{sf}$ a spatial facet $F\times I_n$, $\mathrm{tf}$ the incoming temporal face $K\times\{t_{n-1}\}$, and $\mathrm{xt}$ the mixed space--time ridge $F\times\{t_{n-1}\}$, the recovered primal- and adjoint-residual densities are paired with \(e_z\) and \(e_u\), respectively, to define \(\eta_{K,n}^{\mathrm p,E}\) and \(\eta_{K,n}^{\mathrm a,E}\). 
 % The correction contribution \(\eta_{K,n}^{\mathrm c,E}\) pairs the recovered primal-residual density with \(z_h\).
 
 For example, the volume terms are
@@ -747,17 +757,17 @@ Since the recovery matches each residual functional only on the selected finite-
   \qquad
   \delta_{\mathrm{loc}}
   \coloneqq
-  \eta_{\mathrm{loc}}-\eta_{\mathrm{glob}}.
+  \eta_{\mathrm{loc}}-\eta_{\mathrm{global}}.
 \end{equation}
-Whenever $\eta_{\mathrm{glob}}\neq0$, the relative \emph{localisation gap} is
+Whenever $\eta_{\mathrm{global}}\neq0$, the relative \emph{localisation gap} is
 \begin{equation}
   g_{\mathrm{loc}}
   \coloneqq
   \frac{|\delta_{\mathrm{loc}}|}
-       {|\eta_{\mathrm{glob}}|}.
+       {|\eta_{\mathrm{global}}|}.
 \end{equation}
 Exact localisation gives $\delta_{\mathrm{loc}}=g_{\mathrm{loc}}=0$.
 
 \begin{remark}[Cancellation of local contributions]
-Local DWR contributions are signed, and contributions of opposite sign may cancel in the global sum. A global effectivity index close to one does not by itself describe the distribution of the local contributions used for marking. Triangle-inequality-based indicator indices have been proposed to quantify this effect; see, for example, Richter and Wick~\cite{Richter_Wick_2015}. 
+Local DWR contributions are signed, and contributions of opposite sign may cancel in the global sum. A global effectivity index close to one does not by itself reveal the cancellation structure of the local indicators used for marking. No separate cancellation measure is used in the present work. However, triangle-inequality-based indicator indices, such as those proposed by Richter and Wick~\cite{Richter_Wick_2015}, could provide a useful diagnostic when the resulting marking pattern or adaptive performance is unsatisfactory.
 \end{remark}

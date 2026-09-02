@@ -1,7 +1,7 @@
-\section{One-dimensional Advection-Diffusion Equation}
+\section{One-Dimensional Advection-Diffusion Equation}
 \label{sec: exp-1d}
 
-The preceding rotating-hill example established the behaviour of the complete adaptive workflow for a manufactured space--time tracking functional. We now turn to a one-dimensional advection--diffusion problem that provides a more controlled setting for examining the role of the quantity of interest. In this test, the primal problem and localisation procedure are kept fixed while the location of an observation sensor is varied. Any resulting change in the refinement pattern can therefore be attributed to the goal functional, through its associated dual weight. Moreover, since the problem is spatially one-dimensiona, its space--time mesh can be displayed directly in the \((x,t)\) plane, allowing spatial and temporal refinement to be viewed simultaneously.
+The preceding rotating-hill example established the behaviour of the complete adaptive workflow for a manufactured space--time tracking functional. We now turn to a one-dimensional advection--diffusion problem that provides a more controlled setting for examining the role of the quantity of interest. In this test, the primal problem and localisation procedure are kept fixed while the location of an observation sensor is varied. Any resulting change in the refinement pattern can therefore be attributed to the goal functional, through its associated dual weight. Moreover, since the problem is spatially one-dimensional, its space--time mesh can be displayed directly in the \((x,t)\) plane, allowing spatial and temporal refinement to be viewed simultaneously.
 
 
 \subsection{Primal Problem}
@@ -128,7 +128,7 @@ x_z(t)\approx x_d-b(T-t).
 The three detector locations therefore generate three parallel, spatially shifted sensitivity trajectories in the \((x,t)\) plane. Since the primal problem is identical in all three runs, differences in the adapted meshes can be attributed to these shifted dual weights. The resulting refinement is expected to reflect the interaction between the forward pulse-error trajectory and the detector-dependent adjoint-sensitivity band.
 
 
-\subsection{One-dimensional Residual Localisation}
+\subsection{One-Dimensional Residual Localisation}
 \label{sec:one-dimensional-localisation}
 
 The residual localisation requires a minor modification in one spatial dimension. In higher dimensions, the localised residual generally contains cell-interior contributions and contributions supported on spatial facets. In one dimension, however, the facets of an interval are its two endpoints. The facet contribution therefore is represented by point evaluations at the left and right endpoints rather than by integration over edges or faces of positive dimension.
@@ -155,7 +155,7 @@ where $\eta_{K,n}^{\mathrm{vol}}$ is the cell-interior contribution, $\eta_{K,n}
 
 \subsection{Results and Interpretation}
 
-In this numerical test, the initial discretisation contains $12$ spatial cells and $8$ time slabs. The primal solution and numerical dual use cG1 in space and dG0 in time. The enriched dual uses the corresponding higher-order space--time approximation. A marking parameter \(\theta=0.6\) is used and a time slab is bisected when the fraction of its marked spatial cells is at least \(15\%\).
+In this numerical test, the initial discretisation contains $12$ spatial cells and $8$ time slabs. The primal solution and numerical dual use cG(1) in space and dG(0) in time. The enriched dual uses the corresponding higher-order space--time approximation. A marking parameter \(\theta=0.60\) is used and a time slab is bisected when the fraction of its marked spatial cells is at least \(15\%\).
 
 First of all, \cref{fig:advection-diffusion-evolution} shows the evolution of the space--time mesh for the central sensor at $x_d=0.8$. Refinement is concentrated around the transported pulse and occurs in both the spatial and temporal directions.
 \begin{figure}[h]
@@ -200,6 +200,8 @@ First of all, \cref{fig:advection-diffusion-evolution} shows the evolution of th
 \end{figure}
 
 \cref{fig:advection-diffusion-initial-marks} compares the space--time cells selected during the first adaptive iteration. For the detector at $x_d=0.7$, the marked cells form a relatively continuous diagonal band towards the trailing side of the pulse. Fifteen space--time cells are selected, distributed over eight time slabs. For the central detector at $x_d=0.8$, the marked set is more concentrated: the bulk marking criterion is satisfied using only ten cells, and only two time slabs satisfy the temporal refinement criterion. In contrast, the detector at $x_d=0.9$ produces a broader marked region at later times, shifted towards the leading side of the pulse. Sixteen cells are selected and four time slabs are marked for temporal refinement.
+
+The final adapted meshes are compared in~\cref{fig:advection-diffusion-final-meshes}. Changing the detector location modifies the shape and terminal destination of the refined space--time tube. For $x_d=0.7$, refinement follows a comparatively continuous diagonal path towards the trailing part of the pulse. For $x_d=0.8$, the refined region remains concentrated around the central pulse trajectory as shown in~\cref{fig:advection-diffusion-exact}. For $x_d=0.9$, the late-time refinement is shifted further to the right and bends towards the leading part of the pulse. When traced backwards in time, the three refined regions return towards the common initial pulse location near $x_0=0.2$. This demonstrates that the terminal sensor affects the refinement through the backward propagation of the dual weight, as expected.
 \begin{figure}[h]
   \centering
   % space--time axis
@@ -240,9 +242,6 @@ First of all, \cref{fig:advection-diffusion-evolution} shows the evolution of th
   \caption{Space--time cells marked during the first adaptive iteration for Gaussian terminal sensors centred at three different locations $x_d$.}
   \label{fig:advection-diffusion-initial-marks}
 \end{figure}
-
-The final adapted meshes are compared in~\cref{fig:advection-diffusion-final-meshes}. Changing the detector location modifies the shape and terminal destination of the refined space--time tube. For $x_d=0.7$, refinement follows a comparatively continuous diagonal path towards the trailing part of the pulse. For $x_d=0.8$, the refined region remains concentrated around the central pulse trajectory as shown in~\cref{fig:advection-diffusion-exact}. For $x_d=0.9$, the late-time refinement is shifted further to the right and bends towards the leading part of the pulse. When traced backwards in time, the three refined regions return towards the common initial pulse location near $x_0=0.2$. This demonstrates that the terminal sensor affects through the backward propagation of the dual weight, as expected.
-
 \begin{figure}[h]
   \centering
   % space--time axis

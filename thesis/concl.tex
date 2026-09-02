@@ -4,9 +4,9 @@
 
 \section{Summary}
 
-The main contribution of this dissertation is an extension of the bubble--cone residual recovery strategy of Rognes \& Logg from stationary finite element problems to space--time discretisations. The method evaluates the weak residual on polynomial test functions and reconstructs contributions associated with space--time cell interiors, spatial facets, and temporal interfaces. When the time-derivative pairing contains spatial derivatives, the method also recovers contributions supported on mixed space--time ridges.
+The main contribution of this dissertation is an extension of the bubble--cone residual recovery strategy of Rognes and Logg from stationary finite element problems to space--time discretisations. The method evaluates the weak residual on polynomial test functions and reconstructs contributions associated with space--time cell interiors, spatial facets, and temporal interfaces. When the time-derivative pairing contains spatial derivatives, the method also recovers contributions supported on mixed space--time ridges.
 
-This construction can be obtained directly from the variational form supplied to \texttt{Firedrake}. For nonlinear problems, the primal residual and the adjoint residual are recovered independently and are then combined with the computable approximation of the nonlinear DWR identity. The resulting contributions are associated with individual space--time cells and used in a slabwise adaptive algorithm, which preserves the tensor-product structure of the discretisation. Spatial refinement is performed independently on each time slab, while temporal refinement is triggered when a sufficient proportion of the marked cells lies within that slab. This allows the spatial mesh to vary in time. For nonmatching slab meshes, the forward and adjoint solutions are transferred between consecutive spatial spaces. Overall, the implementation accounts for both the geometric localisation of the residual and the temporal coupling caused by discontinuous-Galerkin time stepping.
+This construction can be obtained directly from the variational form supplied to Firedrake. For nonlinear problems, the primal residual and the adjoint residual are recovered independently and are then combined with the computable approximation of the nonlinear DWR identity. The resulting contributions are associated with individual space--time cells and used in a slabwise adaptive algorithm, which preserves the tensor-product structure of the discretisation. Spatial refinement is performed independently on each time slab, while temporal refinement is triggered when a sufficient proportion of the marked cells lies within that slab. This allows the spatial mesh to vary in time. For nonmatching slab meshes, the forward and adjoint solutions are transferred between consecutive spatial spaces. Overall, the implementation accounts for both the geometric localisation of the residual and the temporal coupling caused by discontinuous-Galerkin time stepping.
 
 The numerical experiments in \cref{chap:experiments} examined the method for five different model problems. First, the rotating-hill heat equation provided a comparison between the bubble--cone localisation and a manually derived strong-residual localisation. The automated method reproduced the principal goal-oriented refinement behaviour of the manual construction. 
 Second, the one-dimensional advection--diffusion problem demonstrated the dependence of goal-oriented refinement on the selected quantity of interest. The primal problem and discretisation were kept fixed while the location of a terminal sensor was changed. The resulting adapted meshes followed different space--time regions, corresponding to the backward propagation of the sensor-dependent adjoint.
@@ -14,7 +14,7 @@ Next, the Benjamin--Bona--Mahony experiment showed that mixed space--time ridge 
 
 The parabolic $p$-Laplace problem on the L-shaped domain tested the method in the presence of a re-entrant-corner singularity and nonlinear diffusion. For the terminal spatial goal, the adapted meshes refined towards the singular corner. For the localised nonlinear goal, refinement was instead concentrated around the observation region and its sensitivity region, while the corner was not resolved unnecessarily. This experiment highlights the practical trade-off of goal-oriented adaptivity. In some cases, the savings from concentrating refinement in the goal-relevant region can outweigh the cost of computing the enriched solutions and constructing the global and local indicators, allowing the adaptive method to achieve a comparable accuracy using far fewer space--time degrees of freedom than uniform refinement. 
 
-Finally, the incompressible Navier--Stokes cylinder problem applied the framework to a nonlinear mixed velocity--pressure system. Despite being much more complicated, the same automation applied without modification. The experiment implemented a temporal transfer with a divergence-constrained Stokes projection and demonstrates the practical potential of applying the same localisation framework to a broader range of time-dependent PDE problems.
+Finally, the incompressible Navier--Stokes cylinder problem applied the framework to a nonlinear mixed velocity--pressure system. Despite being much more complicated, the same automated localisation applied without modification. The experiment implemented a temporal transfer with a divergence-constrained Stokes projection and demonstrates the practical potential of applying the same localisation framework to a broader range of time-dependent PDE problems.
 Taken together, the experiments show that the proposed method can automate the localisation required for goal-oriented space--time adaptivity across linear, nonlinear, scalar, and mixed problems. 
 
 
@@ -32,26 +32,29 @@ Finally, the present localisation framework is formulated primarily for first-or
 
 Two directions are particularly important for developing the present work further.
 
-First, the current implementation could be developed into a user-facing software contribution to the \texttt{Firedrake} ecosystem. The aim would be to provide a simple interface through which users specify the weak residual, the quantity of interest, the spatial and temporal discretisations, and the marking parameters. The construction of the adjoint problems, enriched solutions, bubble--cone recovery, local indicators, and slabwise refinement could then be handled automatically by the framework. Such an interface would make the method available to users who want to apply goal-oriented space--time adaptivity without implementing the localisation procedure for each new PDE problem.
+First, the current implementation could be developed into a user-facing software contribution to the Firedrake ecosystem. The aim would be to provide a simple interface through which users specify the weak residual, the quantity of interest, the spatial and temporal discretisations, and the marking parameters. The construction of the adjoint problems, enriched solutions, bubble--cone recovery, local indicators, and slabwise refinement could then be handled automatically by the framework. Such an interface would make the method available to users who want to apply goal-oriented space--time adaptivity without implementing the localisation procedure for each new PDE problem.
 
-Second, the structural information produced by the localisation could be used more fully in the marking strategy. The present recovery already distinguishes contributions associated with cell interiors, spatial facets, temporal interfaces, and mixed space--time ridges. However, these contributions are subsequently combined into a single cell--slab score for marking. A possible extension would retain the entity-wise decomposition when deciding whether refinement should be spatial, temporal, or directed towards regions in which several residual mechanisms interact. Such a strategy would require additional numerical validation, particularly in cases with strong cancellation between signed entity contributions.
+Second, more of the structure exposed by the localisation could be retained in the marking strategy. Although the present recovery separates contributions from cell interiors, spatial facets, temporal interfaces, and mixed space--time ridges, the current algorithm combines them into a single cell--slab score. A possible extension would retain this entity-wise decomposition and investigate whether the relative contributions can inform the choice between spatial and temporal refinement.
 
-A complementary extension would make the enrichment itself more directional. 
+Rather than inferring the refinement direction from the entity-wise decomposition, another, more direct extension would obtain this information from separate spatial and temporal enrichments.
+% A complementary extension would make the enrichment itself more directional. 
 % Second, the enrichment and marking strategies could be made more directional. 
-At present, the enriched solution difference is used as a combined space--time weight. A possible alternative is to compute four adjoint solutions: the standard adjoint $Z_{00}$, a spatially enriched adjoint $Z_{10}$, a temporally enriched adjoint $Z_{01}$, and an adjoint enriched in both space and time $Z_{11}$. The corresponding differences could be defined by
-\begin{align*}
-  \delta_h  &\coloneqq Z_{10}-Z_{00}, \\
-  \delta_k  &\coloneqq Z_{01}-Z_{00}, \\
-  \delta_{hk}
-  &\coloneqq Z_{11}-Z_{10}-Z_{01}+Z_{00}.
-\end{align*}
-The residual action associated with each of these components could then be localised separately to obtain spatial, temporal, and space--time interaction indicators. For example, the relative magnitudes of
-\begin{equation*}
-  \rho(U_{00})(\delta_h), \qquad
-  \rho(U_{00})(\delta_k), \qquad
-  \rho(U_{00})(\delta_{hk})
-\end{equation*}
-would provide diagnostics for the importance of spatial enrichment, temporal enrichment, and their interaction, respectively. Such a decomposition would also allow different marking and refinement strategies, including error-balancing approaches that allocate computational effort between spatial and temporal refinement according to their estimated contributions, as in \cite{Bangerth_Rannacher_2003}.
+Let \(z_{00}\) denote the adjoint in the base space, \(z_{10}\) a spatially enriched adjoint, \(z_{01}\) a temporally enriched adjoint, and \(z_{11}\) an adjoint enriched in both space and time. Define
+\[
+\delta_h:=z_{10}-z_{00},
+\qquad
+\delta_k:=z_{01}-z_{00},
+\qquad
+\delta_{hk}:=z_{11}-z_{10}-z_{01}+z_{00}.
+\]
+The residual action associated with each component could then be localised separately. For example, the relative magnitudes of
+\[
+\rho(U_h)(\delta_h),
+\qquad
+\rho(U_h)(\delta_k),
+\qquad
+\rho(U_h)(\delta_{hk})
+\]would provide diagnostics for the importance of spatial enrichment, temporal enrichment, and their interaction, respectively. Such a decomposition would also allow different marking and refinement strategies, including error-balancing approaches that allocate computational effort between spatial and temporal refinement according to their estimated contributions, as in \cite{Bangerth_Rannacher_2003}.
 
 
 \section{Conclusion}

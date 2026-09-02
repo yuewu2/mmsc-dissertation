@@ -25,7 +25,7 @@ In this case, the residual operator is
 \int_\Omega \nabla u\cdot\nabla v\,\mathrm{d}x
 -\int_\Omega f v\,\mathrm{d}x.
 \]
-The continuous problem is therefore written abstractly as
+The continuous problem can therefore be written abstractly as
 \begin{equation}
   \mathcal{A}(u)(v)=0
   \qquad\text{for all }v\in V.
@@ -38,11 +38,10 @@ For finite-dimensional spaces \(U_h\subset U\) and \(V_h\subset V\), a Galerkin 
   \label{eq:abstract-discrete-primal}
 \end{equation}
 
-The development of adaptive finite element methods (AFEM) was inspired by the pioneering work of Babu\v{s}ka and Rheinboldt \cite{pioneer}. 
-To make an adaptive solver practically realisable, and to study the optimality of adaptive procedures, the basic AFEM algorithm is organised as a \textsc{Solve--Estimate--Mark--Refine} loop \cite{carstensen2014axioms}:
+The accuracy of \(u_h\) depends on how well the finite-dimensional spaces resolve the solution. Adaptive finite element methods (AFEM), building on the pioneering work of Babuška and Rheinboldt \cite{pioneer}, improve the discretisation iteratively using a posteriori error information. In practice, this process is commonly organised as a \textsc{Solve--Estimate--Mark--Refine} loop \cite{carstensen2014axioms}:
 \begin{enumerate}
   \item \textsc{Solve} the differential equation on the current space--time discretisation.
-  \item \textsc{Estimate} global estimator for the error quantity under consideration.
+  \item \textsc{Estimate} a global estimator for the error quantity under consideration.
   \item \textsc{Mark} the elements by localising the error estimator.
   \item \textsc{Refine} the marked elements using a specified refinement strategy.
 \end{enumerate}
@@ -84,7 +83,7 @@ The DWR method requires an adjoint problem determined by the chosen functional \
 where \(u\) solves \eqref{eq:abstract-primal}. The corresponding discrete adjoint is: find \(z_h\in V_h\) such that
 \begin{equation}
   \mathcal{A}'(u_h)(w_h,z_h)=J'(u_h)(w_h)
-  \qquad\text{for all }w_h\in U_h.
+  \qquad\text{for all }w_h\in U_h,
   \label{eq:discrete-nonlinear-adjoint}
 \end{equation}
 where \(u_h\) solves \eqref{eq:abstract-discrete-primal}.
@@ -160,7 +159,9 @@ Along the segment \(x_s=\widetilde x+s(x-\widetilde x)\), the fundamental theore
 The exact primal and adjoint equations make \(x\) a stationary point of \(\mathcal L\), so \(\mathcal L'(x)=0\). Expanding \(\mathcal L'(\widetilde x)\) in its primal and dual directions produces the primal residual \(\rho\) and adjoint residual \(\rho^\ast\); substituting the definition of \(\mathcal L\) gives the Galerkin correction in \eqref{eq:nonlinear-dwr-identity}. Expanding the third derivative gives \eqref{eq:nonlinear-dwr-remainder}. Complete algebraic details are given in, for example, \cite{Rannacher_2013,93,ENDTMAYER202419}.
 \end{proof}
 
-As previously mentioned, the term \(\rho(\widetilde u)(\widetilde z)\) vanishes by Galerkin orthogonality when the discrete problems are solved exactly. Otherwise it can be used to balance e.g.~discretisation and errors in iterative solvers (Newton and/or Krylov iterations) \cite{Rannacher_2013}.
+As previously mentioned, the term \(\rho(\widetilde u)(\widetilde z)\) vanishes by Galerkin orthogonality when the discrete problems are solved exactly. Otherwise it can be used to balance 
+% e.g.~discretisation and errors in iterative solvers (Newton and/or Krylov iterations) \cite{Rannacher_2013}.
+discretisation errors against iterative-solver errors, such as errors from Newton or Krylov iterations \cite{Rannacher_2013}.
 
 If \(\mathcal A\) is affine and \(J\) is linear, then \(\mathcal R^{(3)}=0\), and the two half-residual terms coincide. To state the resulting linear identity explicitly, let \(a:U\times V\rightarrow\mathbb R\) be bilinear, \(\ell\in V^\ast\), and define
 \begin{align}
@@ -195,7 +196,7 @@ The residual measures the defect of \(u_h\) in the continuous variational proble
 
 Both identities above involve the unknown exact primal and adjoint solutions and are uncomputable. In practice these unknown solutions are replaced by approximations in enriched spaces, obtained, for example, by uniform \(h\)-refinement, \(p\)-enrichment, or a higher-order time approximation \cite{Becker_Rannacher_2001,ENDTMAYER202419}.
 
-Let \(U_h\subset U_h^+\subset U\) and \(V_h\subset V_h^+\subset V\), where \(U_h^+\) and \(V_h^+\) denote enriched approximation spaces. The enriched primal and adjoint problems are
+To formalise this replacement, let \(U_h\subset U_h^+\subset U\) and \(V_h\subset V_h^+\subset V\), where \(U_h^+\) and \(V_h^+\) denote enriched approximation spaces. The enriched primal and adjoint problems are
 \begin{align}
   \mathcal{A}(u_h^+)(v_h^+)&=0
   &&\text{for all }v_h^+\in V_h^+,
@@ -206,8 +207,7 @@ Let \(U_h\subset U_h^+\subset U\) and \(V_h\subset V_h^+\subset V\), where \(U_h
   \label{eq:enriched-adjoint}
 \end{align}
 
-We use the following enriched-space error identity \cite[Theorem~2]{ENDTMAYER202419}.
-
+The following enriched-space error identity makes precise how the resulting estimator differs from the exact goal error \cite[Theorem~2]{ENDTMAYER202419}.
 \begin{theorem}[Enriched-space error representation]
 \label{thm:enriched-space-dwr}
 Suppose that the restrictions \(\mathcal A^+\) and \(J_h^+\) are three-times continuously differentiable on the enriched spaces and agree there with \(\mathcal A\), \(\mathcal A'\), \(J\), and \(J'\); explicitly, for \(v,w\in U_h^+\) and \(\phi\in V_h^+\),
@@ -237,7 +237,7 @@ If \(u_h^+\) and \(z_h^+\) solve \eqref{eq:enriched-primal}--\eqref{eq:enriched-
 Here \(\mathcal R_+^{(3)}\) is given by \eqref{eq:nonlinear-dwr-remainder} with the exact errors replaced by their enriched-space counterparts.
 \end{theorem}
 
-Equation~\eqref{eq:enriched-exact-splitting} shows that \(\eta^+\) differs from the goal error by the remaining error of the enriched primal solution \(J(u)-J(u_h^+)\). Therefore, \(\eta^+\) can approximate the goal error only when this remaining term is sufficiently small. This situation is captured by a \emph{saturation assumption} \cite{saturation}
+\cref{eq:enriched-exact-splitting} shows that \(\eta^+\) differs from the goal error by the remaining error of the enriched primal solution \(J(u)-J(u_h^+)\). Therefore, \(\eta^+\) can approximate the goal error only when this remaining term is sufficiently small. This situation is captured by a \emph{saturation assumption} \cite{saturation}
 \begin{equation}
 |J(u)-J(u_h^+)|
 \le b_h |J(u)-J(\widetilde u)|,
@@ -252,10 +252,10 @@ Combining \eqref{eq:enriched-exact-splitting} and \eqref{eq:goal-saturation} wit
 \le \frac{1}{1-b_h}|\eta^+|.
 \label{eq:enriched-reliability-efficiency}
 \end{equation}
-Hence, under saturation, the computable estimator \(\eta^+\) bounds the unknown goal error from both sides. The upper bound gives reliability, since the estimator cannot substantially underestimate the error. The lower bound gives efficiency, since it cannot substantially overestimate it. \cite{reli_eff}
+Hence, under saturation, the computable estimator \(\eta^+\) bounds the unknown goal error from both sides \cite{reli_eff}. The upper bound gives reliability, since the estimator cannot substantially underestimate the error. The lower bound gives efficiency, since it cannot substantially overestimate it.
 
 % \yue{omit the iteration term now}
-In the computations, we always neglect both the cubic remainder and the iteration error in \cref{eq:enriched-nonlinear-dwr}. \(R_+^{(3)}\) is of higher order with respect to the primal and adjoint errors. The algebraic correction  \(\rho(\tilde{u})(\tilde{z})\), on the other hand, represents the error due to the inexact solution of the discrete primal problem. We therefore solve each discrete problem to a sufficiently small tolerance such that this term is negligible. Neglecting these two contributions yields the practical symmetric nonlinear estimator
+In the computations, we always neglect both the cubic remainder and the iteration error in \eqref{eq:enriched-nonlinear-dwr}. \(\mathcal R_+^{(3)}\) is of higher order with respect to the primal and adjoint errors. The algebraic correction  \(\rho(\tilde{u})(\tilde{z})\), on the other hand, represents the error due to the inexact solution of the discrete primal problem. We therefore solve each discrete problem to a sufficiently small tolerance such that this term is negligible. Under these approximations, we obtain the practical symmetric nonlinear estimator
 \begin{equation}
 \eta_{\mathrm{global}}
 \coloneqq
@@ -277,10 +277,10 @@ If \(\mathcal A\) is affine and \(J\) is linear, the estimator can be reduced to
 \end{equation}
 where we use the dual weight
 \begin{equation}
-z^\star=z_h^+-\Pi_{hk}z_h^+
+z^\star=z_h^+-\Pi_{h}z_h^+
 \label{eq:computable-dwr-interpolated-weight}
 \end{equation}
-as a less expensive alternative. Here, \(z_h^+\in V_h^+\) is the enriched adjoint solution, and \(\Pi_{hk}:V_{hk}^{+}\rightarrow V_{hk}\) denotes the interpolation from the enriched space--time space into the primal space. The weight \(z^\star\) avoids an additional low-order adjoint solve. 
+as a less expensive alternative. Here, \(z_h^+\in V_h^+\) is the enriched adjoint solution, and \(\Pi_{h}:V_{h}^{+}\rightarrow V_{h}\) denotes the interpolation from the enriched space--time space into the primal space. The weight \(z^\star\) avoids an additional low-order adjoint solve. 
 
 % \yue{For the dual weight, my understanding is that both \(z_h^+-z_h \quad\text{and}\quad z_h^+-I_h z_h^+ \) are theoretically admissible. The first choice seems more natural,  but I'm not sure if it has any general accuracy advantage as an estimator}
 % \pef{Maggie did some experiments and they both behave similarly, even when localised. I would use $z_h^+-I_h z_h^+$, there does not appear to be any gain to solving a low-order adjoint problem}
@@ -290,12 +290,14 @@ as a less expensive alternative. Here, \(z_h^+\in V_h^+\) is the enriched adjoin
 % \pef{I would say when we discuss how that term vanishes when Galerkin orthogonality holds, we should say that we will solve all the discrete problems to a sufficiently small tolerance so that this term is negligible. Then we can omit it in practice from both.}
 % \pef{And you can still avoid the low-order adjoint solve in the nonlinear case, by only using the primal residual. In this case the error in the estimate becomes quadratic rather than cubic. I don't suggest we do this, though.}
 
-
-When an independently computed reference value for \(J(u)\) is available, the accuracy of the global estimator is measured by the \emph{effectivity index}
+Finally, when an independently computed reference value for \(J(u)\) is available, the accuracy of the global estimator can be assessed using the \emph{effectivity index}
 \begin{equation}
 I_{\mathrm{eff}}
 \coloneqq
 \frac{\eta_{\mathrm{global}}}{J(u)-J(u_h)}.
 \label{eq:signed-effectivity}
 \end{equation}
-An effectivity index close to one indicates good agreement. Extensive numerical experience with DWR indicates that when the enriched space is constructed by polynomial degree refinement the effectivity indices are typically very close to one.
+An effectivity index close to one indicates good agreement between the estimator and the true goal error. Extensive numerical experience with DWR suggests that polynomial-degree enrichment typically yields effectivity indices close to one \cite{ENDTMAYER202419}.
+
+
+

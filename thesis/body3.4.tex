@@ -72,7 +72,7 @@ For the following experiments, the primal space is set to be $\mathrm{cG}(1) \ot
 
 \subsection{Global Terminal Goal}
 
-Since the terminal spatial-average functional $J_1$ is global in space, it retains some sensitivity to the singularity at the re-entrant corner. The adaptive computation employs the spatial bulk parameter $\theta=0.35$ and a temporal marking fraction of $0.10$.
+Since the terminal spatial-integral functional $J_1$ is global in space, it retains some sensitivity to the singularity at the re-entrant corner. The adaptive computation employs the spatial bulk parameter $\theta=0.35$ and a temporal marking fraction of $0.10$.
 
 The computed goal error exhibits an overall decreasing trend over the six adaptive cycles,
 % Its magnitude decreases from
@@ -81,9 +81,9 @@ The computed goal error exhibits an overall decreasing trend over the six adapti
 % \)
 % on the initial discretisation to $1.21\times 10^{-3}$ at adaptive iteration~7. 
 % The decrease is not strictly monotone, which is expected for a signed global quantity of interest because local space--time contributions may partially cancel after each non-uniform refinement step.
-while the global effectivity is initially poor and non-monotone, but improves during the later adaptive cycles, attaining \(1.1522\) at iteration~6. \cref{fig:lshape-terminal-meshes} shows the spatial meshes associated with four representative time slabs from the adaptive sequence. Although the primal solution has reduced regularity at the re-entrant corner for \(t>0\), the local DWR indicators depend on the interaction between the primal residual and the adjoint sensitivity. Since \(J_1\) acts only at \(t=T\), the adjoint information is introduced at the terminal time and becomes spatially smoother as it is propagated backwards. These features provide an explanation for the pronounced corner refinement in the terminal slab and the absence of comparable concentration in the earlier slabwise meshes.
-
-\cref{fig:lshape-terminal-meshes} shows a clear change in the spatial distribution of refinement across the time slabs. At \(t=0.5\) and \(t=0.75\), refinement is distributed over a broader region in the upper part of the domain, whereas the final slab exhibits a pronounced concentration near the re-entrant corner. Unlike the preceding slabs, the final slab contains the direct terminal contribution \(J_1'(u_h)(e_u(T))\). This term weights the terminal primal approximation error, which is particularly significant near the re-entrant corner because of the reduced spatial regularity. In the earlier slabs this direct terminal contribution is absent, and the indicators instead reflect the combined effect of the slab residuals and the backward-propagated adjoint weights, resulting in a more distributed pattern.
+while the global effectivity is initially poor and non-monotone, but improves during the later adaptive cycles, attaining \(1.1522\) at iteration~6. 
+% \cref{fig:lshape-terminal-meshes} shows the spatial meshes associated with four representative time slabs from the adaptive sequence. Although the primal solution has reduced regularity at the re-entrant corner for \(t>0\), the local DWR indicators depend on the interaction between the primal residual and the adjoint sensitivity. Since \(J_1\) acts only at \(t=T\), the adjoint information is introduced at the terminal time and becomes spatially smoother as it is propagated backwards. These features provide an explanation for the pronounced corner refinement in the terminal slab and the absence of comparable concentration in the earlier slabwise meshes.
+\cref{fig:lshape-terminal-meshes} shows a change in the spatial distribution of refinement across the time slabs. At \(t=0.5\) and \(t=0.75\), refinement is distributed over a broader region in the upper part of the domain, whereas the final slab exhibits a pronounced concentration near the re-entrant corner. Unlike the preceding slabs, the final slab contains the direct terminal contribution \(J_1'(u_h)(e_u(T))\). This term weights the terminal primal approximation error, which is particularly significant near the re-entrant corner because of the reduced spatial regularity. In the earlier slabs this direct terminal contribution is absent, and the indicators instead reflect the combined effect of the slab residuals and the backward-propagated adjoint weights, resulting in a more distributed pattern.
 
 % Each local DWR indicator contains residual information weighted by the corresponding primal or dual enrichment error. For the present \(\mathrm{cG}(1)\otimes\mathrm{dG}(0)\) approximation, the discrete time derivative vanishes within each slab and the discrete nonlinear flux is constant on each spatial cell. Its action against an interior cell-bubble test therefore has no cell-interior contribution, so the cell-volume recovery is driven by the manufactured right-hand side in its weak form. Writing \(u_{\mathrm{ex}}(x,t)=\phi(x)\sin t\), this action is
 % \[
@@ -140,7 +140,7 @@ For the goal functional \(J_2\), the observation rectangle
 \times
 \left(\frac{11}{16},\frac{15}{16}\right)
 \)
-is represented as a separate \texttt{Netgen} material subdomain, so that its boundary consists of mesh facets. The initial discretisation contains eight time slabs and uses the fitted mesh with \(75\) terminal spatial degrees of freedom. For the adaptive run, the D\"orfler marking fraction is set to \(\theta=0.30\). A slab is bisected when at least \(10\%\) of its cells have been selected by the global marking step. The uniform run refines every spatial cell and bisects every time slab. Both runs start from the same space--time discretisation.
+is represented as a separate Netgen material subdomain, so that its boundary consists of mesh facets. The initial discretisation contains eight time slabs and uses the fitted mesh with \(75\) terminal spatial degrees of freedom. For the adaptive run, the D\"orfler marking fraction is set to \(\theta=0.30\). A slab is bisected when at least \(10\%\) of its cells have been selected by the global marking step. The uniform run refines every spatial cell and bisects every time slab. Both runs start from the same space--time discretisation.
 
 \cref{fig:lshape-j2-comparison} compares the true \(J_2\) error against
 \(
@@ -164,19 +164,19 @@ which counts the actual slabwise primal unknowns. The errors and global effectiv
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrrrr}
 \toprule
-Strategy/iter.
+Strategy/Iter.
 & \(N_{\mathrm{st}}\)
 & \(N_{\mathrm{cell}}\)
 & \(N_t\)
-& \(\lvert J_2(u)-J_2(u_h)\rvert\)
+& \( J_2(u)-J_2(u_h)\)
 & \(\eta_{\mathrm{global}}\)
-& \(I_{\mathrm{eff}}^{\mathrm{glob}}\) \\
+& \(I_{\mathrm{eff}}\) \\
 \midrule
 uniform 1
 & \(4\,240\)
 & \(7\,424\)
 & \(16\)
-& \(3.3043\times10^{-5}\)
+& \(-3.3043\times10^{-5}\)
 & \(-3.5743\times10^{-5}\)
 & \(1.0817\) \\
 
@@ -184,7 +184,7 @@ uniform 2
 & \(31\,776\)
 & \(59\,392\)
 & \(32\)
-& \(8.0353\times10^{-6}\)
+& \(-8.0353\times10^{-6}\)
 & \(-8.2195\times10^{-6}\)
 & \(1.0229\) \\
 
@@ -192,7 +192,7 @@ uniform 3
 & \(245\,824\)
 & \(475\,136\)
 & \(64\)
-& \(2.3074\times10^{-6}\)
+& \(-2.3074\times10^{-6}\)
 & \(-2.3238\times10^{-6}\)
 & \(1.0071\) \\
 
@@ -201,7 +201,7 @@ adaptive 2
 & \(644\)
 & \(1\,016\)
 & \(8\)
-& \(2.4307\times10^{-5}\)
+& \(-2.4307\times10^{-5}\)
 & \(-2.6793\times10^{-5}\)
 & \(1.1023\) \\
 
@@ -209,7 +209,7 @@ adaptive 4
 & \(854\)
 & \(1\,431\)
 & \(8\)
-& \(1.1522\times10^{-5}\)
+& \(-1.1522\times10^{-5}\)
 & \(-1.2089\times10^{-5}\)
 & \(1.0492\) \\
 
@@ -217,7 +217,7 @@ adaptive 6
 & \(2\,488\)
 & \(4\,587\)
 & \(10\)
-& \(3.5721\times10^{-6}\)
+& \(-3.5721\times10^{-6}\)
 & \(-3.6541\times10^{-6}\)
 & \(1.0229\) \\
 
@@ -225,7 +225,7 @@ adaptive 8
 & \(10\,654\)
 & \(20\,514\)
 & \(17\)
-& \(1.7536\times10^{-6}\)
+& \(-1.7536\times10^{-6}\)
 & \(-1.7838\times10^{-6}\)
 & \(1.0172\) \\
 \bottomrule
@@ -234,7 +234,7 @@ adaptive 8
 \label{tab:lshape-j2-results}
 \end{table}
 
-The adaptive sequence reduces the goal error considerably more efficiently than uniform refinement. At adaptive iteration \(8\), it attains an error of \(1.7536\times10^{-6}\) using \(10\,654\) primal space--time degrees of freedom. By comparison, uniform iteration \(3\) uses \(245\,824\) degrees of freedom to obtain the larger error \(2.3074\times10^{-6}\). Uniform refinement therefore requires approximately \(23.1\) times as many primal space--time degrees of freedom while its final goal error is approximately \(24\%\) larger. The global effectivity indices in the selected adaptive iterations approach to one, from \(1.1023\) to \(1.0172\).
+The adaptive sequence reduces the goal error considerably more efficiently than uniform refinement. At adaptive iteration \(8\), it attains an error of \(1.7536\times10^{-6}\) using \(10\,654\) primal space--time degrees of freedom. By comparison, uniform iteration \(3\) uses \(245\,824\) degrees of freedom to obtain the larger error \(2.3074\times10^{-6}\). Uniform refinement therefore requires approximately \(23.1\) times as many primal space--time degrees of freedom while its final goal error is approximately \(31.6\%\) larger. The global effectivity indices in the selected adaptive iterations approach one, from \(1.1023\) to \(1.0172\).
 
 % The adaptive sequence reduces the error much more rapidly than uniform refinement. Uniform refinement uses approximately $245824/2871\simeq 85.6$ times as many primal space--time degrees of freedom to reach a comparable goal accuracy. 
 % At the initial level the global and localised estimates are $-1.6628\times10^{-4}$ and $-1.6645\times10^{-4}$, giving effectivities $0.925$ and $0.926$, respectively. Uniform refinement subsequently drives both indices smoothly towards one. The adaptive global index remains between $0.925$ and $1.321$ through iterate~6, despite changing only a small fraction of the space--time cells.
@@ -251,7 +251,7 @@ The adaptive sequence reduces the goal error considerably more efficiently than 
 % \pef{It is somewhat surprising, I think this is the first time I have seen the saturation assumption fail!}
 % \yue{the goal error increases from ite. 6 to 7. I excluded ite 7 in Fig 3.10 for now, but I don't know how to explain this}
 
-Finally, \cref{fig:lshape-j1-meshes} show the two-dimensional adapted meshes at different times.
+Finally, \cref{fig:lshape-j1-meshes} shows the two-dimensional adapted meshes at different times.
 \begin{figure}[!h]
   \centering
   \begin{subfigure}[t]{0.31\textwidth}

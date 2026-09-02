@@ -1,10 +1,10 @@
 \section{Benjamin--Bona--Mahony (BBM) Equation}
 \label{sec:bbm-experiment}
 
-In this section, we turn to a one-dimensional nonlinear BBM experiment, originally introduced as a regularised long-wave model by Benjamin, Bona, andMahony~\cite{BBM}. It tests the automated space--time localisation for a nonlinear dispersive equation, for which the nonlinear DWR identity is required. Moreover, it tests whether the entity recovery remains complete when the time derivative is paired through a spatial $H^1$ bilinear form rather than the spatial $L^2$ pairing used in the previous heat and advection--diffusion examples.
+In this section, we turn to a one-dimensional nonlinear BBM experiment, originally introduced as a regularised long-wave model by Benjamin, Bona, and Mahony~\cite{BBM}. It tests the automated space--time localisation for a nonlinear dispersive equation, for which the nonlinear DWR identity is required. Moreover, it tests whether the entity recovery remains complete when the time derivative is paired through a spatial $H^1$ bilinear form rather than the spatial $L^2$ pairing used in the previous heat and advection--diffusion examples.
 
 
-\subsection{Primal Problem and Solitary Wave}
+\subsection{Primal Problem and Goal Functional}
 
 Let $\Omega=(0,L)$ and impose periodic boundary conditions by identifying $x=0$ with $x=L$. The spatial domain is the one-dimensional torus
 \[
@@ -52,14 +52,18 @@ For $c\in(0,1)$, BBM admits the solitary-wave solution on the real line
 We take $L=100$, $c=0.5$, and $x_0=30$. The amplitude is one and the propagation speed is
 \[
   s=\frac{1}{1-c^2}=\frac43.
-  \label{eq:bbm-wave-speed}
+  % \label{eq:bbm-wave-speed}
 \]
 Thus the wave centre moves from $x_0=30$ to $x_0+sT=54$ at $T=18$.
+% We take \(L=100\), \(c=0.5\), and \(x_0=30\). Since the domain is large relative to the soliton width, the real-line profile is exponentially small at the periodic seam. We therefore use its restriction to \((0,L)\) as an effectively periodic reference profile and neglect the resulting exponentially small mismatch. The amplitude is one and the propagation speed is
+% \[
+% s=\frac{1}{1-c^2}=\frac43.
+% \]
 %\pef{Does that matter?}
 % Its exponentially small tails therefore make the long periodic computation a close approximation to the solitary wave on the real line.
 
 
-\subsection{Quantity of Interest}
+% \subsection{Quantity of Interest}
 
 We take the terminal quantity of interest
 \begin{equation}
@@ -72,7 +76,7 @@ where
   \qquad x_s=54,\qquad r_s=1.
   \label{eq:bbm-sensor}
 \end{equation}
-It measures the wave in a narrow neighbourhood of its predicted terminal position and is therefore sensitive to phase, amplitude, and shape errors near the sensor. High-order quadrature of the solitary wave gives
+It measures the wave in a narrow neighbourhood of its predicted terminal position and is therefore sensitive to phase, amplitude, and shape errors near the sensor. High-order quadrature of this reference profile gives
 \begin{equation}
 J_{\mathrm{ref}}=J(u_{\mathrm{sol}})=1.7203.
   \label{eq:bbm-reference-goal}
@@ -114,14 +118,14 @@ J_{\mathrm{ref}}=J(u_{\mathrm{sol}})=1.7203.
 \subsection{Localisation: Mixed Space--Time Ridge}
 \label{sec:bbm-mixed-ridge-specialisation}
 
-This subsection identifies the additional support entity. The derivation is used only to interpret the weak functional: the implementation continues to evaluate and project the original weak residual and does not insert a case-specific strong-residual formula.
-
+This subsection identifies the additional support entity. 
+% The implementation continues to evaluate and project the original weak residual and does not insert a case-specific strong-residual formula.
 Let
 \begin{equation}
-  j_n=u_h(t_{n-1}^{+})-P_nu_h(t_{n-1}^{-})
+  j_n=u_h(t_{n-1}^{+})-P_{n-1}u_h(t_{n-1}^{-})
   \label{eq:bbm-discrete-jump}
 \end{equation}
-be the dG interface defect, including transfer $P_n$ from the preceding slab when consecutive slabs use different spatial meshes. For the spatial $L^2$ mass pairing used by the heat and standard advection--diffusion problems, the dG jump contributes
+be the dG interface defect, including the transfer $P_{n-1}$ from the preceding slab when consecutive slabs use different spatial meshes. For the spatial $L^2$ mass pairing used by the heat and standard advection--diffusion problems, the dG jump contributes
 \begin{equation}
   \rho_{n,L^2}^{\mathrm{tf}}(v)=-(j_n,v(t_{n-1}^{+}))_\Omega.
   \label{eq:bbm-l2-interface-contrast}
@@ -143,14 +147,10 @@ The derivative term acts over the temporal face in the original weak form. Its c
     ([\![\partial_xj_n]\!],v)_F.
   \label{eq:bbm-temporal-ibp}
 \end{equation}
-The first sum is supported on $K\times\{t_{n-1}\}$, the interior of a temporal face. The second is supported on
-\begin{equation}
-  F\times\{t_{n-1}\},
-  \label{eq:bbm-mixed-entity}
-\end{equation}
+The first sum is supported on $K\times\{t_{n-1}\}$, the interior of a temporal face. The second is supported on \( F\times\{t_{n-1}\},\)
 the intersection of a spatial facet and the temporal interface. This is the mixed space--time ridge. In one spatial dimension a facet $F$ is a point, so the mixed ridge appears as a zero-dimensional space--time corner in the $(x,t)$ diagram.
 
-For the present cG1 discretisation, $j_n$ is piecewise linear. Therefore
+For the present cG(1) discretisation, $j_n$ is piecewise linear. Therefore
 \begin{equation*}
   \partial_{xx}j_n=0\quad\text{inside each cell},
   \qquad
@@ -164,14 +164,14 @@ The derivative part of the interface defect can consequently have a substantial 
 
 \subsection{Results and Interpretation}
 
-The global estimator uses the nonlinear DWR identity~\cref{eq:practical-nonlinear-estimator}. The low-order and enriched spaces are, respectively,
+The global estimator uses the practical nonlinear DWR estimator~\eqref{eq:practical-nonlinear-estimator}. The low-order and enriched spaces are, respectively,
 \begin{equation*}
   V_h^{\mathrm{low}}=\mathrm{cG}(1)\otimes\mathrm{dG}(0),
   \qquad
   V_h^+=\mathrm{cG}(2)\otimes\mathrm{dG}(1).
   % \label{eq:bbm-discrete-spaces}
 \end{equation*}
-We take the D\"orfler marking fraction as $0.35$ and bisect a time slab when at least $10\%$ of its spatial cells are selected. We have initially $50$ spatial cells and $6$ time slabs. The terminal time is set to be $T = 18$.
+We take the D\"orfler marking fraction as $0.35$ and bisect a time slab when at least $10\%$ of its spatial cells are selected. We initially use $50$ spatial cells and $6$ time slabs. The terminal time is set to be $T = 18$.
 
 To verify algebraic completeness as stated in \cref{sec:bbm-mixed-ridge-specialisation}, each adaptive iterate is post-processed on the same primal solution, adjoint solution, and mesh in two ways: with all recovered entities and after deleting only the signed mixed-ridge contribution.
 % Define
@@ -212,7 +212,7 @@ Including the mixed-ridge contribution yields global--local agreement up to floa
 %   \label{fig:bbm-mixed-ridge-ablation}
 % \end{figure}
 
-\Cref{fig:bbm-mesh-evolution} displays the adapted meshes in the $(x,t)$ plane. The initial mesh is uniform. At iteration \(6\), local spatial and temporal refinements form a recognisable diagonal corridor from the initial wave position towards the terminal sensor. By iteration $12$, this corridor is substantially denser, while cells far from it remain comparatively coarse. Its alignment with the exact space--time wave whose centre moves from $x=30$ at $t=0$ to $x=54$ at $T=18$.
+\Cref{fig:bbm-mesh-evolution} displays the adapted meshes in the $(x,t)$ plane. The initial mesh is uniform. At iteration \(6\), local spatial and temporal refinements form a recognisable diagonal corridor from the initial wave position towards the terminal sensor. By iteration $12$, this corridor is substantially denser, while cells far from it remain comparatively coarse. This corridor aligns with the space--time trajectory of the wave, whose centre moves from $x=30$ at $t=0$ to $x=54$ at $T=18$.
 
 \begin{figure}[!htbp]
   \centering
@@ -260,13 +260,13 @@ Finally, selected iterations up to iteration \(12\) are reported in \cref{tab:bb
 \begin{tabular}{lllllrr}
 \toprule
 Iter. & Space--time cells &
-$N_t$ & Terminal DoFs & $\lvert J_{\mathrm{ref}}-J(u_h)\rvert$ & $\eta_{\mathrm{global}}$ & $I_{\mathrm{eff}}^{\mathrm{glob}}$ \\
+$N_t$ & Terminal DoFs & $ J_{\mathrm{ref}}-J(u_h)$ & $\eta_{\mathrm{global}}$ & $I_{\mathrm{eff}}^{\mathrm{glob}}$ \\
 \midrule
  0 &     300 &     6 &    50 & $1.1720$                   & $8.5624\times10^{-1}$ & 0.7306 \\
  3 & 346 & 6 & 58 & $1.1662$ & $8.6313\times10^{-1}$ & 0.7401 \\
  6 &     870 &    12 &    73 & $9.7814\times10^{-1}$     & $9.0395\times10^{-1}$ & 0.9242 \\
- 9 &   2,545 &    27 &   111 & $7.4250\times10^{-1}$     & $7.3270\times10^{-1}$ & 0.9868 \\
-12 &  10,431 &    81 &   263 & $4.1940\times10^{-1}$     & $4.1126\times10^{-1}$ & 0.9806 \\
+ 9 &   2\,545 &    27 &   111 & $7.4250\times10^{-1}$     & $7.3270\times10^{-1}$ & 0.9868 \\
+12 &  10\,431 &    81 &   263 & $4.1940\times10^{-1}$     & $4.1126\times10^{-1}$ & 0.9806 \\
 % 15 &  42,552 &   206 &   861 & $1.9764\times10^{-1}$     & $1.8692\times10^{-1}$ & 0.9458 \\
 % 18 & 189,670 &   601 & 1,956 & $9.1811\times10^{-2}$     & $8.2626\times10^{-2}$ & 0.9000 \\
 % 20 & 530,315 & 1,208 & 3,757 & $5.2067\times10^{-2}$     & $4.5028\times10^{-2}$ & 0.8648 \\

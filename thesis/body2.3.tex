@@ -1,9 +1,9 @@
 \section{Marking and Refinement}
 \label{sec:marking-refinement}
 
-The localised DWR contributions defined in \cref{sec:space-time-local-indicator-construction} are associated with space--time cells \(Q_{K,n}=K\times I_n\). Applying a standard marking strategy like D\"orfler marking \cite{Dorfler1996} would lead to an unstructured mesh in space-time. However, we aim to retain the tensor product structure of our space–time mesh, while allowing the spatial mesh to vary from slab to slab, as this allows for standard timestepping. We therefore need to devise a specialised marking strategy. 
+The localised DWR contributions defined in \cref{sec:space-time-local-indicator-construction} are associated with space--time cells \(Q_{K,n}=K\times I_n\). Direct refinement of the individual space--time cells selected by a standard marking strategy, such as D\"orfler marking~\cite{Dorfler1996}, would generally produce an unstructured space--time mesh. Instead, we retain a tensor-product mesh on each time slab while allowing the spatial mesh to vary between slabs, so that the problem can still be advanced using a standard slabwise time-stepping procedure. We therefore need to devise a specialised marking strategy. 
 
-We separate the our refinement decisions into spatial and temporal components. With \(\eta_{K,n}\) denoting the signed local DWR contribution associated with \(Q_{K,n}\), we denote their absolute values
+We separate our refinement decisions into spatial and temporal components. With \(\eta_{K,n}\) denoting the signed local DWR contribution associated with \(Q_{K,n}\), we denote
 \begin{equation}
   s_{K,n}\coloneqq |\eta_{K,n}|,
   \qquad
@@ -12,7 +12,7 @@ We separate the our refinement decisions into spatial and temporal components. W
   \label{eq:marking-activity}
 \end{equation}
 
-We prescribe the D\"orfler marking parameter \(\theta\in(0,1]\), denoting the fraction of the total sum that should be reached by the refinement. The global space--time marking set \(\mathcal M_{\mathrm{st}}\) is then chosen as the smallest set of pairs \((K,n)\) satisfying
+We prescribe the D\"orfler marking parameter \(\theta\in(0,1]\), denoting the fraction of the total indicator mass that must be captured by the marked set. The global space--time marking set \(\mathcal M_{\mathrm{st}}\) is then chosen as the smallest set of pairs \((K,n)\) satisfying
 \begin{equation}
   \sum_{(K,n)\in\mathcal M_{\mathrm{st}}}s_{K,n}
   \ge \theta S.
@@ -29,15 +29,15 @@ For each time slab \(I_n\), we collect the marked space--time cells whose second
   \right\}.
   \label{eq:slabwise-marked-cells}
 \end{equation}
-The spatial mesh associated with \(I_n\) is then refined only in these marked cells:
+% The spatial mesh associated with \(I_n\) is then refined only in these marked cells:
+The cells in \(\mathcal{M}_n\) are then marked for spatial refinement, producing
 \begin{equation}
   \mathcal T_n^{\mathrm{new}}
   \coloneqq
   \operatorname{refine}(\mathcal T_n,\mathcal M_n).
   \label{eq:slabwise-spatial-refinement}
 \end{equation}
-
-The temporal refinement decision is made independently at slab level. A slab is bisected when the marked cells occupy at least a prescribed fraction \(\varphi_t\) of its spatial mesh:
+A separate temporal refinement decision is then made at slab level. The slab \(I_n\) is bisected when the marked cells constitute at least a prescribed fraction \(\varphi_t\) of its spatial mesh:
 \begin{equation}
   \frac{|\mathcal M_n|}{|\mathcal T_n|}
   \ge \varphi_t.
@@ -53,16 +53,16 @@ The complete procedure therefore consists of one global space--time bulk selecti
 
 The complete solve--estimate--mark--refine cycle is summarised in \cref{alg:complete-adaptive-cycle}.
 
-\begin{algorithm}[htbp]
+\begin{algorithm}[!htbp]
 \caption{Goal-oriented slabwise space--time adaptive cycle}
 \label{alg:complete-adaptive-cycle}
 \begin{algorithmic}[1]
-\Require PDE, goal functional \(J\), initial slab meshes, estimator type, bulk parameter \(\theta\), temporal threshold \(\varphi_t\)
+\Require PDE residual, goal functional \(J\), initial slab meshes, estimator and enrichment choice, marking parameters \(\theta\) and \(\varphi_t\), and tolerances $\mathrm{TOL}$ and $\mathrm{TOL}_{\mathrm{alg}}$.
 
 \State Initialise the current space--time discretisation
 
 \While{the stopping criterion is not satisfied}
-  \State Construct the current and enriched spatial spaces, together with the transfer operators \(P_{n-1}\) and \(P_{n-1}^{\ast}\) defined in \eqref{eq:forward-slab-transfer} and \eqref{eq:mass-adjoint-transfer-definition}.
+  \State Construct the current and enriched spatial spaces, together with the transfer operators \(P_{n-1}\) and \(P_{n-1}^{\ast}\) defined in \cref{sec:slab-transfer-adjoint}.
   
   \State Solve the primal problem using the dG-in-time formulation \eqref{eq:global-dg-semilinear-form} to algebraic
   tolerance \(\mathrm{TOL}_{\mathrm{alg}}\).
@@ -73,8 +73,8 @@ The complete solve--estimate--mark--refine cycle is summarised in \cref{alg:comp
     \State Form \(e_u\) and \(e_z\) as defined in \eqref{eq:nonlinear-dwr-discrete-errors}.
     \State Assemble \(\eta_{\mathrm{global}}\) from \eqref{eq:practical-nonlinear-estimator}.
   \Else
-  \State Solve the enriched adjoint problem defined by \eqref{eq:discrete-nonlinear-adjoint}. 
-  \State Form \(z^\star=z_h^+-I_hz_h^+\) according to \eqref{eq:computable-dwr-interpolated-weight}.
+  \State Solve the enriched adjoint problem defined by \eqref{eq:enriched-adjoint}. 
+  \State Form \(z^\star=z_h^+-\Pi_{h}z_h^+\) according to \eqref{eq:computable-dwr-interpolated-weight}.
     \State Assemble \(\eta_{\mathrm{global}}\) from \eqref{eq:computable-dwr-two-solves}.
   \EndIf
   
@@ -103,17 +103,20 @@ The complete solve--estimate--mark--refine cycle is summarised in \cref{alg:comp
 The time-dependent problems are supplied as semidiscrete UFL residuals using Firedrake and Irksome. Firedrake provides the spatial finite-element spaces and variational solvers, while Irksome's \texttt{TimeStepper} makes the fully-discrete variational problems by applying the chosen discontinuous Galerkin time discretisation \cite{andrews2026automatedgalerkintimestepping}.
 
 % \textcolor{blue}{Using pyadjoint and discard the current ufl-generated adjoint solver would be a better idea for automation. Should I rerun the experiments and so only pyadjoint would be included here? or maybe I'll list this as a future work that will be carried out soon}
-The present implementation constructs the discrete adjoint explicitly from the UFL representation. In compact form, the discrete adjoint satisfies
+The present implementation constructs the discrete adjoint explicitly from the UFL representation. Let \(\mathcal A_h(U_h)\) denote the assembled discrete residual vector. In coefficient form, the discrete adjoint satisfies
 \[
-  \mathcal F_h'(U_h)^*Z_h=J_h'(U_h).
+[\mathcal A_h'(U_h)]^{\mathsf T}\mathbf Z_h
+=
+\mathbf J_h'(U_h).
 \]
-UFL \texttt{derivative} constructs the linearisation of the primal residual, \texttt{adjoint} transposes the resulting bilinear form, and \texttt{action} inserts the current adjoint coefficient. For nonlinear problems, the resulting form is evaluated at the saved primal polynomial at the corresponding physical time. The common solver supplies the reverse-time mass term and solves the resulting linear problem slab by slab using the same Irksome dG machinery.
+
+UFL’s \texttt{derivative} operation constructs the linearisation of the primal residual, \texttt{adjoint} transposes the resulting bilinear form, and \texttt{action} inserts the current adjoint coefficient. For nonlinear problems, the resulting form is evaluated at the saved primal polynomial at the corresponding physical time. The common solver supplies the reverse-time mass term and solves the resulting linear problem slab by slab using the same Irksome dG machinery.
 
 Terminal and running contributions to the goal functional are handled separately because they enter the reverse-time problem differently. The derivative of a terminal goal determines the final adjoint state, whose sensitivity is subsequently propagated through all preceding slabs. The derivative of a running goal instead acts as a source throughout the backward solve. Both derivatives are generated symbolically from the user-supplied UFL goal forms.
 
 %A more fully automated alternative is provided by \texttt{firedrake-adjoint}, following the high-level discrete-adjoint methodology of \cite{Farrell_Ham_Funke_Rognes_2013} and implemented using Pyadjoint \cite{Mitusch2019}. It records the forward operations on a tape and traverses them in reverse to generate the corresponding discrete adjoint. This removes the need to write an explicit reverse-time solver.
 
-The current implementation retains the complete forward trajectory in memory. For longer simulations, Firedrake's automated adjoint derivation supports checkpointing, which stores only selected forward states and recomputes intermediate states during the reverse traversal. This reduces memory consumption at the cost of additional forward computation. \cite{checkpointing}
+The current implementation retains the complete forward trajectory in memory. For longer simulations, Firedrake's automated adjoint derivation supports checkpointing \cite{checkpointing}, which stores only selected forward states and recomputes intermediate states during the reverse traversal. This reduces memory consumption at the cost of additional forward computation.
 
 % https://www.firedrakeproject.org/checkpointing.html#using-checkpointing-in-adjoint-simulations
 
@@ -123,9 +126,10 @@ The current implementation retains the complete forward trajectory in memory. Fo
 The primal residual is localised using a hierarchical bubble--cone recovery. Firedrake's scalar Bubble (\texttt{B}) and FacetBubble (\texttt{FB}) element families provide the auxiliary cell-interior and facet-supported test functions, respectively \cite{Firedrake}.
 Temporal integration is performed using Gauss--Legendre quadrature, while the spatial forms are assembled by Firedrake using an explicitly selected quadrature degree.
 
-The default computations use degree-one polynomial densities for the cell, facet, and temporal recovery stages, together with five-point Gauss--Legendre quadrature in time. The resulting global--local discrepancy is monitored through the localisation gap.
+The default computations use degree-one polynomial densities for the cell, facet, and temporal recovery stages, together with five-point Gauss--Legendre quadrature in time. The resulting global--local discrepancy is monitored at every adaptive iteration through the relative localisation gap. 
+% detailed values are reported below only where they are relevant to the interpretation of the results.
 
-In the two-dimensional examples, the initial geometry-conforming meshes and the marked-cell spatial refinements are generated with \texttt{Netgen} and imported through \texttt{Firedrake}'s interface \cite{Schoeberl1997Netgen,Firedrake}.
+In the two-dimensional examples, the initial geometry-conforming meshes and the marked-cell spatial refinements are generated with Netgen and imported through Firedrake's interface \cite{Schoeberl1997Netgen,Firedrake}.
 
 % https://www.firedrakeproject.org/variational-problems.html
 
@@ -167,5 +171,5 @@ In coefficient form,
 
 In the implementation, Firedrake assembles \(P_{n-1}\) as a cross-mesh finite-element interpolation operator. The forward trace is obtained by applying this matrix, while the reverse transfer is evaluated by a target mass action, a transpose matrix action, and a source mass solve as stated in ~\eqref{eq:mass-adjoint-transfer-matrix}.
 
-The construction above is formulated at the nodal interpolation and does not impose physical constraints. For applications involving conserved, or divergence-free quantities, however, the transfer \(P_{n-1}\) must be carefully chosen to preserve the relevant physical properties, see, e.g., \cite{non-flow}.
+The construction above is formulated in terms of nodal interpolation and does not impose physical constraints. For applications involving conserved or divergence-free quantities, however, the transfer \(P_{n-1}\) must be carefully chosen to preserve the relevant physical properties, see, e.g., \cite{non-flow}.
 
